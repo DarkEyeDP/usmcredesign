@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Root-level dependencies / temp files
+node_modules/
+
+# App dependencies / build artifacts
+usmc-redesign/node_modules/
+usmc-redesign/dist/
+usmc-redesign/.next/
+usmc-redesign/.tmp-test-build/
+
+# Coverage / test output
+coverage/
+usmc-redesign/coverage/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo

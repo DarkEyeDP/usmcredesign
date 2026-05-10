@@ -1,0 +1,211 @@
+/* Custom animations for tactical military interface */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.tactical-glow {
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.scan-effect {
+  animation: scan-line 3s linear infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Hide scrollbars until the scroll region is being interacted with */
+* {
+  scrollbar-width: none;
+}
+
+*:hover,
+*:focus-within {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(239, 68, 68, 0.45) #000;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+*:hover::-webkit-scrollbar,
+*:focus-within::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*:hover::-webkit-scrollbar-track,
+*:focus-within::-webkit-scrollbar-track {
+  background: #000;
+  border-left: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+*:hover::-webkit-scrollbar-thumb,
+*:focus-within::-webkit-scrollbar-thumb {
+  background: rgba(239, 68, 68, 0.3);
+  border-radius: 0;
+}
+
+*:hover::-webkit-scrollbar-thumb:hover,
+*:focus-within::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 68, 68, 0.5);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(239, 68, 68, 0.3);
+  color: white;
+}
+
+/* Pointer cursor on all interactive elements */
+button,
+[role="button"],
+select,
+a,
+label[for],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+/* Prevent iOS Safari auto-zoom on input focus (triggered when font-size < 16px) */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Disable default focus outline, replace with tactical style */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 1px solid rgba(239, 68, 68, 0.5);
+  outline-offset: 2px;
+}
+
+@media print {
+  @page {
+    margin: 0.5in;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-maradmin-root {
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0 !important;
+  }
+
+  .print-maradmin-detail {
+    display: block !important;
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: #fff !important;
+  }
+
+  .print-maradmin-body,
+  .print-maradmin-content {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .print-maradmin-content {
+    padding: 0 !important;
+  }
+
+  .print-maradmin-content h2,
+  .print-maradmin-content span,
+  .print-maradmin-content div,
+  .print-maradmin-content li,
+  .print-maradmin-content p {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  .print-maradmin-content a {
+    color: #000 !important;
+    text-decoration: underline !important;
+  }
+
+  .print-maradmin-content table {
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  .print-maradmin-content thead {
+    display: table-header-group;
+  }
+
+  .print-maradmin-content tr,
+  .print-maradmin-content img {
+    page-break-inside: avoid;
+  }
+
+  .print-maradmin-content th,
+  .print-maradmin-content td {
+    color: #000 !important;
+    border-color: rgba(0, 0, 0, 0.25) !important;
+    background: transparent !important;
+  }
+}

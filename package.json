@@ -1,0 +1,10 @@
+{
+  "name": "usmcredesign",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix usmc-redesign run dev",
+    "build": "npm --prefix usmc-redesign run build",
+    "test": "npm --prefix usmc-redesign run test",
+    "install:app": "npm --prefix usmc-redesign install"
+  }
+}

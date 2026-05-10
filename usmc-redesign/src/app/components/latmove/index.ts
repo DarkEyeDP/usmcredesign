@@ -1,0 +1,1 @@
+export { LateralMovePage } from './LateralMovePage';
