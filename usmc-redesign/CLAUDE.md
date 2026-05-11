@@ -18,8 +18,8 @@ This is a React SPA using **react-router v7** (`BrowserRouter` + `Routes`/`Route
 | Home | `/` | `HomePage` | `pages/` |
 | Messages / MARADMIN | `/messages` | `MARADMINPage` | `features/maradmin/` |
 | Pay & Benefits | `/pay-benefits` | `PayBenefitsPage` | `features/pay/` |
-| Basic Pay | `/basic-pay` | `BasicPayPage` | `features/pay/` |
-| Bonuses | `/bonuses` | `BonusesPage` | `features/pay/` |
+| Basic Pay | `/pay-benefits/basic-pay` | `BasicPayPage` | `features/pay/` |
+| Bonuses | `/pay-benefits/bonuses` | `BonusesPage` | `features/pay/` |
 | Education | `/education` | `EducationPage` | `pages/` |
 | Lateral Move | `/lateral-move` | `LateralMovePage` | `features/latmove/` |
 | Stay Marine | `/stay-marine` | `StayMarinePage` | `pages/` |

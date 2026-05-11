@@ -187,12 +187,29 @@ export function BonusesPage() {
               Estimate a FY27 Selective Retention Bonus Program payout using your rank, zone, PMOS, contract length,
               and kicker qualifiers. Built from official MARADMIN data.
             </p>
-            <button
-              onClick={() => navigate('/pay-benefits')}
-              className="flex items-center gap-2 text-[13px] font-bold tracking-widest text-red-500 transition-colors hover:text-red-400"
-            >
-              RETURN TO PAY & BENEFITS <ChevronRight className="h-3 w-3" />
-            </button>
+          </div>
+
+          {/* Pay section tabs */}
+          <div className="flex items-center overflow-x-auto px-4 sm:px-8 -mb-px">
+            {[
+              { label: 'OVERVIEW', path: '/pay-benefits' },
+              { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+              { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
+            ].map(({ label, path }) => {
+              const active = path === '/pay-benefits/bonuses';
+              return (
+                <button
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {label}
+                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

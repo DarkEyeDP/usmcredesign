@@ -23,24 +23,28 @@ import {
   type StoredPayOverviewSettings,
 } from './payOverviewStorage';
 
-const tabs = ['OVERVIEW', 'ACTIVE DUTY', 'RESERVE', 'VETERANS & FAMILIES', 'TOOLS & RESOURCES'];
+const payNavTabs = [
+  { label: 'OVERVIEW', path: '/pay-benefits' },
+  { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+  { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
+];
 
 const popularTopics = [
   { label: 'Basic Pay', desc: 'Pay scales and charts', path: '/pay-benefits/basic-pay' },
+  { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
   { label: 'Allowances', desc: 'BAH, BAS, and more' },
   { label: 'Special & Incentive Pays', desc: 'Career and skill incentives' },
-  { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
   { label: 'Taxes', desc: 'Federal and state information' },
   { label: 'Leave & Permissive TDY', desc: 'Policy and pay impacts' },
   { label: 'Pay Forms & Documents', desc: 'DD Forms and resources' },
 ];
 
 const benefits = [
-  { label: 'HEALTH CARE', desc: 'Comprehensive medical, dental, and vision coverage.' },
-  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.' },
-  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.' },
-  { label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and their families.' },
-  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.' },
+  { label: 'HEALTH CARE', desc: 'Comprehensive medical, dental, and vision coverage.', glyph: 'U' },
+  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.', glyph: 'S' },
+  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.', glyph: 'M' },
+  { label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and their families.', glyph: 'C' },
+  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.', glyph: '1775' },
 ];
 
 const tools = [
@@ -126,7 +130,6 @@ function formatShortDate(date: Date) {
 
 export function PayBenefitsPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('OVERVIEW');
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [storedSettings, setStoredSettings] = useState<StoredPayOverviewSettings>(() => readStoredPayOverviewSettings());
   const [yearsInput, setYearsInput] = useState(() => String(readStoredPayOverviewSettings().yearsOfService));
@@ -297,7 +300,7 @@ export function PayBenefitsPage() {
         }} />
         <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-900/30" />
 
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
+        <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           {/* Financial Readiness overlay card */}
           <div className="absolute top-5 right-8 border border-white/10 bg-black/60 px-5 py-4 text-right">
             <div className="text-xs font-black text-white tracking-widest mb-1">FINANCIAL READINESS</div>
@@ -316,34 +319,32 @@ export function PayBenefitsPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2"
+              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-3"
             >
               PAY &<br />BENEFITS
             </motion.h1>
-            <p className="text-[14px] text-gray-400 max-w-xs leading-relaxed mb-3">
+            <p className="text-[14px] text-gray-400 max-w-xs leading-relaxed mb-4">
               Competitive pay. Comprehensive benefits. Financial security for you and your family, today and tomorrow.
             </p>
-            <button className="flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-              MANAGE MY PAY <ChevronRight className="w-3 h-3" />
-            </button>
           </div>
 
-          {/* Tabs — flush at bottom so active underline sits on the hero border */}
+          {/* Tabs */}
           <div className="flex items-center px-4 md:px-8 -mb-px overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                  activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                }`}
-              >
-                {tab}
-                {activeTab === tab && (
-                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="payTabLine" />
-                )}
-              </button>
-            ))}
+            {payNavTabs.map(({ label, path }) => {
+              const active = path === '/pay-benefits';
+              return (
+                <button
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {label}
+                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -488,10 +489,10 @@ export function PayBenefitsPage() {
                 return (
                   <div key={i} className={rowClassName}>
                     <div>
-                      <div className="text-sm text-gray-300">{topic.label}</div>
-                      <div className="text-xs text-gray-600">{topic.desc}</div>
+                      <div className="text-sm text-white/25">{topic.label}</div>
+                      <div className="text-xs text-gray-700">{topic.desc}</div>
                     </div>
-                    <ChevronRight className="w-3 h-3 text-gray-700 flex-shrink-0" />
+                    <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   </div>
                 );
               })}
@@ -512,7 +513,7 @@ export function PayBenefitsPage() {
           {benefits.map((b, i) => (
             <motion.div
               key={i}
-              className="group cursor-pointer"
+              className="group cursor-pointer flex flex-col"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
@@ -522,14 +523,12 @@ export function PayBenefitsPage() {
                   background: `linear-gradient(${135 + i * 15}deg, rgba(20,10,5,1) 0%, rgba(5,5,5,1) 100%)`
                 }} />
                 <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                  <div className="text-5xl font-black text-white">{b.label.charAt(0)}</div>
+                  <div className="text-5xl font-black text-white">{b.glyph}</div>
                 </div>
               </div>
               <div className="text-sm font-bold text-white tracking-wide mb-1">{b.label}</div>
-              <p className="text-[13px] text-gray-500 leading-relaxed mb-2">{b.desc}</p>
-              <button className="flex items-center gap-1 text-xs text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-                →
-              </button>
+              <p className="text-[13px] text-gray-500 leading-relaxed mb-2 flex-1">{b.desc}</p>
+              <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
             </motion.div>
           ))}
         </div>

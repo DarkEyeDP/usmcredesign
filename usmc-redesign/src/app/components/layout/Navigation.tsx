@@ -9,7 +9,8 @@ interface NavigationProps {
   onToggleExpanded: () => void;
 }
 
-const SIDEBAR_VERSION = 'v0.0.1';
+declare const __APP_VERSION__: string;
+const SIDEBAR_VERSION = `v${__APP_VERSION__}`;
 
 const loggedOutItems = [
   { path: '/',             icon: Home,          label: 'HOME' },
