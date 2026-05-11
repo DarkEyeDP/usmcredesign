@@ -2,6 +2,7 @@ import { getMOSList } from './db/queries';
 import { getSkillMatch } from './db/mos-skills';
 import { CERT_BY_ID } from './db/cert-library';
 import { DEGREE_FIELD_BY_ID } from './db/degree-field-library';
+import { getLateralMoveBonusRange } from '@/app/features/pay/srbpCalculator';
 import type { SkillTag } from './db/mos-skills';
 import type { RequirementGroup, UserScores } from './db/schema';
 import type {
@@ -49,6 +50,19 @@ const EDUCATION_ORDER: Record<string, number> = {
   doctorate: 6,
   professional: 6,
 };
+
+const HIGH_DEMAND_LATMOVE_MOS = new Set([
+  '0211',
+  '0321',
+  '0372',
+  '1751',
+  '2336',
+  '3044',
+  '4133',
+  '4821',
+  '5821',
+  '7316',
+]);
 
 /** Returns true if the user meets ALL score conditions in at least ONE requirement group. */
 export function meetsReqs(scores: UserScores, reqs: RequirementGroup[]): boolean {
@@ -335,6 +349,8 @@ export function buildResults(
         skillMatch,
         matchingCertIds: matchingCertIds.length > 0 ? matchingCertIds : undefined,
         matchingDegreeFieldIds: matchingDegreeFieldIds.length > 0 ? matchingDegreeFieldIds : undefined,
+        lateralMoveBonusRange: getLateralMoveBonusRange(m.id),
+        isHighDemandLatMove: HIGH_DEMAND_LATMOVE_MOS.has(m.id),
       };
     });
 
@@ -365,6 +381,26 @@ export function sortResults(results: ResultItem[], sortBy: SortMode): ResultItem
         return (b.skillMatch?.shared.length ?? 0) - (a.skillMatch?.shared.length ?? 0);
       }
       if (b.match !== a.match) return b.match - a.match;
+      return a.id.localeCompare(b.id);
+    }
+    if (sortBy === 'bonus') {
+      const aHasBonus = Boolean(a.lateralMoveBonusRange);
+      const bHasBonus = Boolean(b.lateralMoveBonusRange);
+
+      if (aHasBonus !== bHasBonus) return aHasBonus ? -1 : 1;
+
+      const aMax = a.lateralMoveBonusRange?.max ?? -1;
+      const bMax = b.lateralMoveBonusRange?.max ?? -1;
+      if (bMax !== aMax) return bMax - aMax;
+
+      const aMin = a.lateralMoveBonusRange?.min ?? -1;
+      const bMin = b.lateralMoveBonusRange?.min ?? -1;
+      if (bMin !== aMin) return bMin - aMin;
+
+      if (b.match !== a.match) return b.match - a.match;
+      if ((b.skillMatch?.pct ?? 0) !== (a.skillMatch?.pct ?? 0)) {
+        return (b.skillMatch?.pct ?? 0) - (a.skillMatch?.pct ?? 0);
+      }
       return a.id.localeCompare(b.id);
     }
     if (sortBy === 'field') {

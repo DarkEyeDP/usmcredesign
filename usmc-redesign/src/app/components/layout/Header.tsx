@@ -1,6 +1,6 @@
 import { Search, LogIn, LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
-import { SiteLogo } from './SiteLogo';
+import { SiteLogo } from '@/app/components/layout/SiteLogo';
 
 
 interface HeaderProps {

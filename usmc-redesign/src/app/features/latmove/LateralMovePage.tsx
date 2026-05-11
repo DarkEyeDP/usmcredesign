@@ -111,6 +111,7 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
         !excludedFields.has(result.field) &&
         !excludedClearances.has(result.clearance) &&
         !(resultFilters.hideColorVisionRequired && result.requiresNormalColorVision) &&
+        !(resultFilters.onlyLmBonusEligible && !result.lateralMoveBonusRange) &&
         !matchesExcludedTag
       );
     });

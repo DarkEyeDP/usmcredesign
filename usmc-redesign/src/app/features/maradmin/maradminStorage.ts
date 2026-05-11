@@ -2,7 +2,9 @@ import type { FetchMethod, RSSMessage } from './maradminUtils';
 
 const STORAGE_KEY = 'maradmin:state:v1';
 const FEED_CACHE_MAX_AGE_MS = 15 * 60 * 1000;
-const MAX_FEED_MESSAGES = 500;
+export const MAX_FEED_MESSAGES = 500;
+// Stop background archive loading above this threshold (~3.5 MB of MARADMIN state).
+export const ARCHIVE_STORAGE_LIMIT_BYTES = 3.5 * 1024 * 1024;
 const MAX_READ_NUMBERS = 2000;
 const MAX_NEW_NUMBERS = 500;
 const MAX_SAVED_NUMBERS = 500;
@@ -21,6 +23,14 @@ export interface CachedArticleEntry {
   cachedAt: number;
 }
 
+export interface CustomView {
+  id: string;
+  name: string;
+  keywords: string[];
+  tags: string[];
+  audiences: string[];
+}
+
 interface StoredFeedCache {
   cachedAt: number;
   messages: RSSMessage[];
@@ -32,6 +42,7 @@ interface StoredMARADMINState {
   feedCache?: StoredFeedCache;
   articles?: Record<string, CachedArticleEntry>;
   userState?: MARADMINUserState;
+  customViews?: CustomView[];
 }
 
 function createDefaultUserState(): MARADMINUserState {
@@ -231,6 +242,16 @@ export function saveCachedFeed(messages: RSSMessage[], archiveCursor?: { nextPag
   writeState(state);
 }
 
+export function getCustomViews(): CustomView[] {
+  return readState().customViews ?? [];
+}
+
+export function saveCustomViews(views: CustomView[]): void {
+  const state = readState();
+  state.customViews = views;
+  writeState(state);
+}
+
 export function getCachedArticle(cacheKey: string): CachedArticleEntry | null {
   return readState().articles?.[cacheKey] ?? null;
 }
@@ -244,4 +265,15 @@ export function saveCachedArticle(cacheKey: string, article: CachedArticleEntry)
   const savedNumbers = state.userState ? normalizeUserState(state.userState).savedNumbers : [];
   state.articles = pruneArticleEntries(nextArticles, savedNumbers);
   writeState(state);
+}
+
+/** Approximate byte size of the stored MARADMIN state (raw JSON string length). */
+export function getMARADMINStorageSizeBytes(): number {
+  if (!canUseStorage()) return 0;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? raw.length : 0;
+  } catch {
+    return 0;
+  }
 }

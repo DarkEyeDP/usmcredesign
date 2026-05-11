@@ -36,6 +36,17 @@
   }
 }
 
+@keyframes pay-cell-pulse {
+  0%, 100% {
+    background-color: rgba(127, 29, 29, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.5), 0 0 0 rgba(239, 68, 68, 0);
+  }
+  50% {
+    background-color: rgba(220, 38, 38, 0.28);
+    box-shadow: inset 0 0 0 1px rgba(252, 165, 165, 0.9), 0 0 18px rgba(239, 68, 68, 0.5);
+  }
+}
+
 .tactical-glow {
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
@@ -46,6 +57,10 @@
 
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.pay-cell-pulse {
+  animation: pay-cell-pulse 1.8s ease-in-out infinite;
 }
 
 /* Hide scrollbars until the scroll region is being interacted with */
@@ -129,13 +144,16 @@ textarea:disabled {
 
 @media print {
   @page {
-    margin: 0.5in;
+    margin: 0.55in 0.6in;
   }
 
   html,
   body {
     background: #fff !important;
     color: #000 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .print-hide {
@@ -149,12 +167,22 @@ textarea:disabled {
     background: #fff !important;
     color: #000 !important;
     padding: 0 !important;
+    /* Collapse the sidebar/detail grid to a single column */
+    display: block !important;
+  }
+
+  /* Collapse the main 2-column grid so the detail fills the full page */
+  .print-maradmin-root > div[class*="grid"] {
+    display: block !important;
+    width: 100% !important;
   }
 
   .print-maradmin-detail {
     display: block !important;
     position: static !important;
     top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
     height: auto !important;
     overflow: visible !important;
     border: 0 !important;
@@ -166,12 +194,15 @@ textarea:disabled {
     overflow: visible !important;
     height: auto !important;
     max-height: none !important;
+    width: 100% !important;
+    max-width: none !important;
     background: #fff !important;
     color: #000 !important;
   }
 
   .print-maradmin-content {
     padding: 0 !important;
+    margin: 0 !important;
   }
 
   .print-maradmin-content h2,
@@ -188,8 +219,17 @@ textarea:disabled {
     text-decoration: underline !important;
   }
 
+  .print-maradmin-content h2 {
+    margin: 0 0 0.18in !important;
+    max-width: none !important;
+    font-size: 18pt !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.01em !important;
+  }
+
   .print-maradmin-content table {
     width: 100% !important;
+    table-layout: auto !important;
     page-break-inside: auto;
   }
 

@@ -6,6 +6,8 @@ import { build } from 'esbuild';
 const root = process.cwd();
 const testFiles = [
   path.join(root, 'tests', 'maradmin-link-utils.test.ts'),
+  path.join(root, 'tests', 'maradmin-header-poc.test.ts'),
+  path.join(root, 'tests', 'maradmin-search.test.ts'),
   path.join(root, 'tests', 'maradmin-storage.test.ts'),
   path.join(root, 'tests', 'maradmin-table-parsers.test.ts'),
   path.join(root, 'tests', 'route-utils.test.ts'),

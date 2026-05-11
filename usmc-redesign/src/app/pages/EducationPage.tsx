@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, Calendar, BookOpen, Layout, FileText, Users, Award } from 'lucide-react';
+import { ChevronRight, Calendar, Layout, Award } from 'lucide-react';
 
 const tabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 

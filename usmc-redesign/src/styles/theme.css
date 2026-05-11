@@ -1,5 +1,72 @@
 @custom-variant dark (&:is(.dark *));
 
+/* ─────────────────────────────────────────────────────────────────
+   USMC Design System — color tokens
+   All site UI is built from these values. Update here, not inline.
+   ───────────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --usmc-bg-base:     #000000;          /* true black — cards, buttons, inputs */
+  --usmc-bg-page:     #050508;          /* near-black — hero sections */
+  --usmc-bg-surface:  #09090c;          /* calendar/popover surfaces */
+  --usmc-bg-elevated: rgba(255, 255, 255, 0.04); /* section header fill */
+
+  /* Borders (white-alpha scale) */
+  --usmc-border-subtle:  rgba(255, 255, 255, 0.06);
+  --usmc-border-default: rgba(255, 255, 255, 0.10);
+  --usmc-border-medium:  rgba(255, 255, 255, 0.12);
+  --usmc-border-strong:  rgba(255, 255, 255, 0.16);
+  --usmc-border-hover:   rgba(255, 255, 255, 0.30);
+  --usmc-border-focus:   rgba(239, 68, 68, 0.50);  /* red-500/50 */
+
+  /* Red — primary brand, CTAs, danger */
+  --usmc-red-950: #450a0a;   /* deep tint — active/selected backgrounds */
+  --usmc-red-600: #dc2626;   /* primary action color (CTA buttons, accent bar) */
+  --usmc-red-500: #ef4444;   /* section number labels, focus rings */
+  --usmc-red-400: #f87171;   /* icon accents, calendar icon */
+  --usmc-red-300: #fca5a5;   /* tax/deduction values */
+
+  /* Green — positive money values (pay amounts, payout after taxes) */
+  --usmc-green-950: #052e16;  /* background tint for payout cell */
+  --usmc-green-700: #15803d;  /* payout label when result is active */
+  --usmc-green-400: #4ade80;  /* all positive dollar amounts */
+
+  /* Amber — eligibility warnings */
+  --usmc-amber-500: #f59e0b;
+  --usmc-amber-300: #fcd34d;
+
+  /* Text hierarchy */
+  --usmc-text-primary:  #ffffff;
+  --usmc-text-secondary: #d1d5db;        /* gray-300 */
+  --usmc-text-muted:    #9ca3af;         /* gray-400 */
+  --usmc-text-subtle:   #6b7280;         /* gray-500 / gray-600 */
+  --usmc-text-disabled: rgba(255, 255, 255, 0.20);
+
+  /* Grid overlay (page background treatment) */
+  --usmc-grid-color:   rgba(255, 255, 255, 0.50);
+  --usmc-grid-size:    40px;
+  --usmc-grid-opacity: 0.055;
+}
+
+/* Expose USMC tokens as Tailwind v4 utility classes
+   Usage: bg-usmc-bg-base, text-usmc-red-500, border-usmc-border-medium, etc. */
+@theme inline {
+  --color-usmc-bg-base:          var(--usmc-bg-base);
+  --color-usmc-bg-page:          var(--usmc-bg-page);
+  --color-usmc-bg-surface:       var(--usmc-bg-surface);
+  --color-usmc-red-950:          var(--usmc-red-950);
+  --color-usmc-red-600:          var(--usmc-red-600);
+  --color-usmc-red-500:          var(--usmc-red-500);
+  --color-usmc-red-400:          var(--usmc-red-400);
+  --color-usmc-red-300:          var(--usmc-red-300);
+  --color-usmc-green-950:        var(--usmc-green-950);
+  --color-usmc-green-700:        var(--usmc-green-700);
+  --color-usmc-green-400:        var(--usmc-green-400);
+  --color-usmc-amber-500:        var(--usmc-amber-500);
+  --color-usmc-amber-300:        var(--usmc-amber-300);
+}
+
+
 :root {
   --font-size: 16px;
   --background: #ffffff;

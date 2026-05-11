@@ -309,6 +309,11 @@ export function extractMARADMINSource(raw: string): string | null {
   return releaseText;
 }
 
+export function extractMARADMINNumber(raw: string): string | null {
+  const match = flatLine(raw).match(/\bMARADMIN\s+(\d+\/\d+)\b/i);
+  return match?.[1] ?? null;
+}
+
 // DTG pattern: "R 291826Z APR 26" — the first line of every MARADMIN.
 // Starting from the DTG skips DNN page wrappers that label the message
 // field with their own index numbers (e.g. "1. Message. RMKS/1. Purpose...").
@@ -498,9 +503,77 @@ function detectTablesInLines(lines: string[]): { bodyLines: string[]; tables: De
   return { bodyLines, tables };
 }
 
+// ── "Read in N columns" hint detection ──────────────────────────────────────
+const COLUMN_WORD_MAP: Record<string, number> = {
+  two: 2, three: 3, four: 4, five: 5, six: 6,
+  '2': 2, '3': 3, '4': 4, '5': 5, '6': 6,
+};
+const READ_IN_COLUMNS_RE = /\(read in (\w+) columns?\)/i;
+
+/**
+ * Detects "(read in N columns)" directives and builds a table from the lines
+ * that follow. Works when data is one-cell-per-line or multi-space-separated.
+ * Returns null if the hint is absent or there isn't enough data to form a table.
+ */
+function parseReadInColumnsHint(lines: string[]): { preBody: string; table: DetectedTable } | null {
+  const hintIdx = lines.findIndex(l => READ_IN_COLUMNS_RE.test(l));
+  if (hintIdx < 0) return null;
+
+  const hintLine  = lines[hintIdx];
+  const hintMatch = hintLine.match(READ_IN_COLUMNS_RE)!;
+  const nCols     = COLUMN_WORD_MAP[hintMatch[1].toLowerCase()];
+  if (!nCols) return null;
+
+  // Text before (and around) the hint becomes the body title for this chunk.
+  const preBody = flatLine(
+    [
+      ...lines.slice(0, hintIdx),
+      hintLine.replace(READ_IN_COLUMNS_RE, '').replace(/[:\s]+$/, '').trim(),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  );
+
+  const afterLines = lines.slice(hintIdx + 1).map(l => l.trim()).filter(Boolean);
+  let tokens: string[];
+
+  if (afterLines.length >= nCols * 2) {
+    // Each subsequent line is one cell — but if they're already columnar (2-space
+    // separated), let detectTablesInLines handle them; we just strip the hint text.
+    if (afterLines.slice(0, 2).every(l => looksTabular(l))) return null;
+    tokens = afterLines;
+  } else {
+    // Data follows the hint inline on the same line, separated by 2+ spaces.
+    const afterHint = hintLine.replace(/^.*?\(read in \w+ columns?\)[:\s]*/i, '').trim();
+    const cols      = splitColumnar(afterHint);
+    if (cols.length < nCols * 2) return null;
+    tokens = cols;
+  }
+
+  // Group tokens nCols at a time into rows.
+  const rows: string[][] = [];
+  for (let i = 0; i + nCols <= tokens.length; i += nCols) {
+    rows.push(tokens.slice(i, i + nCols));
+  }
+  if (rows.length < 2) return null;
+
+  return { preBody, table: { headers: rows[0], rows: rows.slice(1) } };
+}
+
 function parseBodyChunk(lines: string[]): { body: string; tables?: DetectedTable[] } {
+  // Explicit "read in N columns" hint — build table before any flattening.
+  const columnarHint = parseReadInColumnsHint(lines);
+  if (columnarHint) {
+    return { body: columnarHint.preBody, tables: [columnarHint.table] };
+  }
+
   const { bodyLines, tables: directTables } = detectTablesInLines(lines);
-  const flattened = flatLine(bodyLines.join(' '));
+
+  // Strip residual "(read in N columns)" markers from body text.  When the data
+  // lines were already columnar, detectTablesInLines captured them as a table and
+  // the hint text ends up here; remove it so it doesn't appear in the paragraph.
+  const flattened = flatLine(bodyLines.join(' ')).replace(READ_IN_COLUMNS_RE, '').replace(/\s{2,}/g, ' ').trim();
+
   const recognizedTableFamily = parseRecognizedTableFamily(flattened);
   if (recognizedTableFamily) return recognizedTableFamily;
 
@@ -656,9 +729,8 @@ const BODY_STARTERS = new Set([
 ]);
 
 function extractHeading(text: string): { heading: string; remainder: string } {
-  // Match either "Title Case Heading.  Body" or "ALL CAPS HEADING. Body"
-  // Heading ends at ". " + 1–4 spaces, followed by next sentence starting uppercase.
-  const m = text.match(/^([A-Za-z][A-Za-z\s\-,()&\/]{1,60}?)\. {1,4}([A-Z][\s\S]+)/);
+  // Primary: inline heading "Title.  Body starts here" (period + spaces on same line)
+  const m = text.match(/^([A-Za-z][A-Za-z\s\-,()&/]{1,60}?)\. {1,4}([A-Z][\s\S]+)/);
 
   if (m) {
     const candidate = m[1].trim();
@@ -671,7 +743,29 @@ function extractHeading(text: string): { heading: string; remainder: string } {
     }
   }
 
-  // No heading detected — return the full text as body with an empty heading
+  // Secondary: standalone title on its own line, followed by sub-sections or nothing.
+  // Handles numbered paragraphs like "4. Application and Selection Overview.\n  a. ..."
+  const nl       = text.indexOf('\n');
+  const firstLine = (nl >= 0 ? text.slice(0, nl) : text).trim();
+  const rest      = nl >= 0 ? text.slice(nl + 1).trim() : '';
+  const titleMatch = firstLine.match(/^([A-Za-z][A-Za-z\s\-,()&/]{0,80}?)[.:]?\s*$/);
+
+  if (titleMatch) {
+    const candidate = titleMatch[1].trim();
+    const words     = candidate.split(/\s+/);
+    const first     = words[0].toLowerCase();
+
+    if (words.length <= 8 && !BODY_STARTERS.has(first)) {
+      // Only treat as heading when what follows is sub-sections or empty, not flowing body text
+      const nextNonEmpty = rest.split('\n').find(l => l.trim())?.trim();
+      const nextIsSubSection = !nextNonEmpty || SUB_SECTION_PATTERNS.some(p => p.regex.test(nextNonEmpty));
+      if (nextIsSubSection) {
+        return { heading: titleCase(candidate), remainder: rest };
+      }
+    }
+  }
+
+  // No heading detected — return full text as body with empty heading
   return { heading: '', remainder: text.trim() };
 }
 
@@ -685,39 +779,57 @@ function flatLine(s: string): string {
 
 // ── Tag Extraction ──────────────────────────────────────────────────────────
 
-const TAG_PATTERNS: [RegExp, string[]][] = [
-  [/UNIFORM/i,                  ['UNIFORMS', 'POLICY']],
-  [/PROMOT/i,                   ['PROMOTIONS', 'PERSONNEL']],
-  [/EDUCAT|PME/i,               ['EDUCATION', 'PME']],
-  [/PAY|ENTITLEMENT/i,          ['FINANCE', 'PAY']],
-  [/FINANCE|FISCAL/i,           ['FINANCE', 'ADMIN']],
-  [/RESERVE|SMCR|IRR/i,        ['RESERVE', 'ADMIN']],
-  [/COMMAND SCREEN/i,           ['LEADERSHIP', 'BOARDS']],
-  [/COMMAND/i,                  ['LEADERSHIP', 'COMMAND']],
-  [/TRAINING/i,                 ['TRAINING']],
-  [/BONUS|RETENTION/i,          ['FINANCE', 'RETENTION']],
-  [/SAFETY/i,                   ['SAFETY']],
-  [/BOARD|SCREEN/i,             ['ADMIN', 'BOARDS']],
-  [/OFFICER/i,                  ['OFFICERS', 'PERSONNEL']],
-  [/ENLISTED|SNCO|NCO/i,       ['ENLISTED', 'PERSONNEL']],
-  [/HEALTH|MEDICAL/i,           ['HEALTH', 'MEDICAL']],
-  [/AWARD/i,                    ['AWARDS']],
-  [/RECRUIT/i,                  ['RECRUITING']],
-  [/SECURITY/i,                 ['SECURITY']],
-  [/HORNET|AVIATION|F\/A-18/i, ['AVIATION']],
-  [/DEFERMENT|TRANSIT/i,        ['ADMIN', 'RESERVE']],
-  [/ACADEM/i,                   ['EDUCATION', 'PERSONNEL']],
-  [/CIVILIAN|HR/i,              ['ADMIN', 'CIVILIAN']],
-  [/FITNESS REPORT|FITREP/i,    ['PERSONNEL', 'ADMIN']],
-  [/POLICY/i,                   ['POLICY']],
-  [/PERSONNEL/i,                ['PERSONNEL']],
+const TAG_RULES: Array<{ tag: string; re: RegExp }> = [
+  { tag: 'PROMOTIONS',   re: /\bpromot(ions?|ed|ing)?\b|\badvancement\b/i },
+  { tag: 'BOARDS',       re: /\b((selection|screening|promotion|command|reserve)\s+)?board\b|\bslating\s+panel\b/i },
+  { tag: 'EDUCATION',    re: /\b(pme|professional military education|command and staff college|expeditionary warfare school|college of distance|academic year|curriculum|distance education|marinenet|mcele|elearning)\b/i },
+  { tag: 'TRAINING',     re: /\b(training|course|instructor|instruction)\b/i },
+  { tag: 'RESERVE',      re: /\b(reserve component|smcr|irr|individual ready reserve|active reserve|selected marine corps reserve)\b/i },
+  { tag: 'FINANCE',      re: /\bpay\b|\b(bonus|entitlement|allowance|compensation|fiscal year|stipend|budget)\b/i },
+  { tag: 'RETENTION',    re: /\b(retention bonus|selective retention|broken service|career designation|retention incentive)\b/i },
+  { tag: 'UNIFORMS',     re: /\b(uniform|grooming|dress blue|dress green)\b/i },
+  { tag: 'MOS',          re: /\b(military occupational specialty|pmos|fmos|amos|lateral move)\b|\bmos\b/i },
+  { tag: 'SAFETY',       re: /\b(safety message|critical days|mishap|hazard|ground safety)\b/i },
+  { tag: 'AVIATION',     re: /\b(aviation|f\/a-18|hornet|aircraft|aircrew|aeronautic|airlift|blue angels|helicopter|osprey|aerial)\b/i },
+  { tag: 'TECHNOLOGY',   re: /\b(artificial intelligence|information technology|it procurement|cyber|gps|saasm|encryption|software|information system|elearning|mcele|genai|digital university)\b/i },
+  { tag: 'AWARDS',       re: /\b(award|winner|viec|excellence in communication|recognition award)\b/i },
+  { tag: 'LEADERSHIP',   re: /\b(command screening|commandant|sergeant major of the marine corps|command billet)\b/i },
+  { tag: 'MEDICAL',      re: /\b(medical condition|health|healthcare|behavioral health|physical fitness test|pft|cft|body composition)\b/i },
+  { tag: 'OFFICERS',     re: /\b(officer promot|officer select|officer candidate|officer billet|officer professional|commissioned officer|warrant officer|ocs)\b/i },
+  { tag: 'ENLISTED',     re: /\b(enlisted|snco|staff noncommissioned|corporal|gunnery sergeant|master sergeant|first sergeant|master gunnery|lance corporal)\b/i },
+  { tag: 'LANGUAGE',     re: /\b(language professional|dlpt|dlab|linguist|foreign language|command language program)\b/i },
+  { tag: 'FAMILY',       re: /\b(maternity leave|parental leave|family|dependent|spouse|childcare)\b/i },
+  { tag: 'POLICY',       re: /\b(implementing guidance|clarifying guidance|update to maradmin|change \d+ to maradmin|amplifying guidance)\b/i },
+  { tag: 'READINESS',    re: /\b(readiness|mission ready|combat ready|operational readiness|military excellence and readiness)\b/i },
+  { tag: 'INTELLIGENCE', re: /\b(intelligence|special technical operations|counterintelligence|marsoc)\b|\bsto\b/i },
+  { tag: 'RECRUITING',   re: /\b(recruit|accession|affiliation incentive|applications being accepted|enlistment)\b/i },
+  { tag: 'SEPARATION',   re: /\b(involuntary separation|absent from duty|misconduct|administrative separation|voluntary.*absence)\b/i },
+  { tag: 'OPERATIONS',   re: /\b(operational support|expeditionary|deployment|capstone operating concept|warfighting|force employment)\b/i },
+  { tag: 'ADMIN',        re: /\b(human resources|hr information|information system|access management|user access management|it procurement)\b/i },
+  { tag: 'CIVILIAN',     re: /\b(civilian human resources|dod civilian|civilian personnel|civilian employees)\b/i },
+  { tag: 'SPECIAL DUTY', re: /\b(special duty assignment|hqmc special duty|drill instructor|recruiter duty|embassy duty)\b/i },
+  { tag: 'PERSONNEL',    re: /\b(fitness report|fitrep|performance evaluation|billet|assigned to|personnel action)\b/i },
 ];
 
 function tagsFrom(subject: string): string[] {
-  const seen = new Set<string>();
-  for (const [re, tags] of TAG_PATTERNS) {
-    if (re.test(subject)) tags.forEach(t => seen.add(t));
-    if (seen.size >= 4) break;
+  return tagsFromContent(subject, '');
+}
+
+export function tagsFromContent(subject: string, body: string): string[] {
+  const scores = new Map<string, number>();
+
+  for (const { tag, re } of TAG_RULES) {
+    if (re.test(subject)) {
+      scores.set(tag, (scores.get(tag) ?? 0) + 3);
+    }
+    if (body) {
+      const count = Math.min((body.match(new RegExp(re.source, 'gi')) ?? []).length, 5);
+      if (count > 0) scores.set(tag, (scores.get(tag) ?? 0) + count);
+    }
   }
-  return [...seen].slice(0, 4);
+
+  return [...scores.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([tag]) => tag);
 }

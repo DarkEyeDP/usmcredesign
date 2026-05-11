@@ -345,13 +345,211 @@ function parseAllocationCutoffTables(text: string): ParsedTableFamily | null {
   };
 }
 
+// Parses SRB kicker summary tables, e.g.:
+// Kicker  Amount  Rank Eligibility  Para.
+// Aircraft Maintenance Kicker  $5,000-15,000  E7 & Below  4.a
+function parseSRBKickerTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bKicker\s+Amount\s+Rank\s+Eligibility\s+Para\.\s*/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = text.slice(headerMatch[0].length).trim();
+
+  const rowRe = /(.+?Kicker)\s+(\$[\d,]+(?:-[\d,]+)?)\s+(E\d+\s*&\s*Below)\s+(\d+\.[a-g])/g;
+  const rows: string[][] = [];
+  let m: RegExpExecArray | null;
+  while ((m = rowRe.exec(data)) !== null) {
+    rows.push([m[1].trim(), m[2].trim(), m[3].trim(), m[4].trim()]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Kicker', 'Amount', 'Rank Eligibility', 'Para'], rows }],
+  };
+}
+
+// Parses SRB PMOS zone bonus tables, e.g.:
+// PMOS  E3  E4  E5 & Above          (Zone A — 3 grade columns)
+// PMOS  E5  E6 & Above              (Zone B — 2 grade columns)
+// PMOS  E7 & ABOVE                  (Zones D/E/F — 1 grade column)
+// 0211LM  -  49,000  51,000
+// 0231    17,250  19,000  19,750
+function parseSRBPMOSBonusTable(text: string): ParsedTableFamily | null {
+  const headerRe = /\bPMOS\s+(E\d+(?:\s*&\s*(?:Above|ABOVE))?(?:\s+E\d+(?:\s*&\s*(?:Above|ABOVE))?)*)\s/i;
+  const headerMatch = text.match(headerRe);
+  if (!headerMatch) return null;
+
+  const body       = text.slice(0, headerMatch.index).trim();
+  const afterHeader = text.slice((headerMatch.index ?? 0) + headerMatch[0].length).trim();
+
+  const gradeHeaders = [...headerMatch[1].matchAll(/E\d+(?:\s*&\s*(?:Above|ABOVE))?/gi)]
+    .map(m => m[0].replace(/\s+/g, ' ').trim());
+  if (gradeHeaders.length === 0) return null;
+  const numValueCols = gradeHeaders.length;
+
+  const tokens   = afterHeader.split(/\s+/).filter(Boolean);
+  const pmosRe   = /^\d{4}(?:LM)?$/i;
+  const valueRe  = /^\d{1,3}(?:,\d{3})*$|^[-–—]$/;
+
+  const rows: string[][] = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    if (!pmosRe.test(tokens[i])) break;
+    const pmos = tokens[i++];
+    const values: string[] = [];
+    for (let v = 0; v < numValueCols && i < tokens.length; v++) {
+      if (valueRe.test(tokens[i])) { values.push(tokens[i++]); }
+      else break;
+    }
+    if (values.length === numValueCols) rows.push([pmos, ...values]);
+    else break;
+  }
+
+  if (rows.length < 3) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['PMOS', ...gradeHeaders], rows }],
+  };
+}
+
+// Parses officer board/panel schedule tables, e.g.:
+// Board/Panel  Convening Date
+// FY27 Marine Barracks Washington (MBW) Panel  19 May 26
+// FY27 Service Academy Slate Panel  1 Jun 26 ...
+function parseBoardPanelScheduleTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bBoard\/Panel\s+Convening\s+Date\b\s*/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = text.slice(headerMatch[0].length).trim();
+
+  // Each row starts with FY\d{2} or "Academic Year" — split on those boundaries.
+  const segments = data.split(/(?=\bFY\d{2}\b|\bAcademic Year\b)/i).filter(s => s.trim());
+
+  const dateRe = /\b(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{2})\b/i;
+  const rows: string[][] = [];
+
+  for (const segment of segments) {
+    const dateMatch = segment.match(dateRe);
+    if (!dateMatch) continue;
+    const date = dateMatch[1].replace(/\s+/g, ' ').trim();
+    // Remove the date from the segment; the rest (before + after) is the full board name.
+    const name = segment.replace(dateRe, ' ').replace(/\s+/g, ' ').trim();
+    if (name && date) rows.push([name, date]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Board / Panel', 'Convening Date'], rows }],
+  };
+}
+
+// Parses LDO/WO selectee lists with "Name MCC SMOS" header, e.g.:
+// (Read in three columns). Name MCC SMOS
+// ALDRICH, RYAN M. 15A 2340 BARNETT, RUFUS B. 779 0430 ...
+function parseLDOSelecteeTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bName\s+MCC\s+SMOS\b\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body   = headerMatch[1].trim();
+  const data   = headerMatch[2].trim();
+  const tokens = data.split(/\s+/).filter(Boolean);
+
+  const smosRe = /^\d{4}$/;
+  const mccRe  = /^[A-Z0-9]{3}$/i;
+
+  const rows: string[][] = [];
+  let nameStart = 0;
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (smosRe.test(tokens[i]) && i > 0 && mccRe.test(tokens[i - 1])) {
+      const nameTokens = tokens.slice(nameStart, i - 1);
+      if (nameTokens.length > 0) {
+        rows.push([nameTokens.join(' '), tokens[i - 1], tokens[i]]);
+      }
+      nameStart = i + 1;
+    }
+  }
+
+  if (rows.length === 0) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'MCC', 'SMOS'], rows }],
+  };
+}
+
+// Parses SNCO/enlisted promotion board zone/allocation tables, e.g.:
+// ABOVE ZONE  PROMOTION ZONE  BELOW ZONE
+// ALLOC IMOS  JR DOR AFADBD  JR DOR AFADBD  JR DOR AFADBD
+// 5 0111 20211101 NA 20220401 20071220 20220401 20080401 ...
+// THE FOLLOWING OCCFLD(S) ARE CLOSED: 0321, 0399 ...
+function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
+  const headerRe = /ABOVE\s+ZONE\s+PROMOTION\s+ZONE\s+BELOW\s+ZONE\s+ALLOC\s+IMOS\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD/i;
+  const headerMatch = text.match(headerRe);
+  if (!headerMatch) return null;
+
+  const matchStart = headerMatch.index ?? 0;
+  const body = text.slice(0, matchStart).trim();
+  const afterHeader = text.slice(matchStart + headerMatch[0].length).trim();
+
+  const closedIdx = afterHeader.search(/\bTHE FOLLOWING OCCFLD\(S\) ARE CLOSED\b/i);
+  const dataStr   = closedIdx >= 0 ? afterHeader.slice(0, closedIdx).trim() : afterHeader;
+  const closedStr = closedIdx >= 0 ? afterHeader.slice(closedIdx).trim() : '';
+
+  const tokens = dataStr.split(/\s+/).filter(Boolean);
+  const dateOrNa = /^(\d{8}|NA)$/i;
+  const isAlloc  = /^\d{1,3}$/;
+  const isImos   = /^\d{4}$/;
+
+  const rows: string[][] = [];
+  let i = 0;
+
+  while (i + 7 < tokens.length) {
+    const alloc = tokens[i];
+    const imos  = tokens[i + 1];
+    const cols  = tokens.slice(i + 2, i + 8);
+
+    if (!isAlloc.test(alloc) || !isImos.test(imos) || !cols.every(t => dateOrNa.test(t))) break;
+
+    rows.push([alloc, imos, ...cols]);
+    i += 8;
+  }
+
+  if (rows.length === 0) return null;
+
+  const closedCodes = closedStr.match(/\d{4}/g);
+  const footerNote  = closedCodes && closedCodes.length > 0
+    ? `OCCFLD(S) CLOSED: ${closedCodes.join(', ')}`
+    : '';
+
+  return {
+    body: [body, footerNote].filter(Boolean).join(' '),
+    tables: [{
+      headers: ['ALLOC', 'IMOS', 'AZ JR DOR', 'AZ AFADBD', 'PZ JR DOR', 'PZ AFADBD', 'BZ JR DOR', 'BZ AFADBD'],
+      rows,
+    }],
+  };
+}
+
 const TABLE_FAMILY_PARSERS = [
   parseInlineEligibilityTable,
+  parseBoardPanelScheduleTable,
+  parseSRBKickerTable,
+  parseSRBPMOSBonusTable,
   parseInlinePromotionTable,
+  parseLDOSelecteeTable,
   parseInlineAttendeeTable,
   parseVacancySummaryTable,
   parseProjectedPromotionsTable,
   parseFeederMosTable,
+  parseSNCOBoardZoneTable,
   parseAllocationCutoffTables,
 ];
 

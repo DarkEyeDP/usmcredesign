@@ -1,32 +1,69 @@
-# macOS
+# ─── OS ──────────────────────────────────────────────────────────
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
-# Logs
+# ─── Logs ────────────────────────────────────────────────────────
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+lerna-debug.log*
 
-# Environment files
+# ─── Environment / secrets ───────────────────────────────────────
 .env
 .env.*
 !.env.example
+*.local
 
-# Root-level dependencies / temp files
+# ─── Dependencies ────────────────────────────────────────────────
 node_modules/
-
-# App dependencies / build artifacts
 usmc-redesign/node_modules/
-usmc-redesign/dist/
-usmc-redesign/.next/
-usmc-redesign/.tmp-test-build/
 
-# Coverage / test output
+# ─── Build output ────────────────────────────────────────────────
+dist/
+build/
+usmc-redesign/dist/
+usmc-redesign/build/
+
+# ─── Framework caches ────────────────────────────────────────────
+.next/
+usmc-redesign/.next/
+.vite/
+usmc-redesign/.vite/
+.turbo/
+usmc-redesign/.turbo/
+.cache/
+usmc-redesign/.cache/
+
+# ─── TypeScript ──────────────────────────────────────────────────
+*.tsbuildinfo
+usmc-redesign/*.tsbuildinfo
+
+# ─── Test / coverage output ──────────────────────────────────────
 coverage/
 usmc-redesign/coverage/
+.nyc_output/
 
-# Editor / IDE
+# ─── Temp / scratch ──────────────────────────────────────────────
+usmc-redesign/.tmp-test-build/
+*.tmp
+*.temp
+*.orig
+
+# ─── Editor / IDE ────────────────────────────────────────────────
 .vscode/
 .idea/
+.cursor/
+*.code-workspace
 *.swp
 *.swo
+*~
+
+# ─── Sensitive / classified reference documents ──────────────────
+NAVMC 1200.1L (SECURED).md

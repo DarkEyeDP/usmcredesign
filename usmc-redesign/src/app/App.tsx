@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router';
 import { motion } from 'motion/react';
-import { Header } from './components/Header';
-import { Navigation } from './components/Navigation';
-import { HomePage } from './components/HomePage';
-import { MARADMINPage } from './components/MARADMINPage';
-import { LateralMovePage } from './components/latmove';
-import { LatMoveErrorBoundary } from './components/latmove/components/LatMoveErrorBoundary';
-import { PayBenefitsPage } from './components/PayBenefitsPage';
-import { EducationPage } from './components/EducationPage';
-import { StayMarinePage } from './components/StayMarinePage';
-import { StatusBar } from './components/StatusBar';
+import { Header } from '@/app/components/layout/Header';
+import { Navigation } from '@/app/components/layout/Navigation';
+import { StatusBar } from '@/app/components/layout/StatusBar';
+import { HomePage } from '@/app/pages/HomePage';
+import { EducationPage } from '@/app/pages/EducationPage';
+import { StayMarinePage } from '@/app/pages/StayMarinePage';
+import { MARADMINPage } from '@/app/features/maradmin/MARADMINPage';
+import { LateralMovePage } from '@/app/features/latmove';
+import { LatMoveErrorBoundary } from '@/app/features/latmove/components/LatMoveErrorBoundary';
+import { PayBenefitsPage } from '@/app/features/pay/PayBenefitsPage';
+import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
+import { BonusesPage } from '@/app/features/pay/BonusesPage';
 import { isFullscreenCapablePath } from './routeUtils';
 
 export default function App() {
@@ -79,6 +81,8 @@ export default function App() {
                 onToggleFullscreen={() => setIsFullscreen(f => !f)}
               />
             } />
+            <Route path="/pay-benefits/basic-pay" element={<BasicPayPage />} />
+            <Route path="/pay-benefits/bonuses" element={<BonusesPage />} />
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
             <Route path="/lateral-move" element={

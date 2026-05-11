@@ -3,6 +3,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { clearanceRequirementAbbreviation, colorVisionAbbreviation } from '../types';
 import type { ResultItem } from '../types';
 
+const bonusFormatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  maximumFractionDigits: 0,
+});
+
 interface Props {
   result: ResultItem;
   resultNumber: number;
@@ -22,8 +28,16 @@ function skillMatchColor(pct: number) {
   return 'text-gray-500';
 }
 
+function compactRequirementLabel(reqStr: string) {
+  return reqStr.replace(/\b([A-Z]{2})\s+(\d+)\b/g, '$1 - $2').replace(/\+/g, ' + ');
+}
+
 export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) {
   const formattedNumber = String(resultNumber).padStart(2, '0');
+  const bonusRangeLabel = result.lateralMoveBonusRange
+    ? `${bonusFormatter.format(result.lateralMoveBonusRange.min)}-${bonusFormatter.format(result.lateralMoveBonusRange.max)}`
+    : null;
+  const compactReqLabel = compactRequirementLabel(result.reqStr);
 
   return (
     <motion.div
@@ -91,44 +105,69 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
         />
       )}
       <button
-        className="flex min-h-[8.75rem] w-full flex-1 flex-col justify-between p-5 text-left"
+        className="flex min-h-[7.25rem] w-full flex-1 flex-col justify-between p-5 text-left"
         onClick={onToggle}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="mb-2 font-mono text-[11px] font-bold tracking-[0.18em] text-gray-700">
+            <div className="mb-1.5 font-mono text-[11px] font-bold tracking-[0.18em] text-gray-700">
               {formattedNumber}
             </div>
-            <div className="mb-1 text-base font-black text-gray-300 font-mono tracking-wide">MOS {result.id}</div>
-            <div className="mb-2 text-[10px] font-bold tracking-[0.18em] text-red-400/75">{result.field}</div>
-            <div className="text-base text-gray-100 leading-tight">{result.title}</div>
+            <div className="mb-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="font-mono text-[17px] font-black tracking-[0.02em] text-gray-200">MOS {result.id}</span>
+              <span className="text-white/18">|</span>
+              <span className="text-[17px] leading-tight text-white">{result.title}</span>
+            </div>
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold tracking-[0.22em] text-red-400/70">{result.field}</span>
+              {result.isHighDemandLatMove && (
+                <span className="border border-amber-500/35 bg-amber-950/20 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] text-amber-300/90">
+                  HIGH DEMAND
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className={`text-2xl font-black leading-none ${matchColor(result.match)}`}>
+            <div className={`text-[32px] font-black leading-none tracking-[-0.03em] ${matchColor(result.match)}`}>
               {result.match}%
             </div>
-            <div className="text-[11px] tracking-wide text-gray-600">QUALIFIED</div>
+            <div className="text-[10px] tracking-[0.16em] text-gray-600">QUALIFIED</div>
             {result.skillMatch != null && (
               <div className="mt-1 flex flex-col items-end">
-                <div className={`text-base font-black leading-none ${skillMatchColor(result.skillMatch.pct)}`}>
+                <div className={`text-[22px] font-black leading-none tracking-[-0.02em] ${skillMatchColor(result.skillMatch.pct)}`}>
                   {result.skillMatch.pct}%
                 </div>
-                <div className="text-[10px] tracking-wide text-gray-600">SKILL XFR</div>
+                <div className="text-[10px] tracking-[0.16em] text-gray-600">SKILL XFR</div>
               </div>
             )}
           </div>
         </div>
 
-        <div className="mt-4 flex items-end justify-between gap-4">
-          <div className="space-y-2">
-            <div className={`mb-1 text-[11px] font-bold tracking-[0.2em] ${
-              isActive ? 'text-red-400/80' : 'text-gray-600'
-            }`}>REQUIREMENTS</div>
-            <div className="text-xs font-mono leading-relaxed text-gray-500">{result.reqStr}</div>
-            <div className="text-[11px] font-mono leading-relaxed text-gray-600">
-              CLR: {clearanceRequirementAbbreviation(result)}
-              <span className="mx-2 text-white/18">|</span>
-              COLOR: {colorVisionAbbreviation(result.requiresNormalColorVision)}
+        <div className="mt-3 flex items-end justify-between gap-4">
+          <div className="min-w-0 space-y-1.5">
+            {bonusRangeLabel && (
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <div className={`text-[11px] font-bold tracking-[0.2em] ${
+                  isActive ? 'text-red-300/90' : 'text-red-400/75'
+                }`}>
+                  FY27 LM BONUS RANGE
+                </div>
+                <div className="text-[15px] font-black text-white">{bonusRangeLabel}</div>
+                <div className="text-[11px] font-mono leading-relaxed text-gray-600">
+                  Zones {result.lateralMoveBonusRange?.zones.join(', ')}
+                </div>
+              </div>
+            )}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <div className={`text-[11px] font-bold tracking-[0.2em] ${
+                isActive ? 'text-red-400/80' : 'text-gray-600'
+              }`}>REQUIREMENTS:</div>
+              <div className="text-[13px] font-mono leading-relaxed text-gray-400">{compactReqLabel}</div>
+              <div className="text-[12px] font-mono leading-relaxed text-gray-600">
+                CLR: {clearanceRequirementAbbreviation(result)}
+                <span className="mx-2 text-white/18">|</span>
+                COLOR: {colorVisionAbbreviation(result.requiresNormalColorVision)}
+              </div>
             </div>
           </div>
           <div className={`flex items-center justify-center ${isActive ? 'text-red-400' : 'text-gray-600'}`}>

@@ -1,5 +1,6 @@
 import type { ClearanceLevel, MOS, UserScores } from './db/schema';
 import type { SkillMatch } from './db/mos-skills';
+import type { LateralMoveBonusRange } from '../srbpCalculator';
 
 export type { UserScores };
 export type { ClearanceLevel };
@@ -20,9 +21,11 @@ export interface ResultItem extends MOS {
   skillMatch?: SkillMatch;
   matchingCertIds?: string[];
   matchingDegreeFieldIds?: string[];
+  lateralMoveBonusRange?: LateralMoveBonusRange;
+  isHighDemandLatMove?: boolean;
 }
 
-export type SortMode = 'match' | 'skill' | 'field' | 'mos' | 'title';
+export type SortMode = 'match' | 'skill' | 'bonus' | 'field' | 'mos' | 'title';
 export type ResultViewMode = 'list' | 'cards';
 
 export type RequirementFilterTag =
@@ -43,6 +46,7 @@ export interface ResultFilters {
   excludedClearances: ClearanceLevel[];
   hideColorVisionRequired: boolean;
   excludedRequirementTags: RequirementFilterTag[];
+  onlyLmBonusEligible: boolean;
 }
 
 export const EMPTY_RESULT_FILTERS: ResultFilters = {
@@ -52,6 +56,7 @@ export const EMPTY_RESULT_FILTERS: ResultFilters = {
   excludedClearances: [],
   hideColorVisionRequired: false,
   excludedRequirementTags: [],
+  onlyLmBonusEligible: false,
 };
 
 export const REQUIREMENT_FILTER_OPTIONS: { value: RequirementFilterTag; label: string; keywords: string[] }[] = [

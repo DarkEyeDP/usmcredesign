@@ -61,6 +61,7 @@ export function SearchForm({
   const [langR, setLangR] = useState('2');
   const [isLangInputActive, setIsLangInputActive] = useState(false);
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
+  const hasPendingLanguage = langInput.trim().length > 0;
 
   const filteredCertOptions = useMemo(() => {
     const query = certInput.trim().toLowerCase();
@@ -567,13 +568,25 @@ export function SearchForm({
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-xs text-gray-600 font-mono">L</span>
-              <select value={langL} onChange={e => setLangL(e.target.value)} className="h-[52px] w-[3.25rem] appearance-none border border-white/16 bg-black px-0 text-center text-base leading-none font-mono text-white focus:outline-none [text-align-last:center]">
+              <select
+                value={langL}
+                onChange={e => setLangL(e.target.value)}
+                className={`h-[52px] w-[3.25rem] appearance-none border border-white/16 bg-black px-0 text-center text-base leading-none font-mono focus:outline-none [text-align-last:center] ${
+                  hasPendingLanguage ? 'text-white' : 'text-gray-700'
+                }`}
+              >
                 {DLPT_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-xs text-gray-600 font-mono">R</span>
-              <select value={langR} onChange={e => setLangR(e.target.value)} className="h-[52px] w-[3.25rem] appearance-none border border-white/16 bg-black px-0 text-center text-base leading-none font-mono text-white focus:outline-none [text-align-last:center]">
+              <select
+                value={langR}
+                onChange={e => setLangR(e.target.value)}
+                className={`h-[52px] w-[3.25rem] appearance-none border border-white/16 bg-black px-0 text-center text-base leading-none font-mono focus:outline-none [text-align-last:center] ${
+                  hasPendingLanguage ? 'text-white' : 'text-gray-700'
+                }`}
+              >
                 {DLPT_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </div>

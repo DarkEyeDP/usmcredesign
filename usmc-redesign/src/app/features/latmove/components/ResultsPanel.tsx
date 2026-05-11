@@ -148,10 +148,11 @@ export function ResultsPanel({
         matchesSearch &&
         !excludedClearancesSet.has(result.clearance) &&
         !(filters.hideColorVisionRequired && result.requiresNormalColorVision) &&
+        !(filters.onlyLmBonusEligible && !result.lateralMoveBonusRange) &&
         !matchesExcludedTag
       );
     }),
-    [excludedClearancesSet, excludedRequirementTagsSet, filterSourceResults, filters.hideColorVisionRequired, searchQuery]
+    [excludedClearancesSet, excludedRequirementTagsSet, filterSourceResults, filters.hideColorVisionRequired, filters.onlyLmBonusEligible, searchQuery]
   );
   const clearanceOptions = useMemo(
     () => [...new Set(filterSourceResults.map(result => result.clearance))].sort(),
@@ -187,13 +188,15 @@ export function ResultsPanel({
     [resultsMatchingNonMosFilters]
   );
   const hasActiveColorVisionRequirement = results.some(result => result.requiresNormalColorVision);
+  const hasActiveLmBonusEligibleResults = results.some(result => result.lateralMoveBonusRange);
   const activeFilterCount =
     (filters.searchQuery.trim().length > 0 ? 1 : 0) +
     excludedMosCodes.length +
     filters.excludedFields.length +
     filters.excludedClearances.length +
     filters.excludedRequirementTags.length +
-    (filters.hideColorVisionRequired ? 1 : 0);
+    (filters.hideColorVisionRequired ? 1 : 0) +
+    (filters.onlyLmBonusEligible ? 1 : 0);
 
   useEffect(() => {
     const targetCount = hasSearched ? results.length : 0;
@@ -405,6 +408,7 @@ export function ResultsPanel({
                   >
                     <option value="match">Match %</option>
                     <option value="skill">Skill Transfer %</option>
+                    <option value="bonus">Bonus High to Low</option>
                     <option value="field">Field</option>
                     <option value="mos">MOS</option>
                     <option value="title">Title</option>
@@ -417,7 +421,7 @@ export function ResultsPanel({
         </div>
 
         {isFilterOpen && (
-          <div className="mb-4 border border-white/14 bg-black/80 p-3 md:overflow-visible overflow-y-auto max-h-[60vh] md:max-h-none">
+          <div className="mb-4 max-h-[min(70vh,calc(100vh-240px))] overflow-y-auto border border-white/14 bg-black/80 p-3">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="text-[12px] font-bold tracking-[0.22em] text-gray-500">
                 FILTER OPTIONS <span className="text-green-500/70">GREEN INCLUDED</span> <span className="text-red-400/80">RED HIDDEN</span>
@@ -534,6 +538,25 @@ export function ResultsPanel({
                     }`}
                   >
                     Color Vision Required
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-[11px] font-bold tracking-[0.2em] text-gray-600">INCENTIVES</div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={!filters.onlyLmBonusEligible && !hasActiveLmBonusEligibleResults}
+                    onClick={() => onFiltersChange({ ...filters, onlyLmBonusEligible: !filters.onlyLmBonusEligible })}
+                    className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${
+                      filters.onlyLmBonusEligible
+                        ? 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2'
+                        : !hasActiveLmBonusEligibleResults
+                          ? 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80'
+                          : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300'
+                    }`}
+                  >
+                    Show only FY27 LM bonus MOS
                   </button>
                 </div>
               </div>
