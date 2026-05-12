@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Home, MessageSquare, DollarSign, GraduationCap, Anchor, ArrowLeftRight, FolderOpen, Wrench, HelpCircle, LayoutDashboard, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Home, MessageSquare, DollarSign, Anchor, ArrowLeftRight, FolderOpen, Wrench, HelpCircle, LayoutDashboard, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface NavigationProps {
@@ -12,10 +12,10 @@ interface NavigationProps {
 const SIDEBAR_VERSION = 'v0.0.1';
 
 const loggedOutItems = [
-  { path: '/',             icon: Home,          label: 'HOME' },
-  { path: '/messages',     icon: MessageSquare, label: 'MARADMINS' },
-  { path: '/pay-benefits', icon: DollarSign,    label: 'BENEFITS' },
-  { path: '/education',    icon: GraduationCap, label: 'EDUCATION' },
+  { path: '/',             icon: Home,           label: 'HOME' },
+  { path: '/messages',     icon: MessageSquare,  label: 'MARADMINS' },
+  { path: '/pay-benefits', icon: DollarSign,     label: 'BENEFITS' },
+  // { path: '/education', icon: GraduationCap,  label: 'EDUCATION' },  // hidden until page is ready
   { path: '/lateral-move', icon: ArrowLeftRight, label: 'LATERAL MOVE' },
 ];
 
@@ -23,7 +23,7 @@ const loggedInItems = [
   { path: '/',             icon: LayoutDashboard, label: 'DASHBOARD' },
   { path: '/messages',     icon: MessageSquare,   label: 'MARADMINS' },
   { path: '/pay-benefits', icon: DollarSign,      label: 'BENEFITS' },
-  { path: '/education',    icon: GraduationCap,   label: 'EDUCATION' },
+  // { path: '/education', icon: GraduationCap,   label: 'EDUCATION' },  // hidden until page is ready
   { path: '/stay-marine',  icon: Anchor,          label: 'STAY MARINE' },
   { path: '/lateral-move', icon: ArrowLeftRight,  label: 'LATERAL MOVE' },
   { path: '/resources',    icon: FolderOpen,      label: 'RESOURCES' },

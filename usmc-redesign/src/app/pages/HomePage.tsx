@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { SiteLogo } from '../components/layout/SiteLogo';
 import { motion } from 'motion/react';
 import { ChevronRight, Play, DollarSign, GraduationCap, Home, HeartPulse, Users, ArrowRightLeft, ChevronLeft } from 'lucide-react';
 
@@ -7,7 +8,7 @@ export function HomePage() {
 
   const services = [
     { icon: DollarSign, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
-    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, credentialing and more.', path: '/education' },
+    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, credentialing and more.', path: '/' },
     { icon: Home, label: 'HOUSING', desc: 'Find housing, apply for BAH, relocation resources.', path: '/' },
     { icon: HeartPulse, label: 'HEALTH & WELLNESS', desc: 'Medical, dental and mental health care.', path: '/' },
     { icon: Users, label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and families.', path: '/' },
@@ -272,7 +273,7 @@ export function HomePage() {
           {/* Image placeholder */}
           <div className="hidden md:block col-span-1 relative overflow-hidden min-h-32 bg-gradient-to-br from-gray-900 to-black p-6">
             <div className="flex items-end h-full">
-              <div className="text-xs text-gray-700 font-mono">[ MARINES IMAGE ]</div>
+              <div className="text-xs text-gray-700 font-mono">[ PLACEHOLDER ]</div>
             </div>
           </div>
 
@@ -280,19 +281,25 @@ export function HomePage() {
           <div className="col-span-1 p-10 flex flex-col justify-center bg-black border-t md:border-x border-white/12">
             <div className="text-sm text-gray-500 tracking-widest mb-2">DO YOU HAVE WHAT IT TAKES?</div>
             <h2 className="text-3xl font-black text-white tracking-tight mb-6">BECOME ONE OF US.</h2>
-            <button className="flex items-center gap-2 text-sm font-bold text-red-500 tracking-widest hover:text-red-400 transition-colors">
+            <a
+              href="https://www.marines.com"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-sm font-bold text-red-500 tracking-widest hover:text-red-400 transition-colors"
+            >
               FIND YOUR PATH <ChevronRight className="w-3 h-3" />
-            </button>
+            </a>
           </div>
 
-          {/* Earned Never Given */}
+          {/* Spear logo */}
           <div className="col-span-1 p-10 flex flex-col justify-center items-center bg-red-900/5 border-t md:border-l border-white/12 text-center">
-            <svg width="40" height="40" viewBox="0 0 48 48" fill="none" className="mb-4 opacity-60">
-              <circle cx="24" cy="24" r="22" stroke="#b8912a" strokeWidth="1.5" fill="none" />
-              <ellipse cx="24" cy="24" rx="20" ry="9" stroke="#b8912a" strokeWidth="1.5" fill="none" />
-              <path d="M24 2 L24 46" stroke="#b8912a" strokeWidth="1.5" fill="none" />
-              <circle cx="24" cy="24" r="5" fill="#b8912a" />
-            </svg>
+            <motion.div
+              className="mb-4"
+              animate={{ filter: ['brightness(1)', 'brightness(1.35)', 'brightness(1)'] }}
+              transition={{ duration: 1.6, ease: 'easeInOut', repeat: Infinity, repeatDelay: 4 }}
+            >
+              <SiteLogo size={80} variant="red" />
+            </motion.div>
             <div className="text-sm font-black text-white tracking-wide">EARNED<span className="text-red-600">.</span></div>
             <div className="text-sm font-black text-white tracking-wide">NEVER GIVEN<span className="text-red-600">.</span></div>
           </div>

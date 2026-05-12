@@ -1,4 +1,4 @@
-import { Search, LogIn, LogOut } from 'lucide-react';
+// import { Search, LogIn, LogOut } from 'lucide-react';  // hidden until auth + search are implemented
 import { motion } from 'motion/react';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 
@@ -33,11 +33,13 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
           <span className="text-sm text-green-400 font-mono tracking-widest">UNCLASSIFIED</span>
         </div>
 
-        <button className="hidden md:block text-gray-400 hover:text-white transition-colors">
+        {/* Search button — hidden until search is implemented */}
+        {/* <button className="hidden md:block text-gray-400 hover:text-white transition-colors">
           <Search className="w-5 h-5" />
-        </button>
+        </button> */}
 
-        <motion.button
+        {/* Sign in/out button — hidden until auth is implemented */}
+        {/* <motion.button
           onClick={onToggleLogin}
           className="flex items-center gap-2 px-3 py-2 md:px-5 border border-white/40 rounded-sm text-white text-xs font-bold tracking-widest hover:border-white/80 transition-colors"
           whileTap={{ scale: 0.97 }}
@@ -53,7 +55,7 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
               SIGN IN
             </>
           )}
-        </motion.button>
+        </motion.button> */}
       </div>
     </motion.header>
   );
