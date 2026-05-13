@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, DollarSign, GraduationCap, Home, HeartPulse, Users, ArrowRightLeft, ExternalLink } from 'lucide-react';
+import { ChevronRight, DollarSign, GraduationCap, ArrowRightLeft, ExternalLink, Newspaper, MessageSquare, Anchor } from 'lucide-react';
 import { HeroSection } from '@/app/features/hero';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { useNewsItems } from '@/app/features/news';
@@ -56,13 +56,16 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
   // Marine Corps News panel — press releases (top 3)
   const newsPanel = pressReleases.slice(0, 3);
 
-  const services = [
+  const leftServices = [
     { icon: DollarSign, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
-    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, credentialing and more.', path: '/' },
-    { icon: Home, label: 'HOUSING', desc: 'Find housing, apply for BAH, relocation resources.', path: '/' },
-    { icon: HeartPulse, label: 'HEALTH & WELLNESS', desc: 'Medical, dental and mental health care.', path: '/' },
-    { icon: Users, label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and families.', path: '/' },
-    { icon: ArrowRightLeft, label: 'TRANSITION ASSISTANCE', desc: 'Plan for your future after the Corps.', path: '/' },
+    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, TA guidance, and education planning.', path: '/education' },
+    { icon: Newspaper, label: 'LATEST NEWS', desc: 'Track official news stories and press releases.', path: '/news' },
+  ];
+
+  const rightServices = [
+    { icon: DollarSign, label: 'BONUS TOOL', desc: 'Estimate SRB and continuation pay opportunities.', path: '/pay-benefits/bonuses' },
+    { icon: MessageSquare, label: 'MARADMINS', desc: 'Search Marine administrative messages and references.', path: '/messages' },
+    { icon: ArrowRightLeft, label: 'LATERAL MOVE', desc: 'Compare MOS options and find matching opportunities.', path: '/lateral-move' },
   ];
 
 
@@ -89,7 +92,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
               THE MARINE CORPS EXISTS TO WIN OUR NATION'S BATTLES AND DEVELOP QUALITY CITIZENS COMMITTED TO MAKING A DIFFERENCE.
             </p>
             <button className="text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-              SEMPER FIDELIS<span className="text-red-600">.</span>
+              STAY MARINE<span className="text-red-600">.</span>
             </button>
           </div>
 
@@ -113,18 +116,20 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
       {/* I Need To Section */}
       <div className="bg-black border-t border-white/12 py-16 px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-sm text-gray-500 font-mono tracking-[0.3em] mb-8">I NEED TO...</div>
+          <div className="text-sm text-gray-500 font-mono tracking-[0.3em] mb-8">I NEED...</div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-0 relative">
             {/* Left services */}
-            <div className="flex flex-col gap-px">
-              {services.slice(0, 3).map((s) => {
+            <div className="flex flex-col border-l border-white/12">
+              {leftServices.map((s, index) => {
                 const Icon = s.icon;
                 return (
                   <motion.button
                     key={s.label}
                     onClick={() => navigate(s.path)}
-                    className="flex items-start gap-4 p-5 border border-white/12 bg-black text-left hover:bg-red-900/10 hover:border-white/30 transition-colors group"
+                    className={`flex items-start gap-4 p-5 border-b border-white/12 bg-black text-left hover:bg-red-900/10 transition-colors group ${
+                      index === 0 ? 'border-t' : ''
+                    }`}
                     whileTap={{ scale: 0.98 }}
                   >
                     <Icon className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -141,22 +146,24 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
             <div className="hidden md:flex items-center justify-center border border-white/12 bg-black/50 relative overflow-hidden">
               <div className="absolute inset-0" style={{ background: 'radial-gradient(circle, rgba(220,38,38,0.08) 0%, transparent 70%)' }} />
               <div className="relative z-10 flex flex-col items-center gap-3 px-6 text-center">
-                <div className="text-[11px] font-mono tracking-[0.35em] text-gray-500">USMC PORTAL</div>
-                <div className="text-2xl font-black tracking-[0.28em] text-white">MARINES</div>
+                <div className="text-[11px] font-mono tracking-[0.35em] text-gray-500">NEXT OBJECTIVE</div>
+                <div className="text-2xl font-black tracking-[0.28em] text-white">MOVE WITH PURPOSE</div>
                 <div className="h-px w-16 bg-red-600/50" />
-                <div className="text-xs tracking-[0.3em] text-gray-500">IDENTITY UPDATE IN PROGRESS</div>
+                <div className="text-xs tracking-[0.3em] text-gray-500">STAY MARINE. KEEP PRESSING.</div>
               </div>
             </div>
 
             {/* Right services */}
-            <div className="flex flex-col gap-px">
-              {services.slice(3).map((s) => {
+            <div className="flex flex-col border-l border-r border-white/12 md:border-l-0">
+              {rightServices.map((s, index) => {
                 const Icon = s.icon;
                 return (
                   <motion.button
                     key={s.label}
                     onClick={() => navigate(s.path)}
-                    className="flex items-start gap-4 p-5 border border-white/12 bg-black text-left hover:bg-red-900/10 hover:border-white/30 transition-colors group"
+                    className={`flex items-start gap-4 p-5 border-b border-white/12 bg-black text-left hover:bg-red-900/10 transition-colors group ${
+                      index === 0 ? 'border-t' : ''
+                    }`}
                     whileTap={{ scale: 0.98 }}
                   >
                     <Icon className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
@@ -171,8 +178,11 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
           </div>
 
           <div className="mt-4 text-right">
-            <button className="text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 ml-auto">
-              VIEW ALL SERVICES <ChevronRight className="w-3 h-3" />
+            <button
+              onClick={() => navigate('/messages')}
+              className="text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 ml-auto"
+            >
+              SEARCH MARADMINS <ChevronRight className="w-3 h-3" />
             </button>
           </div>
         </div>
@@ -365,8 +375,8 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
             >
               <SiteLogo size={80} variant="red" />
             </motion.div>
-            <div className="text-sm font-black text-white tracking-wide">EARNED<span className="text-red-600">.</span></div>
-            <div className="text-sm font-black text-white tracking-wide">NEVER GIVEN<span className="text-red-600">.</span></div>
+            <div className="text-sm font-black text-white tracking-wide">STAY MARINE<span className="text-red-600">.</span></div>
+            <div className="text-sm font-black text-white tracking-wide">CONTINUE OUR LEGACY<span className="text-red-600">.</span></div>
           </div>
 
           {/* Hero image — right panel */}

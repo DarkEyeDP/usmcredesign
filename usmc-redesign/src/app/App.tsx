@@ -6,6 +6,8 @@ import { Navigation } from '@/app/components/layout/Navigation';
 import { StatusBar } from '@/app/components/layout/StatusBar';
 import { HomePage } from '@/app/pages/HomePage';
 import { EducationPage } from '@/app/pages/EducationPage';
+import { PrivacyPolicyPage } from '@/app/pages/PrivacyPolicyPage';
+import { SiteMapPage } from '@/app/pages/SiteMapPage';
 import { StayMarinePage } from '@/app/pages/StayMarinePage';
 import { MARADMINPage } from '@/app/features/maradmin/MARADMINPage';
 import { LateralMovePage } from '@/app/features/latmove';
@@ -92,6 +94,8 @@ export default function App() {
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
             <Route path="/education/tuition-assistance" element={<TuitionAssistancePage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/sitemap" element={<SiteMapPage />} />
             <Route path="/lateral-move" element={
               <LatMoveErrorBoundary>
                 <LateralMovePage

@@ -40,7 +40,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
   const activeVideo = (slide.videoId ? getVideoById(slide.videoId) : undefined) ?? getDefaultVideo();
 
   return (
-    <div className="relative h-screen overflow-hidden" style={{ contain: 'layout style paint' }}>
+    <div className="relative h-[52svh] min-h-[420px] overflow-hidden md:h-screen md:min-h-0" style={{ contain: 'layout style paint' }}>
 
       {/* Sliding images — cinematic dissolve cross-fade */}
       <AnimatePresence mode="sync" initial={false}>
@@ -152,15 +152,15 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
       {/* WATCH button — shows the active slide's video (or default) */}
       <button
         onClick={() => setVideoOpen(true)}
-        className={`hidden md:flex absolute ${isFullscreen ? 'top-8' : 'top-28'} right-8 z-20 border border-white/10 bg-black/50 hover:bg-black/70 hover:border-white/20 p-3 items-center gap-3 w-56 transition-all duration-300 group text-left`}
+        className={`hidden md:flex absolute ${isFullscreen ? 'top-8' : 'top-28'} right-8 z-20 border border-white/10 bg-black/50 hover:bg-black/70 hover:border-white/20 p-3 items-center gap-3 w-64 transition-all duration-300 group text-left`}
       >
         <div className="w-10 h-10 rounded-full border border-white/40 group-hover:border-red-600/70 flex items-center justify-center flex-shrink-0 transition-colors duration-300">
           <Play className="w-4 h-4 text-white ml-0.5 group-hover:text-red-400 transition-colors duration-300" fill="currentColor" />
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="text-xs text-gray-500 tracking-widest font-mono">WATCH</div>
-          <div className="text-sm text-white font-black tracking-wide leading-tight">{activeVideo.title}</div>
-          <div className="text-[11px] text-gray-500 mt-0.5 font-mono">{activeVideo.subtitle}</div>
+          <div className="mt-1 text-sm text-white font-black tracking-wide leading-tight">{activeVideo.title}</div>
+          <div className="mt-1 text-[11px] text-gray-500 font-mono leading-snug">{activeVideo.subtitle}</div>
         </div>
       </button>
 

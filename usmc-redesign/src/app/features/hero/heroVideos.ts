@@ -20,9 +20,9 @@ export const VIDEOS: HeroVideo[] = [
   {
     id: 'semper-fidelis-250',
     youtubeId: 'tYq6HGNGZq4',
-    title: 'SEMPER FIDELIS',
-    subtitle: '250 YEARS OF EXCELLENCE',
-    headerLabel: 'OFFICIAL USMC FOOTAGE',
+    title: 'CARRY THE STANDARD',
+    subtitle: '250 YEARS. STILL ADVANCING.',
+    headerLabel: 'FIELD FOOTAGE',
     headerMeta: 'MARINES · 250TH ANNIVERSARY',
     year: '1775',
   },

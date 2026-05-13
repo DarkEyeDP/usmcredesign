@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, ChevronDown, ExternalLink, Clock, AlertTriangle, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
 
-const tabs = ['OVERVIEW', 'ELIGIBILITY', 'HOW TO APPLY', 'GRADE REQUIREMENTS', 'RECOUPMENT'];
+const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
+const taTabs = ['OVERVIEW', 'ELIGIBILITY', 'HOW TO APPLY', 'GRADE REQUIREMENTS', 'RECOUPMENT'];
+const inactiveEducationTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
 const taBasics = [
   { label: 'Annual Limit', value: '$4,500', sub: 'Per fiscal year (Oct 1 – Sep 30)' },
@@ -46,7 +48,7 @@ const tiRequirements = [
   { rank: 'Reserve Officers on Active Duty', requirement: '24 months (AR service counts toward requirement)' },
 ];
 
-const applySteps = [
+const applySteps: Array<{ num: string; title: string; desc: ReactNode }> = [
   {
     num: '01',
     title: 'QUALIFY & ORIENT',
@@ -55,7 +57,20 @@ const applySteps = [
   {
     num: '02',
     title: 'CHOOSE YOUR SCHOOL & PROGRAM',
-    desc: 'Confirm your school has a DoD Memorandum of Understanding. Search the participating institutions list at dhra.appianportalsgov.com/DoD-MOU/page/institutions. TA only covers accredited, credit-bearing courses.',
+    desc: (
+      <>
+        Confirm your school has a DoD Memorandum of Understanding. Search the participating institutions list at{' '}
+        <a
+          href="https://dhra.appianportalsgov.com/DoD-MOU/page/institutions"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-red-500 hover:text-red-400 transition-colors underline underline-offset-2"
+        >
+          dhra.appianportalsgov.com/DoD-MOU/page/institutions
+        </a>
+        . TA only covers accredited, credit-bearing courses.
+      </>
+    ),
   },
   {
     num: '03',
@@ -197,32 +212,62 @@ export function TuitionAssistancePage() {
             <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
               Active-duty Marines can receive up to $4,500 per fiscal year in tuition assistance for college courses — taken during off-duty time, at no cost to your military career.
             </p>
-            <a
-              href="https://myeducation.netc.navy.mil/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
-            >
-              SUBMIT A TA REQUEST (MYEDUCATION) <ExternalLink className="w-3 h-3" />
-            </a>
           </div>
 
           <div className="flex items-center px-8 -mb-px overflow-x-auto">
-            {tabs.map((tab) => (
+            {educationTabs.map((tab) => {
+              const isActive = tab === 'TA EDUCATION';
+              const isInactive = inactiveEducationTabs.has(tab);
+
+              return (
+                <button
+                  key={tab}
+                  onClick={() => (isActive || isInactive) ? undefined : navigate('/education')}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
+                    isActive
+                      ? 'text-white'
+                      : isInactive
+                        ? 'text-gray-700/70'
+                        : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {tab}
+                  {isActive && (
+                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="taTabLine" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="px-8 py-8">
+        <div className="mb-8 flex flex-col gap-3 border-b border-white/12 -mx-8 px-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex items-center overflow-x-auto">
+            {taTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
+                className={`relative flex-shrink-0 whitespace-nowrap px-5 py-3 text-[12px] font-bold tracking-widest transition-colors ${
                   activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
                 }`}
               >
                 {tab}
                 {activeTab === tab && (
-                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="taTabLine" />
+                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="taSubTabLine" />
                 )}
               </button>
             ))}
           </div>
+          <a
+            href="https://myeducation.netc.navy.mil/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 self-start pb-3 text-[12px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors md:self-auto"
+          >
+            SUBMIT A TA REQUEST (MYEDUCATION) <ExternalLink className="w-3 h-3" />
+          </a>
         </div>
       </div>
 

@@ -578,7 +578,10 @@ export function PayBenefitsPage() {
                 <Icon className="w-5 h-5 text-red-600/60 mb-3 group-hover:text-red-500 transition-colors" />
                 <div className="text-[13px] font-bold text-white tracking-wide mb-2 group-hover:text-red-400 transition-colors">{tool.label}</div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-3">{tool.desc}</p>
-                <span className="text-red-500 text-[13px] font-bold group-hover:text-red-400 transition-colors">→</span>
+                {tool.link
+                  ? <span className="text-red-500 text-[13px] font-bold group-hover:text-red-400 transition-colors">→</span>
+                  : <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
+                }
               </>
             );
             const cls = `p-5 ${i < tools.length - 1 ? 'border-r border-white/12' : ''} hover:bg-red-900/5 transition-colors group`;
