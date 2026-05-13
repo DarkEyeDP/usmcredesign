@@ -254,7 +254,7 @@ export function SearchForm({
         </div>
         <input
           type="text"
-          inputMode="text"
+          inputMode="numeric"
           maxLength={4}
           placeholder="e.g. 0311"
           value={pmos}
@@ -271,7 +271,7 @@ export function SearchForm({
         <div className="flex gap-2">
           <input
             type="text"
-            inputMode="text"
+            inputMode="numeric"
             maxLength={4}
             placeholder="e.g. 0369"
             value={amosInput}

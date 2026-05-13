@@ -306,7 +306,7 @@ export function ResultsPanel({
         {/* Header — stacks vertically on mobile, side-by-side on desktop */}
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:gap-6">
           {/* Left stack */}
-          <div className="flex items-center justify-between md:flex-col md:items-start md:gap-3 md:flex-shrink-0">
+          <div className="flex items-center md:flex-col md:items-start md:gap-3 md:flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-6 h-6 border border-white/35 flex items-center justify-center flex-shrink-0">
                 <span className="text-sm font-bold text-red-500">2</span>
@@ -315,7 +315,7 @@ export function ResultsPanel({
                 YOUR LATERAL MOVE OPTIONS
               </span>
             </div>
-            <span className="text-[15px] font-bold text-red-500 tracking-widest whitespace-nowrap">
+            <span className="hidden text-[15px] font-bold text-red-500 tracking-widest whitespace-nowrap md:block">
               MATCHES FOUND: {animatedMatchCount}
             </span>
           </div>
@@ -416,6 +416,12 @@ export function ResultsPanel({
                   <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600 pointer-events-none" />
                 </div>
               </div>
+            </div>
+
+            <div className="md:hidden">
+              <span className="text-[15px] font-bold text-red-500 tracking-widest whitespace-nowrap">
+                MATCHES FOUND: {animatedMatchCount}
+              </span>
             </div>
           </div>
         </div>

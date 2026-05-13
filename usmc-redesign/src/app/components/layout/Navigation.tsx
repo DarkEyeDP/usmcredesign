@@ -115,13 +115,14 @@ interface MobileNavProps {
 }
 
 function MobileNav({ items, isActive, navigate }: MobileNavProps) {
-  const visibleItems = items.slice(0, 5);
+  const visibleItems = items.slice(0, 6);
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/95 border-t border-white/12">
       <div className="flex">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
+          const mobileLabel = item.path === '/lateral-move' ? 'LATMOVE' : item.label;
           return (
             <button
               key={item.path}
@@ -131,7 +132,7 @@ function MobileNav({ items, isActive, navigate }: MobileNavProps) {
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-bold tracking-wider truncate max-w-[52px]">{item.label}</span>
+              <span className="text-[9px] font-bold tracking-wider truncate max-w-[52px]">{mobileLabel}</span>
             </button>
           );
         })}
