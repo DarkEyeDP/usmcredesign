@@ -37,7 +37,7 @@ jobs:
 
       - name: Build site
         env:
-          VITE_BASE_PATH: /
+          VITE_BASE_PATH: /usmcredesign/
         run: npm --prefix usmc-redesign run build
 
       - name: Upload artifact
