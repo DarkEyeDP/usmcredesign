@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -19,8 +19,13 @@ function assetResolver() {
   }
 }
 
-export default defineConfig(({ command }) => ({
-  base: command === 'serve' ? '/' : '/usmcredesign/',
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const configuredBase = env.VITE_BASE_PATH?.trim() || '/'
+  const normalizedBase = configuredBase.endsWith('/') ? configuredBase : `${configuredBase}/`
+
+  return ({
+  base: command === 'serve' ? '/' : normalizedBase,
   plugins: [
     assetResolver(),
     react(),
@@ -44,4 +49,4 @@ export default defineConfig(({ command }) => ({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
-}))
+})})
