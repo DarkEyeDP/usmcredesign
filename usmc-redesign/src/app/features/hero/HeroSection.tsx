@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Play, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, Maximize2, Minimize2 } from 'lucide-react';
 import { GridPulses } from './GridPulses';
 import { GridNodes } from './GridNodes';
 import { VideoPlayer } from './VideoPlayer';
@@ -14,7 +13,6 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSectionProps) {
-  const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
@@ -187,14 +185,6 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
             <p className="text-sm text-gray-400 mb-8 tracking-wide max-w-xs md:max-w-sm">
               {slide.sub[0]}<span className="text-red-600">.</span><br />{slide.sub[1]}<span className="text-red-600">.</span>
             </p>
-            <motion.button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-8 py-3 bg-transparent border border-white/40 text-white text-xs font-bold tracking-widest hover:bg-white/5 transition-colors"
-              whileTap={{ scale: 0.97 }}
-            >
-              EXPLORE THE CORPS
-              <ChevronRight className="w-4 h-4" />
-            </motion.button>
           </motion.div>
         </AnimatePresence>
       </div>
