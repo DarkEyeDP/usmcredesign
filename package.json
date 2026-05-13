@@ -6,5 +6,9 @@
     "build": "npm --prefix usmc-redesign run build",
     "test": "npm --prefix usmc-redesign run test",
     "install:app": "npm --prefix usmc-redesign install"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
   }
 }

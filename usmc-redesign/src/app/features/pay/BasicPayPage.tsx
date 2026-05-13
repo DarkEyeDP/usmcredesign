@@ -167,7 +167,7 @@ export function BasicPayPage() {
           }}
         />
 
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '200px' }}>
+        <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute top-5 right-8 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
             <div className="text-xs font-black text-white tracking-widest">2026 PAY TABLES</div>
             <div className="w-8 h-0.5 bg-red-600 ml-auto my-2" />
@@ -204,12 +204,29 @@ export function BasicPayPage() {
             <p className="text-[14px] text-gray-400 max-w-2xl leading-relaxed mb-4">
               Browse the full 2026 basic pay charts for enlisted, warrant officer, and commissioned officer grades using the same data behind your pay overview.
             </p>
-            <button
-              onClick={() => navigate('/pay-benefits')}
-              className="flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
-            >
-              RETURN TO PAY & BENEFITS <ChevronRight className="w-3 h-3" />
-            </button>
+          </div>
+
+          {/* Pay section tabs */}
+          <div className="flex items-center overflow-x-auto px-4 md:px-8 -mb-px">
+            {[
+              { label: 'OVERVIEW', path: '/pay-benefits' },
+              { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+              { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
+            ].map(({ label, path }) => {
+              const active = path === '/pay-benefits/basic-pay';
+              return (
+                <button
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {label}
+                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

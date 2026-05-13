@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { parseRecognizedTableFamily } from '../src/app/components/maradminTableParsers';
-import { extractMARADMINSource, parseArchivePageRows } from '../src/app/components/maradminUtils';
+import { parseRecognizedTableFamily } from '../src/app/features/maradmin/maradminTableParsers';
+import { extractMARADMINSource, parseArchivePageRows, parseMARADMINText } from '../src/app/features/maradmin/maradminUtils';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();
@@ -46,6 +46,31 @@ test('parses inline attendee tables read in three columns', () => {
   assert.deepEqual(parsed.tables?.[0].headers, ['Name', 'Rank', 'MCC']);
   assert.deepEqual(parsed.tables?.[0].rows[0], ['Asher, Justin J.', 'SSgt', 'J88']);
   assert.deepEqual(parsed.tables?.[0].rows[1], ['Backes, Jessica H.', 'GySgt', 'J88']);
+});
+
+test('parses sergeants major billet slate tables without treating initials as subsections', () => {
+  const parsed = parseRecognizedTableFamily(
+    'Per the references, the following Sergeants Major have been slated for the below listed billets (Read in 4 columns): Name Command Location NLT Date W. U. Lucero, Jr. HQTRS, MAG-41 Fort Worth, TX May 2026 T. Q. Tran HQTRS, MAG-49 McGuire AFB, NJ Apr 2027 L. C. Lamothe 4TH CRR Marietta, GA Apr 2027',
+  );
+
+  assert.ok(parsed);
+  assert.deepEqual(parsed.tables?.[0].headers, ['Name', 'Command', 'Location', 'NLT Date']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['W. U. Lucero, Jr.', 'HQTRS, MAG-41', 'Fort Worth, TX', 'May 2026']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['L. C. Lamothe', '4TH CRR', 'Marietta, GA', 'Apr 2027']);
+});
+
+test('keeps sergeants major billet slate initials in table cells during full MARADMIN parsing', () => {
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/1. Per the references, the following Sergeants Major have been slated for the below listed billets (Read in 4 columns):
+Name Command Location NLT Date
+W. U. Lucero, Jr. HQTRS, MAG-41 Fort Worth, TX May 2026
+T. Q. Tran HQTRS, MAG-49 McGuire AFB, NJ Apr 2027
+L. C. Lamothe 4TH CRR Marietta, GA Apr 2027
+2. Per references (a) and (b), the newly assigned Sergeants Major are directed to submit their Inter-Unit Transfer.
+`);
+
+  assert.equal(sections[0].bullets, undefined);
+  assert.deepEqual(sections[0].tables?.[0].rows[1], ['T. Q. Tran', 'HQTRS, MAG-49', 'McGuire AFB, NJ', 'Apr 2027']);
 });
 
 test('parses projected promotion comparison tables', () => {

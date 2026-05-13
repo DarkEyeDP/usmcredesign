@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
+import heroBanner from '@/app/assets/hero-3.webp';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, ChevronRight, Calculator, CalendarDays, ExternalLink, Info, Shield, TrendingUp, DollarSign, X } from 'lucide-react';
@@ -23,32 +25,36 @@ import {
   type StoredPayOverviewSettings,
 } from './payOverviewStorage';
 
-const tabs = ['OVERVIEW', 'ACTIVE DUTY', 'RESERVE', 'VETERANS & FAMILIES', 'TOOLS & RESOURCES'];
+const payNavTabs = [
+  { label: 'OVERVIEW', path: '/pay-benefits' },
+  { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+  { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
+];
 
 const popularTopics = [
   { label: 'Basic Pay', desc: 'Pay scales and charts', path: '/pay-benefits/basic-pay' },
+  { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
   { label: 'Allowances', desc: 'BAH, BAS, and more' },
   { label: 'Special & Incentive Pays', desc: 'Career and skill incentives' },
-  { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
   { label: 'Taxes', desc: 'Federal and state information' },
   { label: 'Leave & Permissive TDY', desc: 'Policy and pay impacts' },
   { label: 'Pay Forms & Documents', desc: 'DD Forms and resources' },
 ];
 
 const benefits = [
-  { label: 'HEALTH CARE', desc: 'Comprehensive medical, dental, and vision coverage.' },
-  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.' },
-  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.' },
-  { label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and their families.' },
-  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.' },
+  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.', glyph: 'M', link: '/education', external: false },
+  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.', glyph: '1775', link: 'https://www.manpower.marines.mil/Divisions/Manpower-Management/Separation-and-Retirements-Branch/', external: true },
+  { label: 'HEALTH CARE', desc: 'Comprehensive medical, dental, and vision coverage.', glyph: 'U', link: null, external: false },
+  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.', glyph: 'S', link: null, external: false },
+  { label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and their families.', glyph: 'C', link: null, external: false },
 ];
 
 const tools = [
-  { icon: Shield, label: 'BRS OPT-IN', desc: 'Blended Retirement System information and enrollment.' },
-  { icon: Shield, label: 'SGLI', desc: "Servicemembers' Group Life Insurance details and coverage." },
-  { icon: TrendingUp, label: 'THRIFT SAVINGS PLAN', desc: 'Plan for retirement with the TSP and resources.' },
-  { icon: DollarSign, label: 'FINANCIAL COUNSELING', desc: 'Get help from accredited financial counselors.' },
-  { icon: DollarSign, label: 'MONEY MATTERS', desc: 'Financial readiness tips and training.' },
+  { icon: TrendingUp, label: 'MILRETIRED.COM', desc: 'Compare all 50 states on taxes, cost of living, VA benefits, and retirement friendliness.', link: 'https://milretired.com' },
+  { icon: Shield, label: 'SGLI', desc: "Servicemembers' Group Life Insurance details and coverage.", link: null },
+  { icon: TrendingUp, label: 'THRIFT SAVINGS PLAN', desc: 'Plan for retirement with the TSP and resources.', link: null },
+  { icon: DollarSign, label: 'FINANCIAL COUNSELING', desc: 'Get help from accredited financial counselors.', link: null },
+  { icon: DollarSign, label: 'MONEY MATTERS', desc: 'Financial readiness tips and training.', link: null },
 ];
 
 const payCategories: PayCategory[] = ['enlisted', 'warrant', 'officer'];
@@ -126,7 +132,6 @@ function formatShortDate(date: Date) {
 
 export function PayBenefitsPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('OVERVIEW');
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [storedSettings, setStoredSettings] = useState<StoredPayOverviewSettings>(() => readStoredPayOverviewSettings());
   const [yearsInput, setYearsInput] = useState(() => String(readStoredPayOverviewSettings().yearsOfService));
@@ -297,7 +302,7 @@ export function PayBenefitsPage() {
         }} />
         <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-900/30" />
 
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
+        <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           {/* Financial Readiness overlay card */}
           <div className="absolute top-5 right-8 border border-white/10 bg-black/60 px-5 py-4 text-right">
             <div className="text-xs font-black text-white tracking-widest mb-1">FINANCIAL READINESS</div>
@@ -316,34 +321,32 @@ export function PayBenefitsPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2"
+              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-3"
             >
               PAY &<br />BENEFITS
             </motion.h1>
-            <p className="text-[14px] text-gray-400 max-w-xs leading-relaxed mb-3">
+            <p className="text-[14px] text-gray-400 max-w-xs leading-relaxed mb-4">
               Competitive pay. Comprehensive benefits. Financial security for you and your family, today and tomorrow.
             </p>
-            <button className="flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-              MANAGE MY PAY <ChevronRight className="w-3 h-3" />
-            </button>
           </div>
 
-          {/* Tabs — flush at bottom so active underline sits on the hero border */}
+          {/* Tabs */}
           <div className="flex items-center px-4 md:px-8 -mb-px overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                  activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                }`}
-              >
-                {tab}
-                {activeTab === tab && (
-                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="payTabLine" />
-                )}
-              </button>
-            ))}
+            {payNavTabs.map(({ label, path }) => {
+              const active = path === '/pay-benefits';
+              return (
+                <button
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {label}
+                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -488,10 +491,10 @@ export function PayBenefitsPage() {
                 return (
                   <div key={i} className={rowClassName}>
                     <div>
-                      <div className="text-sm text-gray-300">{topic.label}</div>
-                      <div className="text-xs text-gray-600">{topic.desc}</div>
+                      <div className="text-sm text-white/25">{topic.label}</div>
+                      <div className="text-xs text-gray-700">{topic.desc}</div>
                     </div>
-                    <ChevronRight className="w-3 h-3 text-gray-700 flex-shrink-0" />
+                    <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   </div>
                 );
               })}
@@ -509,29 +512,53 @@ export function PayBenefitsPage() {
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {benefits.map((b, i) => (
-            <motion.div
-              key={i}
-              className="group cursor-pointer"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-            >
-              <div className="aspect-video bg-gradient-to-br from-gray-900 to-black border border-white/12 mb-3 group-hover:border-white/30 transition-colors overflow-hidden relative">
-                <div className="absolute inset-0 opacity-40" style={{
-                  background: `linear-gradient(${135 + i * 15}deg, rgba(20,10,5,1) 0%, rgba(5,5,5,1) 100%)`
-                }} />
-                <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                  <div className="text-5xl font-black text-white">{b.label.charAt(0)}</div>
+          {benefits.map((b, i) => {
+            const inner = (
+              <>
+                <div className="aspect-video bg-gradient-to-br from-gray-900 to-black border border-white/12 mb-3 group-hover:border-white/30 transition-colors overflow-hidden relative" style={{ backgroundColor: '#050508' }}>
+                  <div className="absolute inset-0 opacity-40" style={{
+                    background: `linear-gradient(${135 + i * 15}deg, rgba(20,10,5,1) 0%, rgba(5,5,5,1) 100%)`
+                  }} />
+                  {!b.link && <SpearWatermark opacity={0.07} size="75%" />}
+                  {b.link && (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                      <div className="text-5xl font-black text-white">{b.glyph}</div>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="text-sm font-bold text-white tracking-wide mb-1">{b.label}</div>
-              <p className="text-[13px] text-gray-500 leading-relaxed mb-2">{b.desc}</p>
-              <button className="flex items-center gap-1 text-xs text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-                →
-              </button>
-            </motion.div>
-          ))}
+                <div className="text-sm font-bold text-white tracking-wide mb-1 group-hover:text-red-400 transition-colors">{b.label}</div>
+                <p className="text-[13px] text-gray-500 leading-relaxed mb-2 flex-1">{b.desc}</p>
+                {b.link
+                  ? <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest text-red-500 group-hover:text-red-400 transition-colors">EXPLORE <ChevronRight className="w-2.5 h-2.5" /></span>
+                  : <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
+                }
+              </>
+            );
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+              >
+                {b.link ? (
+                  b.external ? (
+                    <a href={b.link} target="_blank" rel="noopener noreferrer" className="group flex flex-col cursor-pointer">
+                      {inner}
+                    </a>
+                  ) : (
+                    <Link to={b.link} className="group flex flex-col cursor-pointer">
+                      {inner}
+                    </Link>
+                  )
+                ) : (
+                  <div className="group flex flex-col cursor-default">
+                    {inner}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
 
@@ -546,36 +573,33 @@ export function PayBenefitsPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-0 border border-white/12">
           {tools.map((tool, i) => {
             const Icon = tool.icon;
-            return (
-              <div key={i} className={`p-5 ${i < tools.length - 1 ? 'border-r border-white/12' : ''} hover:bg-red-900/5 transition-colors cursor-pointer group`}>
-                <Icon className="w-5 h-5 text-red-600/60 mb-3" />
-                <div className="text-[13px] font-bold text-white tracking-wide mb-2">{tool.label}</div>
+            const inner = (
+              <>
+                <Icon className="w-5 h-5 text-red-600/60 mb-3 group-hover:text-red-500 transition-colors" />
+                <div className="text-[13px] font-bold text-white tracking-wide mb-2 group-hover:text-red-400 transition-colors">{tool.label}</div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-3">{tool.desc}</p>
-                <button className="text-red-500 text-[13px] font-bold group-hover:text-red-400 transition-colors">→</button>
+                <span className="text-red-500 text-[13px] font-bold group-hover:text-red-400 transition-colors">→</span>
+              </>
+            );
+            const cls = `p-5 ${i < tools.length - 1 ? 'border-r border-white/12' : ''} hover:bg-red-900/5 transition-colors group`;
+            return tool.link ? (
+              <a key={i} href={tool.link} target="_blank" rel="noopener noreferrer" className={cls}>
+                {inner}
+              </a>
+            ) : (
+              <div key={i} className={`${cls} cursor-default`}>
+                {inner}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Need Help */}
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-white/12">
-        <div className="p-8 flex items-center gap-6 border-b md:border-b-0 md:border-r border-white/12 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-5" style={{ background: 'linear-gradient(135deg, rgba(30,10,0,1), transparent)' }} />
-          <div className="w-28 h-28 bg-gradient-to-br from-gray-800 to-black border border-white/12 flex-shrink-0 relative overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center opacity-20">
-              <div className="text-4xl font-black text-white">M</div>
-            </div>
-          </div>
-          <div className="relative z-10">
-            <div className="text-[13px] text-red-500 font-bold tracking-[0.2em] mb-3">NEED HELP?</div>
-            <p className="text-[15px] text-gray-300 leading-relaxed mb-4">
-              Talk to a Marine Corps Financial Counselor.<br />We're here to help.
-            </p>
-            <button className="flex items-center gap-2 px-5 py-2.5 border border-red-600/50 text-red-500 text-[13px] font-bold tracking-widest hover:bg-red-900/10 transition-colors">
-              FIND A COUNSELOR <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
+      {/* Photo + tagline banner */}
+      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-white/12" style={{ minHeight: '240px' }}>
+        <div className="relative overflow-hidden border-b md:border-b-0 md:border-r border-white/12" style={{ minHeight: '200px' }}>
+          <img src={heroBanner} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%)' }} />
         </div>
         <div className="p-8 flex flex-col justify-center">
           <div className="text-xl font-black text-white tracking-tight mb-3">FINANCIAL READINESS IS MISSION READINESS<span className="text-red-600">.</span></div>

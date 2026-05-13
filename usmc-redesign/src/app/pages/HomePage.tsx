@@ -1,10 +1,60 @@
 import { useNavigate } from 'react-router';
-import { SiteLogo } from '../components/layout/SiteLogo';
-import { motion } from 'motion/react';
-import { ChevronRight, Play, DollarSign, GraduationCap, Home, HeartPulse, Users, ArrowRightLeft, ChevronLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ChevronRight, DollarSign, GraduationCap, Home, HeartPulse, Users, ArrowRightLeft, ExternalLink } from 'lucide-react';
+import { HeroSection } from '@/app/features/hero';
+import { SiteLogo } from '@/app/components/layout/SiteLogo';
+import { useNewsItems } from '@/app/features/news';
+import recruitImage from '@/app/assets/hero-3.webp';
+import actionImage from '@/app/assets/hero-5.webp';
 
-export function HomePage() {
+interface HomePageProps {
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+}
+
+export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageProps) {
   const navigate = useNavigate();
+  const { newsItems, pressReleases, loading: newsLoading } = useNewsItems();
+
+  // Operations Feed carousel (news articles — they have images)
+  const [opIndex, setOpIndex] = useState(0);
+  const opTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const opItems = newsItems.slice(0, 8);
+
+  function startOpTimer() {
+    if (opTimerRef.current) clearInterval(opTimerRef.current);
+    opTimerRef.current = setInterval(() => {
+      setOpIndex(i => (opItems.length > 0 ? (i + 1) % opItems.length : 0));
+    }, 8000);
+  }
+
+  useEffect(() => {
+    if (opItems.length === 0) return;
+    startOpTimer();
+    return () => { if (opTimerRef.current) clearInterval(opTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opItems.length]);
+
+  function opPrev() {
+    setOpIndex(i => (opItems.length > 0 ? (i - 1 + opItems.length) % opItems.length : 0));
+    startOpTimer();
+  }
+
+  function opNext() {
+    setOpIndex(i => (opItems.length > 0 ? (i + 1) % opItems.length : 0));
+    startOpTimer();
+  }
+
+  const currentOp = opItems[opIndex] ?? null;
+
+  // Marine Corps News panel — press releases (top 3)
+  const newsPanel = pressReleases.slice(0, 3);
 
   const services = [
     { icon: DollarSign, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
@@ -15,89 +65,20 @@ export function HomePage() {
     { icon: ArrowRightLeft, label: 'TRANSITION ASSISTANCE', desc: 'Plan for your future after the Corps.', path: '/' },
   ];
 
-  const news = [
-    { date: 'MAY 20, 2024', title: 'III MARINE EXPEDITIONARY FORCE COMPLETES LARGE SCALE EXERCISE' },
-    { date: 'MAY 17, 2024', title: "COMMANDANT'S MESSAGE: FORGING THE FUTURE" },
-    { date: 'MAY 15, 2024', title: 'MARINES PARTICIPATE IN BALTOPS 24' },
-  ];
 
   const resources = [
-    'SAFETY & ACCIDENT PREVENTION',
-    'UNIFORMS & APPEARANCE',
-    'BOARDS & PROMOTIONS',
-    'LEGAL SERVICES',
-    'MARINE CORPS RELIEF SOCIETY',
-    'EMERGENCY INFORMATION',
-    'CONTACT YOUR CONGRESSMAN',
+    { label: 'SAFETY & ACCIDENT PREVENTION' },
+    { label: 'UNIFORMS & APPEARANCE', href: 'https://www.tecom.marines.mil/resources/marine-corps-uniform-board/' },
+    { label: 'BOARDS & PROMOTIONS' },
+    { label: 'LEGAL SERVICES', href: 'https://www.dso.marines.mil/#i-need-to-talk-to-someone' },
+    { label: 'MARINE CORPS RELIEF SOCIETY', href: 'https://www.nmcrs.org' },
+    { label: 'EMERGENCY INFORMATION' },
+    { label: 'CONTACT YOUR CONGRESSMAN' },
   ];
 
   return (
     <div className="relative min-h-screen bg-black pb-20 md:pb-0">
-      {/* Hero Section */}
-      <div className="relative h-screen overflow-hidden">
-        {/* Dramatic background */}
-        <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse at 70% 40%, rgba(30,10,0,0.8) 0%, rgba(0,0,0,0.95) 70%)',
-          backgroundColor: '#050505'
-        }} />
-        {/* Atmospheric overlay layers */}
-        <div className="absolute inset-0 opacity-30" style={{
-          background: 'linear-gradient(135deg, transparent 0%, rgba(80,20,0,0.4) 50%, transparent 100%)'
-        }} />
-        {/* Tactical grid */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }} />
-        {/* Red accent line right edge */}
-        <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-600/40" />
-
-        {/* Slide indicators */}
-        <div className="hidden md:flex absolute bottom-32 left-8 items-center gap-4 z-20">
-          {['01', '02', '03', '04'].map((n, i) => (
-            <button key={n} className={`text-xs font-mono tracking-widest transition-colors ${i === 0 ? 'text-white' : 'text-gray-600 hover:text-gray-400'}`}>
-              {n}
-            </button>
-          ))}
-        </div>
-
-        {/* Video preview top right */}
-        <div className="hidden md:flex absolute top-28 right-8 z-20 border border-white/10 bg-black/50 p-3 items-center gap-3 w-52">
-          <button className="w-10 h-10 rounded-full border border-white/40 flex items-center justify-center flex-shrink-0 hover:border-white/80 transition-colors">
-            <Play className="w-4 h-4 text-white ml-0.5" fill="white" />
-          </button>
-          <div>
-            <div className="text-xs text-gray-400 tracking-widest">WATCH</div>
-            <div className="text-sm text-white font-bold tracking-wide">THE LEGACY</div>
-            <div className="text-xs text-gray-500 mt-0.5">BEHIND EVERY BATTLE IS EVERY MARINE<span className="text-red-600">.</span></div>
-            <div className="text-xs text-gray-600 font-mono">02:15</div>
-          </div>
-        </div>
-
-        <div className="relative z-10 flex flex-col justify-center h-full px-6 md:px-8 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="text-sm text-gray-400 font-mono tracking-[0.3em] mb-6">EST. 1775</div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 leading-[0.9]">
-              ANSWER THE<br />CALL<span className="text-red-600">,</span> ALWAYS<span className="text-red-600">.</span>
-            </h1>
-            <p className="text-sm text-gray-400 mb-8 tracking-wide max-w-xs md:max-w-sm">
-              WE DON'T PROMISE A FAIR FIGHT<span className="text-red-600">.</span><br />WE WIN THE ONES THAT MATTER<span className="text-red-600">.</span>
-            </p>
-            <motion.button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-8 py-3 bg-transparent border border-white/40 text-white text-xs font-bold tracking-widest hover:bg-white/5 transition-colors"
-              whileTap={{ scale: 0.97 }}
-            >
-              EXPLORE THE CORPS
-              <ChevronRight className="w-4 h-4" />
-            </motion.button>
-          </motion.div>
-        </div>
-      </div>
+      <HeroSection isFullscreen={isFullscreen} onToggleFullscreen={onToggleFullscreen} />
 
       {/* Our Mission Section */}
       <div className="bg-black border-t border-white/12 py-10 px-6 md:py-12 md:px-8">
@@ -205,47 +186,126 @@ export function HomePage() {
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-red-500 tracking-[0.2em]">OPERATIONS FEED</h2>
               <div className="flex gap-2">
-                <button className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors">
-                  <ChevronLeft className="w-3 h-3 text-gray-500" />
+                <button
+                  onClick={opPrev}
+                  disabled={newsLoading || opItems.length === 0}
+                  className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors disabled:opacity-30"
+                >
+                  <ChevronRight className="w-3 h-3 text-gray-500 rotate-180" />
                 </button>
-                <button className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors">
+                <button
+                  onClick={opNext}
+                  disabled={newsLoading || opItems.length === 0}
+                  className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors disabled:opacity-30"
+                >
                   <ChevronRight className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
             </div>
-            <div className="relative overflow-hidden">
-              <div className="aspect-video bg-gradient-to-br from-gray-900 to-black border border-white/12 flex items-end p-4">
-                <div className="absolute inset-0 opacity-20" style={{
-                  background: 'linear-gradient(135deg, rgba(30,20,10,1) 0%, rgba(5,5,5,1) 100%)'
-                }} />
-                <div className="relative z-10">
-                  <div className="text-xs text-gray-400 font-mono tracking-widest mb-1">INDO-PACIFIC</div>
-                  <h3 className="text-lg font-black text-white tracking-tight">BALIKATAN 24</h3>
-                  <p className="text-sm text-gray-400 mt-1">Strengthening alliances. Preserving peace.</p>
+
+            <div className="relative overflow-hidden border border-white/12">
+              {newsLoading || !currentOp ? (
+                <div className="aspect-video bg-gradient-to-br from-gray-900 to-black flex items-end p-4 animate-pulse">
+                  <div className="space-y-2 w-full">
+                    <div className="h-2 w-24 bg-white/10 rounded" />
+                    <div className="h-4 w-3/4 bg-white/10 rounded" />
+                    <div className="h-3 w-1/2 bg-white/8 rounded" />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.a
+                    key={currentOp.id}
+                    href={currentOp.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative block aspect-video overflow-hidden group"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    {currentOp.imageUrl ? (
+                      <>
+                        <img
+                          src={currentOp.imageUrl}
+                          alt={currentOp.title}
+                          className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+                      {currentOp.category && (
+                        <div className="text-[10px] text-gray-400 font-mono tracking-widest mb-1">{currentOp.category}</div>
+                      )}
+                      <h3 className="text-sm font-black text-white tracking-tight leading-snug line-clamp-2">{currentOp.title}</h3>
+                    </div>
+                    {opItems.length > 1 && (
+                      <div className="absolute bottom-2 right-3 z-10 flex gap-1">
+                        {opItems.map((_, i) => (
+                          <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === opIndex ? 'bg-red-500' : 'bg-white/20'}`} />
+                        ))}
+                      </div>
+                    )}
+                  </motion.a>
+                </AnimatePresence>
+              )}
             </div>
-            <button className="mt-3 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1">
-              FULL STORY <ChevronRight className="w-3 h-3" />
-            </button>
+
+            {currentOp ? (
+              <a
+                href={currentOp.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1"
+              >
+                FULL STORY <ExternalLink className="w-3 h-3" />
+              </a>
+            ) : (
+              <div className="mt-3 h-5" />
+            )}
           </div>
 
-          {/* Marine Corps News */}
+          {/* Marine Corps News — press releases */}
           <div>
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-bold text-red-500 tracking-[0.2em]">MARINE CORPS NEWS</h2>
             </div>
             <div className="space-y-4">
-              {news.map((item, i) => (
-                <div key={i} className="border-b border-white/12 pb-4 last:border-0">
-                  <div className="text-xs text-gray-600 font-mono tracking-widest mb-1.5">{item.date}</div>
-                  <button className="text-xs font-bold text-white hover:text-red-400 transition-colors text-left tracking-wide leading-snug">
-                    {item.title}
-                  </button>
-                </div>
-              ))}
+              {newsLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="border-b border-white/12 pb-4 animate-pulse">
+                      <div className="h-2 w-24 bg-white/8 rounded mb-2" />
+                      <div className="h-3 w-full bg-white/8 rounded mb-1" />
+                      <div className="h-3 w-3/4 bg-white/6 rounded" />
+                    </div>
+                  ))
+                : newsPanel.length > 0
+                  ? newsPanel.map((item) => (
+                      <div key={item.id} className="border-b border-white/12 pb-4 last:border-0">
+                        <div className="text-xs text-gray-600 font-mono tracking-widest mb-1.5">{formatDate(item.pubDate)}</div>
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-white hover:text-red-400 transition-colors text-left tracking-wide leading-snug block"
+                        >
+                          {item.title}
+                        </a>
+                      </div>
+                    ))
+                  : (
+                    <div className="text-xs text-gray-600 py-4">News unavailable.</div>
+                  )
+              }
             </div>
-            <button className="mt-4 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1">
+            <button
+              onClick={() => navigate('/news')}
+              className="mt-4 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1"
+            >
               VIEW ALL NEWS <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -256,43 +316,48 @@ export function HomePage() {
               <h2 className="text-sm font-bold text-red-500 tracking-[0.2em]">RESOURCES</h2>
             </div>
             <div className="space-y-0">
-              {resources.map((r, i) => (
-                <button key={i} className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left hover:text-red-400 transition-colors group">
-                  <span className="text-sm text-gray-300 tracking-wide">{r}</span>
-                  <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
-                </button>
-              ))}
+              {resources.map((r, i) =>
+                r.href ? (
+                  <a
+                    key={i}
+                    href={r.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left hover:text-red-400 transition-colors group"
+                  >
+                    <span className="text-sm text-gray-300 tracking-wide group-hover:text-red-400 transition-colors">{r.label}</span>
+                    <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
+                  </a>
+                ) : (
+                  <button key={i} className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left hover:text-red-400 transition-colors group">
+                    <span className="text-sm text-gray-300 tracking-wide group-hover:text-red-400 transition-colors">{r.label}</span>
+                    <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
+                  </button>
+                )
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quote / CTA */}
+      {/* Quote / CTA — full-width grid so image bleeds to the left edge */}
       <div className="bg-black border-t border-white/12">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0">
-          {/* Image placeholder */}
-          <div className="hidden md:block col-span-1 relative overflow-hidden min-h-32 bg-gradient-to-br from-gray-900 to-black p-6">
-            <div className="flex items-end h-full">
-              <div className="text-xs text-gray-700 font-mono">[ PLACEHOLDER ]</div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+          {/* Hero image — no left margin, bleeds to edge */}
+          <div className="hidden md:block col-span-1 relative overflow-hidden min-h-[280px]">
+            <img
+              src={recruitImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+            {/* Gradient fade into the next panel */}
+            <div className="absolute inset-0" style={{
+              background: 'linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)'
+            }} />
           </div>
 
-          {/* Become one of us */}
-          <div className="col-span-1 p-10 flex flex-col justify-center bg-black border-t md:border-x border-white/12">
-            <div className="text-sm text-gray-500 tracking-widest mb-2">DO YOU HAVE WHAT IT TAKES?</div>
-            <h2 className="text-3xl font-black text-white tracking-tight mb-6">BECOME ONE OF US.</h2>
-            <a
-              href="https://www.marines.com"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-sm font-bold text-red-500 tracking-widest hover:text-red-400 transition-colors"
-            >
-              FIND YOUR PATH <ChevronRight className="w-3 h-3" />
-            </a>
-          </div>
-
-          {/* Spear logo */}
-          <div className="col-span-1 p-10 flex flex-col justify-center items-center bg-red-900/5 border-t md:border-l border-white/12 text-center">
+          {/* Earned Never Given — center */}
+          <div className="col-span-1 p-10 flex flex-col justify-center items-center bg-red-900/5 border-t md:border-x border-white/12 text-center">
             <motion.div
               className="mb-4"
               animate={{ filter: ['brightness(1)', 'brightness(1.35)', 'brightness(1)'] }}
@@ -302,6 +367,18 @@ export function HomePage() {
             </motion.div>
             <div className="text-sm font-black text-white tracking-wide">EARNED<span className="text-red-600">.</span></div>
             <div className="text-sm font-black text-white tracking-wide">NEVER GIVEN<span className="text-red-600">.</span></div>
+          </div>
+
+          {/* Hero image — right panel */}
+          <div className="hidden md:block col-span-1 relative overflow-hidden min-h-[280px]">
+            <img
+              src={actionImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0" style={{
+              background: 'linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)'
+            }} />
           </div>
         </div>
       </div>

@@ -8,8 +8,8 @@ import {
   pruneArticleEntries,
   saveCachedFeed,
   type MARADMINUserState,
-} from '../src/app/components/maradminStorage';
-import type { RSSMessage } from '../src/app/components/maradminUtils';
+} from '../src/app/features/maradmin/maradminStorage';
+import type { RSSMessage } from '../src/app/features/maradmin/maradminUtils';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();

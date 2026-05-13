@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Home, MessageSquare, DollarSign, Anchor, ArrowLeftRight, FolderOpen, Wrench, HelpCircle, LayoutDashboard, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Home, MessageSquare, DollarSign, GraduationCap, Anchor, ArrowLeftRight, FolderOpen, Wrench, HelpCircle, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Newspaper } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface NavigationProps {
@@ -9,18 +9,21 @@ interface NavigationProps {
   onToggleExpanded: () => void;
 }
 
-const SIDEBAR_VERSION = 'v0.0.1';
+declare const __APP_VERSION__: string;
+const SIDEBAR_VERSION = `v${__APP_VERSION__}`;
 
 const loggedOutItems = [
-  { path: '/',             icon: Home,           label: 'HOME' },
-  { path: '/messages',     icon: MessageSquare,  label: 'MARADMINS' },
-  { path: '/pay-benefits', icon: DollarSign,     label: 'BENEFITS' },
-  // { path: '/education', icon: GraduationCap,  label: 'EDUCATION' },  // hidden until page is ready
+  { path: '/',             icon: Home,          label: 'HOME' },
+  { path: '/news',         icon: Newspaper,     label: 'NEWS' },
+  { path: '/messages',     icon: MessageSquare, label: 'MARADMINS' },
+  { path: '/pay-benefits', icon: DollarSign,    label: 'BENEFITS' },
+  { path: '/education',    icon: GraduationCap, label: 'EDUCATION' },
   { path: '/lateral-move', icon: ArrowLeftRight, label: 'LATERAL MOVE' },
 ];
 
 const loggedInItems = [
   { path: '/',             icon: LayoutDashboard, label: 'DASHBOARD' },
+  { path: '/news',         icon: Newspaper,       label: 'NEWS' },
   { path: '/messages',     icon: MessageSquare,   label: 'MARADMINS' },
   { path: '/pay-benefits', icon: DollarSign,      label: 'BENEFITS' },
   // { path: '/education', icon: GraduationCap,   label: 'EDUCATION' },  // hidden until page is ready
@@ -44,7 +47,8 @@ export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: Navigat
   return (
     <>
     <motion.div
-      className="hidden md:flex fixed left-0 top-0 h-full bg-black/95 border-r border-white/12 flex-col overflow-x-hidden overflow-y-auto z-50"
+      className="hidden md:flex fixed left-0 top-0 h-full bg-black/95 border-r border-white/12 flex-col overflow-x-hidden overflow-y-auto z-50 shadow-[4px_0_32px_rgba(0,0,0,0.7)]"
+      initial={false}
       animate={{ width: isExpanded ? 192 : 80 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >

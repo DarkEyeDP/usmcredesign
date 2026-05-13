@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, Calendar, Layout, Award } from 'lucide-react';
+import { ChevronRight, Layout, Award } from 'lucide-react';
+import { useNewsItems } from '@/app/features/news';
+import { getCachedFeed } from '@/app/features/maradmin/maradminStorage';
 
 const tabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 
@@ -38,11 +40,31 @@ const featuredPrograms = [
   { label: 'LEADERSHIP & PROFESSIONAL DEVELOPMENT', desc: 'Courses and certifications to develop leaders.' },
 ];
 
-const newsItems = [
-  { date: 'MAY 17, 2024', title: 'MARINES UNIVERSITY EXPANDS ONLINE DEGREE OFFERINGS' },
-  { date: 'MAY 08, 2024', title: 'TUITION ASSISTANCE CAP INCREASE NOW IN EFFECT' },
-  { date: 'APR 30, 2024', title: 'NEW COOL OPPORTUNITIES AVAILABLE IN CYBER & TECH' },
+const EDU_KEYWORDS = [
+  'tuition assistance',
+  'gi bill',
+  'marine corps university',
+  'marines university',
+  'navy college',
+  'cool program',
+  'credentialing opportunit',
+  'enlisted commissioning',
+  'education benefit',
+  'scholarship',
+  'webta',
+  'apprenticeship program',
+  'joint services transcript',
+  'degree program',
+  'pme',
+  'professional military education',
+  'stem education',
+  'mcu ',
 ];
+
+function isEducationRelevant(title: string, description: string): boolean {
+  const hay = `${title} ${description}`.toLowerCase();
+  return EDU_KEYWORDS.some(kw => hay.includes(kw));
+}
 
 const events = [
   { date: 'MAY 29, 2024', time: '1300 EST', title: 'TA WEBINAR', desc: 'How to Maximize Your Education Benefits' },
@@ -60,6 +82,31 @@ const quickLinks = [
 export function EducationPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('OVERVIEW');
+  const { newsItems, pressReleases, loading: newsLoading } = useNewsItems();
+
+  const eduNews = useMemo(() => {
+    // News + press releases
+    const fromFeeds = [...newsItems, ...pressReleases]
+      .filter(item => isEducationRelevant(item.title, item.description))
+      .map(item => ({ id: item.id, title: item.title, date: item.pubDate, href: item.link, internal: false }));
+
+    // MARADMINs from localStorage cache (grows as user browses /messages)
+    const maradmins = getCachedFeed() ?? [];
+    const fromMaradmins = maradmins
+      .filter(m => isEducationRelevant(m.subject, ''))
+      .map(m => ({
+        id: m.number,
+        title: `MARADMIN ${m.number} — ${m.subject}`,
+        date: new Date(m.displayDate),
+        href: `/messages/${m.number}`,
+        internal: true,
+      }));
+
+    return [...fromFeeds, ...fromMaradmins]
+      .filter(item => item.date instanceof Date && !isNaN(item.date.getTime()))
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 4);
+  }, [newsItems, pressReleases]);
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
@@ -110,7 +157,7 @@ export function EducationPage() {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => tab === 'TA EDUCATION' ? navigate('/education/tuition-assistance') : setActiveTab(tab)}
                 className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
                   activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
                 }`}
@@ -129,8 +176,11 @@ export function EducationPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-white/12 px-8 py-8">
         {/* Education Pathways */}
         <div className="md:pr-8 md:border-r border-white/12 pb-8 md:pb-0 border-b md:border-b-0">
-          <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-2">EDUCATION PATHWAYS</div>
-          <p className="text-sm text-gray-400 leading-relaxed mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">EDUCATION PATHWAYS</div>
+          </div>
+          <p className="text-[13px] text-gray-500 leading-relaxed mb-6 mt-2">
             From enlistment to retirement, we provide the tools to help you achieve your goals.
           </p>
           <div className="relative">
@@ -157,16 +207,19 @@ export function EducationPage() {
 
         {/* Top Education Benefits */}
         <div className="md:px-8 md:border-r border-white/12 py-8 md:py-0 border-b md:border-b-0">
-          <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-4">TOP EDUCATION BENEFITS</div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">TOP EDUCATION BENEFITS</div>
+          </div>
           <div className="space-y-0">
             {topBenefits.map((b, i) => (
-              <button key={i} className="w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group">
+              <button key={i} onClick={() => b.label === 'Tuition Assistance (TA)' ? navigate('/education/tuition-assistance') : undefined} className="w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group">
                 <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 border border-white/16 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Award className="w-3 h-3 text-red-600/60" />
+                  <div className="w-7 h-7 border border-white/16 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:border-white/30 transition-colors">
+                    <Award className="w-3 h-3 text-red-600/60 group-hover:text-red-500 transition-colors" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-200 group-hover:text-white transition-colors font-medium">{b.label}</div>
+                    <div className="text-[13px] text-gray-200 group-hover:text-white transition-colors font-medium">{b.label}</div>
                     <div className="text-xs text-gray-600">{b.desc}</div>
                   </div>
                 </div>
@@ -181,16 +234,19 @@ export function EducationPage() {
 
         {/* Education Tools */}
         <div className="md:pl-8 pt-8 md:pt-0">
-          <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-4">YOUR EDUCATION TOOLS</div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">YOUR EDUCATION TOOLS</div>
+          </div>
           <div className="space-y-0">
             {educationTools.map((t, i) => (
-              <button key={i} className="w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group">
+              <button key={i} onClick={() => t.label === 'TA Request (WebTA)' ? navigate('/education/tuition-assistance') : undefined} className="w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group">
                 <div className="flex items-start gap-3">
-                  <div className="w-7 h-7 border border-white/16 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Layout className="w-3 h-3 text-red-600/60" />
+                  <div className="w-7 h-7 border border-white/16 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:border-white/30 transition-colors">
+                    <Layout className="w-3 h-3 text-red-600/60 group-hover:text-red-500 transition-colors" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-200 group-hover:text-white transition-colors font-medium">{t.label}</div>
+                    <div className="text-[13px] text-gray-200 group-hover:text-white transition-colors font-medium">{t.label}</div>
                     <div className="text-xs text-gray-600">{t.desc}</div>
                   </div>
                 </div>
@@ -207,7 +263,10 @@ export function EducationPage() {
       {/* Featured Programs */}
       <div className="px-8 py-10 border-b border-white/12">
         <div className="flex items-center justify-between mb-6">
-          <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em]">FEATURED PROGRAMS</div>
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">FEATURED PROGRAMS</div>
+          </div>
           <button className="flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
             VIEW ALL PROGRAMS <ChevronRight className="w-3 h-3" />
           </button>
@@ -216,6 +275,7 @@ export function EducationPage() {
           {featuredPrograms.map((p, i) => (
             <motion.div
               key={i}
+              onClick={() => p.label === 'TUITION ASSISTANCE' ? navigate('/education/tuition-assistance') : undefined}
               className="group cursor-pointer"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -243,27 +303,55 @@ export function EducationPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 px-8 py-8 border-b border-white/12">
         {/* Education News */}
         <div className="md:pr-8 md:border-r border-white/12 pb-8 md:pb-0 border-b md:border-b-0">
-          <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em] mb-5">EDUCATION NEWS</div>
-          <div className="space-y-4">
-            {newsItems.map((item, i) => (
-              <div key={i} className="border-b border-white/10 pb-4 last:border-0">
-                <div className="text-xs text-gray-600 font-mono tracking-wider mb-1.5">{item.date}</div>
-                <button className="text-sm font-bold text-white hover:text-red-400 transition-colors text-left leading-snug flex items-start justify-between gap-2 w-full">
-                  <span>{item.title}</span>
-                  <ChevronRight className="w-3 h-3 text-gray-600 flex-shrink-0 mt-0.5" />
-                </button>
-              </div>
-            ))}
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">EDUCATION NEWS</div>
           </div>
-          <button className="mt-4 flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
+          <div className="space-y-4">
+            {newsLoading
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="border-b border-white/10 pb-4 animate-pulse">
+                    <div className="h-2 w-24 bg-white/8 rounded mb-2" />
+                    <div className="h-3 w-full bg-white/8 rounded mb-1" />
+                    <div className="h-3 w-3/4 bg-white/6 rounded" />
+                  </div>
+                ))
+              : eduNews.length > 0
+                ? eduNews.map(item => (
+                    <div key={item.id} className="border-b border-white/10 pb-4 last:border-0">
+                      <div className="text-xs text-gray-600 font-mono tracking-wider mb-1.5">
+                        {item.date instanceof Date && !isNaN(item.date.getTime())
+                          ? item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()
+                          : ''}
+                      </div>
+                      <a
+                        href={item.href}
+                        target={item.internal ? '_self' : '_blank'}
+                        rel={item.internal ? undefined : 'noopener noreferrer'}
+                        className="group text-sm font-bold text-white hover:text-red-400 transition-colors text-left leading-snug flex items-start justify-between gap-2 w-full"
+                      >
+                        <span>{item.title}</span>
+                        <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
+                      </a>
+                    </div>
+                  ))
+                : (
+                  <div className="text-xs text-gray-600 py-2">No recent education news.</div>
+                )
+            }
+          </div>
+          <button
+            onClick={() => navigate('/news')}
+            className="mt-4 flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
+          >
             VIEW ALL NEWS <ChevronRight className="w-3 h-3" />
           </button>
         </div>
 
         {/* Upcoming Events */}
         <div className="md:px-8 md:border-r border-white/12 py-8 md:py-0 border-b md:border-b-0">
-          <div className="flex items-center gap-2 mb-5">
-            <Calendar className="w-3.5 h-3.5 text-red-500" />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-1 h-5 bg-red-600" />
             <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em]">UPCOMING EVENTS</div>
           </div>
           <div className="space-y-4">
@@ -272,12 +360,12 @@ export function EducationPage() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs text-gray-600 font-mono tracking-wider">{event.date} • {event.time}</span>
                 </div>
-                <button className="flex items-start justify-between gap-2 w-full text-left">
+                <button className="group flex items-start justify-between gap-2 w-full text-left">
                   <div>
-                    <div className="text-sm font-bold text-white hover:text-red-400 transition-colors tracking-wide">{event.title}</div>
+                    <div className="text-sm font-bold text-white group-hover:text-red-400 transition-colors tracking-wide">{event.title}</div>
                     <div className="text-[13px] text-gray-500 mt-0.5">{event.desc}</div>
                   </div>
-                  <ChevronRight className="w-3 h-3 text-gray-600 flex-shrink-0 mt-0.5" />
+                  <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
                 </button>
               </div>
             ))}
@@ -289,10 +377,13 @@ export function EducationPage() {
 
         {/* Education Counseling + Quick Links */}
         <div className="md:pl-8 pt-8 md:pt-0">
-          <div className="border border-white/12 p-4 mb-5 relative overflow-hidden">
+          <div className="border border-white/12 p-4 mb-5 relative overflow-hidden hover:border-white/20 transition-colors">
             <div className="absolute inset-0 opacity-5" style={{ background: 'linear-gradient(135deg, rgba(0,5,15,1), transparent)' }} />
             <div className="relative z-10">
-              <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em] mb-2">EDUCATION COUNSELING</div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-1 h-5 bg-red-600" />
+                <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">EDUCATION COUNSELING</div>
+              </div>
               <div className="flex gap-3 mb-3">
                 <div className="w-14 h-14 bg-gradient-to-br from-gray-800 to-black border border-white/12 flex-shrink-0" />
                 <p className="text-[13px] text-gray-400 leading-relaxed">
@@ -305,7 +396,10 @@ export function EducationPage() {
             </div>
           </div>
 
-          <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em] mb-3">QUICK LINKS</div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-1 h-5 bg-red-600" />
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">QUICK LINKS</div>
+          </div>
           <div className="space-y-0">
             {quickLinks.map((link, i) => (
               <button key={i} className="w-full flex items-center justify-between py-2.5 border-b border-white/10 last:border-0 text-left group">
