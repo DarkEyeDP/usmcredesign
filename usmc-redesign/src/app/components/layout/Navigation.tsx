@@ -26,7 +26,7 @@ const loggedInItems = [
   { path: '/news',         icon: Newspaper,       label: 'NEWS' },
   { path: '/messages',     icon: MessageSquare,   label: 'MARADMINS' },
   { path: '/pay-benefits', icon: DollarSign,      label: 'BENEFITS' },
-  { path: '/education',    icon: GraduationCap,   label: 'EDUCATION' },
+  // { path: '/education', icon: GraduationCap,   label: 'EDUCATION' },  // hidden until page is ready
   { path: '/stay-marine',  icon: Anchor,          label: 'STAY MARINE' },
   { path: '/lateral-move', icon: ArrowLeftRight,  label: 'LATERAL MOVE' },
   { path: '/resources',    icon: FolderOpen,      label: 'RESOURCES' },

@@ -8,13 +8,33 @@ export function StatusBar() {
           <span className="text-xs text-gray-600 font-mono tracking-widest">STATUS</span>
           <span className="text-[13px] text-green-500 font-bold tracking-widest">READY</span>
         </div>
-        <svg width="80" height="20" viewBox="0 0 80 20" className="text-green-500/60">
-          <polyline
-            points="0,10 8,10 12,4 16,16 20,2 24,18 28,10 36,10 40,6 44,14 48,10 56,10 60,8 64,12 68,10 80,10"
+        <svg width="80" height="20" viewBox="0 0 80 20" className="text-green-500/60" overflow="visible">
+          <defs>
+            <filter id="ekgDotGlow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="1.8" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path
+            d="M0,10 L8,10 L12,4 L16,16 L20,2 L24,18 L28,10 L36,10 L40,6 L44,14 L48,10 L56,10 L60,8 L64,12 L68,10 L80,10"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
           />
+          <circle r="2" fill="#4ade80" filter="url(#ekgDotGlow)">
+            <animateMotion
+              dur="3s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keyTimes="0; 0.15; 0.48; 1"
+              keyPoints="0; 0.06; 0.52; 1"
+              keySplines="0.5 0 0.5 1; 0.5 0 0.5 1; 0.5 0 0.5 1"
+              path="M0,10 L8,10 L12,4 L16,16 L20,2 L24,18 L28,10 L36,10 L40,6 L44,14 L48,10 L56,10 L60,8 L64,12 L68,10 L80,10"
+            />
+          </circle>
         </svg>
       </div>
 

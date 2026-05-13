@@ -58,7 +58,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
 
   const services = [
     { icon: DollarSign, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
-    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, credentialing and more.', path: '/education' },
+    { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, credentialing and more.', path: '/' },
     { icon: Home, label: 'HOUSING', desc: 'Find housing, apply for BAH, relocation resources.', path: '/' },
     { icon: HeartPulse, label: 'HEALTH & WELLNESS', desc: 'Medical, dental and mental health care.', path: '/' },
     { icon: Users, label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and families.', path: '/' },
