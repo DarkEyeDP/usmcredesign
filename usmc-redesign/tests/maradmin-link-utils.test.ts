@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { fixSpelledOutURLs } from '../src/app/components/maradminLinkUtils';
+import { fixSpelledOutURLs } from '../src/app/features/maradmin/maradminLinkUtils';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();

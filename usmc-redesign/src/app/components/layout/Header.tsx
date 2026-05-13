@@ -1,4 +1,3 @@
-import { Search, LogIn, LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 
@@ -14,6 +13,7 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
   return (
     <motion.header
       className="fixed top-0 right-0 h-20 bg-black/95 border-b border-white/12 flex items-center justify-between px-6 z-40"
+      initial={false}
       animate={{ left: isMobile ? 0 : (isExpanded ? 192 : 80) }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
@@ -32,28 +32,6 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
           </div>
           <span className="text-sm text-green-400 font-mono tracking-widest">UNCLASSIFIED</span>
         </div>
-
-        <button className="hidden md:block text-gray-400 hover:text-white transition-colors">
-          <Search className="w-5 h-5" />
-        </button>
-
-        <motion.button
-          onClick={onToggleLogin}
-          className="flex items-center gap-2 px-3 py-2 md:px-5 border border-white/40 rounded-sm text-white text-xs font-bold tracking-widest hover:border-white/80 transition-colors"
-          whileTap={{ scale: 0.97 }}
-        >
-          {isLoggedIn ? (
-            <>
-              <LogOut className="w-3.5 h-3.5" />
-              SIGN OUT
-            </>
-          ) : (
-            <>
-              <LogIn className="w-3.5 h-3.5" />
-              SIGN IN
-            </>
-          )}
-        </motion.button>
       </div>
     </motion.header>
   );

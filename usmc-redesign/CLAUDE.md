@@ -21,8 +21,10 @@ This is a React SPA using **react-router v7** (`BrowserRouter` + `Routes`/`Route
 | Basic Pay | `/pay-benefits/basic-pay` | `BasicPayPage` | `features/pay/` |
 | Bonuses | `/pay-benefits/bonuses` | `BonusesPage` | `features/pay/` |
 | Education | `/education` | `EducationPage` | `pages/` |
+| Tuition Assistance | `/education/tuition-assistance` | `TuitionAssistancePage` | `features/education/` |
 | Lateral Move | `/lateral-move` | `LateralMovePage` | `features/latmove/` |
 | Stay Marine | `/stay-marine` | `StayMarinePage` | `pages/` |
+| News | `/news` | `NewsPage` | `features/news/` |
 
 **Production note:** The host server must redirect all requests to `index.html` (standard SPA fallback). Vite dev server handles this automatically.
 
@@ -40,6 +42,15 @@ src/
       EducationPage.tsx
       StayMarinePage.tsx
     features/                        — self-contained feature modules
+      hero/                          — HomePage hero slideshow + video player
+        types.ts                     — HeroSlide, HeroVideo interfaces
+        heroSlides.ts                — SLIDES array + image imports (add new slides here)
+        heroVideos.ts                — VIDEOS array + helpers (add new videos here)
+        GridPulses.tsx               — animated grid streak component
+        GridNodes.tsx                — animated intersection node component
+        VideoPlayer.tsx              — YouTube player modal component
+        HeroSection.tsx              — assembles the full hero section
+        index.ts                     — re-exports HeroSection
       latmove/                       — Lateral Move tool
         LateralMovePage.tsx
         components/                  — latmove-specific UI components
@@ -68,15 +79,17 @@ src/
     tailwind.css, fonts.css, index.css
 ```
 
-**Path aliases** (configured in `tsconfig.json` and `vite.config.ts`):
+**Path aliases** (configured in `vite.config.ts`):
 
-| Alias | Resolves to |
-|-------|-------------|
-| `@/pages` | `src/app/pages` |
-| `@/features` | `src/app/features` |
-| `@/components` | `src/app/components` |
-| `@/styles` | `src/styles` |
-| `@/assets` | `src/app/assets` |
+| Import prefix | Resolves to |
+|---------------|-------------|
+| `@/app/pages/...` | `src/app/pages/` |
+| `@/app/features/...` | `src/app/features/` |
+| `@/app/components/...` | `src/app/components/` |
+| `@/app/assets/...` | `src/app/assets/` |
+| `@/styles/...` | `src/styles/` |
+
+> **Note:** The root `@` alias maps to `src/`, so `@/app/features/foo` is the correct form. The shorthand aliases `@/features`, `@/pages`, `@/assets` etc. are defined in vite config but **do not work** — they are shadowed by the root `@` alias which matches first. Always use the full `@/app/...` path.
 
 Use aliases for all cross-directory imports. Avoid deep relative paths (`../../../`).
 
@@ -252,6 +265,68 @@ Use `<DatePickerField>` from `@/components/ui/date-picker-field`. Accepts `value
 
 - All `<input>`, `<select>`, and `<textarea>` elements must use `font-size: 16px` or larger on mobile to prevent iOS auto-zoom. The global rule lives in `src/styles/globals.css`.
 - All `<button>`, `<select>`, `<a>`, and `[role="button"]` elements get `cursor: pointer` via the global stylesheet. Divs with `onClick` need `cursor-pointer` added manually as a Tailwind class.
+
+---
+
+## Hero Images — Adding & Optimizing
+
+### Format and sizing rules
+
+All hero images must be **WebP**, max **2400px** on the longest edge, at **quality 82**. The originals from DVIDS or elsewhere are typically 6–20 MB JPEG — always run them through the pipeline below before adding to the project. The target output is 150–500 KB per image.
+
+`sharp` is installed as a dev dependency. Run this one-liner from the project root to convert a new image:
+
+```bash
+node -e "
+const sharp = require('sharp');
+sharp('path/to/source.jpg')
+  .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
+  .webp({ quality: 82, effort: 5 })
+  .toFile('src/app/assets/your-name.webp')
+  .then(i => console.log(i));
+"
+```
+
+Or to batch-process multiple files at once:
+
+```bash
+node - << 'EOF'
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+
+const files = ['file1.jpg', 'file2.jpg']; // source paths
+const outDir = 'src/app/assets';
+
+Promise.all(files.map(src => {
+  const out = path.join(outDir, path.basename(src, path.extname(src)) + '.webp');
+  return sharp(src)
+    .resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 82, effort: 5 })
+    .toFile(out)
+    .then(i => console.log(`${path.basename(src)} → ${out} (${Math.round(i.size/1024)}KB)`));
+}));
+EOF
+```
+
+### Adding a new slide to the hero
+
+1. Drop the optimized `.webp` into `src/app/assets/`
+2. Import it at the top of `src/app/pages/HomePage.tsx`
+3. Add a new entry to the `SLIDES` array with:
+   - `image` — the imported asset
+   - `label` — short tactical label (all caps)
+   - `heading` — two-line display headline (array of two strings)
+   - `sub` — two supporting lines (array of two strings)
+   - `colorGrade` — `radial-gradient` that complements the image's dominant tone (warm/cool/green/purple)
+   - `sweep` — `linear-gradient(125deg, ...)` diagonal wash, same hue family as colorGrade at lower opacity
+   - `nodeColors` — array of 3 `rgba(...)` strings pulled from the image's palette for the grid intersection pulse nodes
+
+### Notes
+
+- Do **not** import `.jpg` originals — always import the `.webp` version.
+- The original `.jpg` files can be kept locally as backups but are not referenced by the app.
+- `sips` (macOS built-in) does **not** support WebP write — always use `sharp`.
 
 ---
 

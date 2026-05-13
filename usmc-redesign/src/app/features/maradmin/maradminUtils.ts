@@ -42,11 +42,16 @@ const RSS_URL =
   'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=6&Site=481&max=50&category=14336';
 const ARCHIVE_URL = 'https://www.marines.mil/News/Messages/MARADMINS/';
 const PROXY_URL = 'https://api.allorigins.win/get?url=';
+const PROXY_URL_ALT = 'https://corsproxy.io/?url=';
 const RSS_FETCH_TIMEOUT_MS = 15000;
 const ARCHIVE_PAGE_SIZE = 25;
 
 const SHORT_MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const LONG_MON  = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+
+function isCancellationMARADMIN(title: string): boolean {
+  return /^cancellation of maradmin\b/i.test(title.trim());
+}
 
 // ── RSS Feed ────────────────────────────────────────────────────────────────
 
@@ -57,8 +62,11 @@ export async function fetchRSSFeed(): Promise<RSSMessage[]> {
   const xml = await res.text();
   const doc = new DOMParser().parseFromString(xml, 'text/xml');
 
-  return Array.from(doc.getElementsByTagName('item')).map((item, i) => {
+  return Array.from(doc.getElementsByTagName('item')).flatMap((item, i) => {
     const title   = xmlText(item, 'title');
+
+    if (isCancellationMARADMIN(title)) return [];
+
     const link    = xmlText(item, 'link') || xmlText(item, 'guid');
     const pubDate = xmlText(item, 'pubDate');
     const desc    = xmlText(item, 'description');
@@ -185,6 +193,9 @@ export function parseArchivePageRows(
     }
 
     const subject = titleParts.join(' ').trim();
+
+    if (isCancellationMARADMIN(subject)) { i += 1; continue; }
+
     const dateInfo = extractArchiveDate(dateLine);
     const displayDate = dateInfo ? formatDisplayDate(dateInfo) : '';
     const month = dateInfo ? `${LONG_MON[dateInfo.getUTCMonth()]} ${dateInfo.getUTCFullYear()}` : '';
@@ -236,6 +247,15 @@ export async function fetchArticleContent(
     if (res.ok) {
       const { contents } = (await res.json()) as { contents?: string };
       const text = extractTextFromHTML(contents ?? '');
+      if (text) return { text, method: 'proxy' };
+    }
+  } catch { /* proxy failed — fall through */ }
+
+  // Attempt 3: corsproxy.io fallback
+  try {
+    const res = await fetch(`${PROXY_URL_ALT}${encodeURIComponent(url)}`);
+    if (res.ok) {
+      const text = extractTextFromHTML(await res.text());
       if (text) return { text, method: 'proxy' };
     }
   } catch { /* proxy failed — fall through */ }
@@ -561,6 +581,10 @@ function parseReadInColumnsHint(lines: string[]): { preBody: string; table: Dete
 }
 
 function parseBodyChunk(lines: string[]): { body: string; tables?: DetectedTable[] } {
+  const flattenedAll = flatLine(lines.join(' ')).replace(READ_IN_COLUMNS_RE, '').replace(/\s{2,}/g, ' ').trim();
+  const recognizedFromAll = parseRecognizedTableFamily(flattenedAll);
+  if (recognizedFromAll) return recognizedFromAll;
+
   // Explicit "read in N columns" hint — build table before any flattening.
   const columnarHint = parseReadInColumnsHint(lines);
   if (columnarHint) {
@@ -702,6 +726,16 @@ export function parseMARADMINText(raw: string): ContentSection[] {
 
     // Preserve sub-section continuity so table rows that belong to "a." / "b." stay attached.
     const lines = remainder.split('\n').map(l => l.trim()).filter(Boolean);
+    const parsedFullBody = parseBodyChunk(lines);
+    if (parsedFullBody.tables?.length) {
+      sections.push({
+        heading,
+        body: parsedFullBody.body,
+        tables: parsedFullBody.tables,
+      });
+      continue;
+    }
+
     const firstSubSectionIdx = lines.findIndex(line =>
       SUB_SECTION_PATTERNS.some(pattern => pattern.regex.test(line)),
     );

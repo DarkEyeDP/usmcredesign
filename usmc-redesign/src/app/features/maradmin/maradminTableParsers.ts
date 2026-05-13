@@ -166,6 +166,82 @@ function parseInlineAttendeeTable(text: string): ParsedTableFamily | null {
   };
 }
 
+function parseInlineRankNameMCCTable(text: string): ParsedTableFamily | null {
+  const sectionRe = /Read in (?:three|3) columns\.?\s+Rank\s+Name\s+MCC\s*/gi;
+  const firstMatch = sectionRe.exec(text);
+  if (!firstMatch) return null;
+
+  const mccRe = /^[A-Z0-9]{2,4}$/;
+  const rankRe = /^(?:Sgt|SSgt|GySgt|MGySgt|1stSgt|SgtMaj|Cpl|LCpl|PFC|Pvt|WO|CWO[2-5]|2ndLt|1stLt|Capt|Maj|LtCol|Col)$/i;
+
+  // Collect (headerStart, dataStart) for every "Read in N columns. Rank Name MCC" header.
+  const sections: Array<{ headerStart: number; dataStart: number }> = [
+    { headerStart: firstMatch.index, dataStart: firstMatch.index + firstMatch[0].length },
+  ];
+  let m: RegExpExecArray | null;
+  while ((m = sectionRe.exec(text)) !== null) {
+    sections.push({ headerStart: m.index, dataStart: m.index + m[0].length });
+  }
+
+  // Everything before the first header is the shared body text.
+  const body = text.slice(0, sections[0].headerStart).trim();
+
+  // Titles for each table: section 0 has none; section s>0 gets the text
+  // between section s-1's last data row and section s's "Read in" header.
+  const tableTitles: string[] = new Array(sections.length).fill('');
+  const tables: DetectedTable[] = [];
+
+  for (let s = 0; s < sections.length; s++) {
+    // Chunk spans from this section's data start to the next section's "Read in" header.
+    const chunkEnd = sections[s + 1]?.headerStart ?? text.length;
+    const chunk = text.slice(sections[s].dataStart, chunkEnd);
+    const tokens = chunk.split(/\s+/).filter(Boolean);
+    const rows: string[][] = [];
+    let cursor = 0;
+
+    while (cursor < tokens.length) {
+      const rank = tokens[cursor];
+      if (!rankRe.test(rank)) break;
+
+      const nextRankIdx = tokens.findIndex((token, idx) => idx > cursor && rankRe.test(token));
+      let rowEnd: number;
+      if (nextRankIdx >= 0) {
+        rowEnd = nextRankIdx;
+      } else {
+        // No next rank — use a section-label boundary (e.g. "1.b.") to avoid
+        // consuming title text as part of the last data row.
+        const labelIdx = tokens.findIndex((t, idx) => idx > cursor && /^\d+\.[a-z]\.?$/i.test(t));
+        rowEnd = labelIdx >= 0 ? labelIdx : tokens.length;
+      }
+
+      const rowTokens = tokens.slice(cursor, rowEnd);
+      if (rowTokens.length < 3) break;
+
+      const mcc = rowTokens.at(-1) ?? '';
+      const nameTokens = rowTokens.slice(1, -1);
+      if (!mccRe.test(mcc) || nameTokens.length === 0) break;
+
+      rows.push([rank, nameTokens.join(' '), mcc]);
+      cursor = rowEnd;
+    }
+
+    // Any tokens left after the rows are the title label for the NEXT section.
+    if (s + 1 < sections.length && cursor < tokens.length) {
+      tableTitles[s + 1] = tokens.slice(cursor).join(' ');
+    }
+
+    if (rows.length > 0) {
+      const table: DetectedTable = { headers: ['Rank', 'Name', 'MCC'], rows };
+      if (tableTitles[s]) table.title = tableTitles[s];
+      tables.push(table);
+    }
+  }
+
+  if (tables.length === 0) return null;
+
+  return { body, tables };
+}
+
 function parseVacancySummaryTable(text: string): ParsedTableFamily | null {
   const match = text.match(/^(.*?\(read in four columns\):)\s+BMOS\s+Grade\s+Billet\s+Quantity\s+(.+)$/i);
   if (!match) return null;
@@ -204,6 +280,54 @@ function parseVacancySummaryTable(text: string): ParsedTableFamily | null {
   return {
     body,
     tables: [{ headers: ['BMOS', 'Grade', 'Billet', 'Quantity'], rows }],
+  };
+}
+
+function parseSergeantsMajorBilletSlateTable(text: string): ParsedTableFamily | null {
+  const match = text.match(/^(.*?)\bName\s+Command\s+Location\s+NLT\s+Date\s+(.+)$/is);
+  if (!match) return null;
+
+  const body = match[1].replace(/\(read in\s+4\s+columns?\):?/i, '').replace(/[:\s]+$/, '').trim();
+  const data = match[2].trim();
+  const monthRe = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
+  const segmentRe = new RegExp(`(.+?\\b${monthRe}\\s+\\d{4})(?=\\s+[A-Z]\\.\\s+[A-Z]\\.\\s+|$)`, 'gi');
+  const rowSegments = [...data.matchAll(segmentRe)].map(match => match[1].trim());
+  const rows: string[][] = [];
+
+  for (const segment of rowSegments) {
+    const rowMatch = segment.match(new RegExp(`^(.+?)\\s+(${monthRe}\\s+\\d{4})$`, 'i'));
+    if (!rowMatch) return null;
+
+    const beforeDate = rowMatch[1].trim();
+    const nltDate = rowMatch[2].replace(/\s+/g, ' ').trim();
+    const tokens = beforeDate.split(/\s+/).filter(Boolean);
+    const commandStartIdx = tokens.findIndex(token =>
+      /^(?:HQTRS,?|[0-9][A-Z]{2}|[A-Z]{2,}[A-Z0-9-]*,?)$/.test(token),
+    );
+
+    if (commandStartIdx <= 0) return null;
+
+    let locationStartIdx = commandStartIdx + 1;
+    while (
+      locationStartIdx < tokens.length &&
+      /^[A-Z0-9-]+,?$/.test(tokens[locationStartIdx])
+    ) {
+      locationStartIdx += 1;
+    }
+
+    const name = tokens.slice(0, commandStartIdx).join(' ').replace(/\s+/g, ' ').trim();
+    const command = tokens.slice(commandStartIdx, locationStartIdx).join(' ').replace(/\s+/g, ' ').trim();
+    const location = tokens.slice(locationStartIdx).join(' ').replace(/\s+/g, ' ').trim();
+    if (!name || !command || !location) return null;
+
+    rows.push([name, command, location, nltDate]);
+  }
+
+  if (rows.length === 0) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'Command', 'Location', 'NLT Date'], rows }],
   };
 }
 
@@ -538,6 +662,63 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
   };
 }
 
+// Parses recruiting station availability tables, e.g.:
+// RS availability for FY28 ... (Read in seven columns):
+// Recruiting Station  1-28  2-28  3-28  4-28  5-28  6-28
+// ALBANY, NY          3     4     3     3     4     3
+function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bRecruiting\s+Station\s+((?:\d+-\d+\s+){2,}\d+-\d+)\s+/i);
+  if (!headerMatch) return null;
+
+  const colHeaders = headerMatch[2].match(/\d+-\d+/g) ?? [];
+  if (colHeaders.length < 2) return null;
+
+  // Strip trailing "Read in N columns" artifact and colon from body
+  const body = headerMatch[1]
+    .replace(/\(Read in (?:seven|7) columns\):?\s*$/i, '')
+    .replace(/[:\s]+$/, '')
+    .trim();
+
+  const data = text.slice(headerMatch[0].length).trim();
+  const tokens = data.split(/\s+/).filter(Boolean);
+
+  const stateRe = /^[A-Z]{2}$/;
+  const numRe = /^\d+$/;
+  const numCols = colHeaders.length;
+  const rows: string[][] = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    // City name: one or more words, last token ends with comma, next token is a 2-letter state.
+    let commaIdx = -1;
+    for (let j = i; j < Math.min(i + 5, tokens.length - 1); j++) {
+      if (tokens[j].endsWith(',') && stateRe.test(tokens[j + 1])) {
+        commaIdx = j;
+        break;
+      }
+    }
+    if (commaIdx < 0) break;
+
+    const stateIdx = commaIdx + 1;
+    const numStart = stateIdx + 1;
+    if (numStart + numCols > tokens.length) break;
+
+    const nums = tokens.slice(numStart, numStart + numCols);
+    if (!nums.every(t => numRe.test(t))) break;
+
+    const cityPart = tokens.slice(i, commaIdx + 1).join(' ').replace(/,$/, '');
+    rows.push([`${cityPart}, ${tokens[stateIdx]}`, ...nums]);
+    i = numStart + numCols;
+  }
+
+  if (rows.length < 3) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Recruiting Station', ...colHeaders], rows }],
+  };
+}
+
 const TABLE_FAMILY_PARSERS = [
   parseInlineEligibilityTable,
   parseBoardPanelScheduleTable,
@@ -546,6 +727,9 @@ const TABLE_FAMILY_PARSERS = [
   parseInlinePromotionTable,
   parseLDOSelecteeTable,
   parseInlineAttendeeTable,
+  parseInlineRankNameMCCTable,
+  parseRecruitingStationAvailabilityTable,
+  parseSergeantsMajorBilletSlateTable,
   parseVacancySummaryTable,
   parseProjectedPromotionsTable,
   parseFeederMosTable,

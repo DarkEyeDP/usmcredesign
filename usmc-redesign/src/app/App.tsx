@@ -13,11 +13,13 @@ import { LatMoveErrorBoundary } from '@/app/features/latmove/components/LatMoveE
 import { PayBenefitsPage } from '@/app/features/pay/PayBenefitsPage';
 import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
+import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
+import { NewsPage } from '@/app/features/news';
 import { isFullscreenCapablePath } from './routeUtils';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches);
   const location = useLocation();
@@ -37,6 +39,9 @@ export default function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Don't reset scroll when navigating between MARADMIN messages — the page
+    // stays put and only the detail panel changes.
+    if (location.pathname.startsWith('/messages/')) return;
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [location.pathname]);
 
@@ -63,12 +68,13 @@ export default function App() {
       )}
       <motion.div
         className="flex flex-col min-h-screen"
+        initial={false}
         animate={{ marginLeft: isMobile || isFullscreen ? 0 : (isSidebarExpanded ? 192 : 80) }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <div className="flex-1">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
             <Route path="/messages" element={
               <MARADMINPage
                 isFullscreen={isFullscreen}
@@ -85,6 +91,7 @@ export default function App() {
             <Route path="/pay-benefits/bonuses" element={<BonusesPage />} />
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
+            <Route path="/education/tuition-assistance" element={<TuitionAssistancePage />} />
             <Route path="/lateral-move" element={
               <LatMoveErrorBoundary>
                 <LateralMovePage
@@ -95,7 +102,8 @@ export default function App() {
               </LatMoveErrorBoundary>
             } />
             <Route path="/stay-marine" element={<StayMarinePage />} />
-            <Route path="*" element={<HomePage />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="*" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
           </Routes>
         </div>
         {!isFullscreen && <div className="print-hide"><StatusBar /></div>}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Fragment, useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   createSearchIndex,
   extractExactMARADMINNumberQuery,
@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Filter, ChevronRight, Printer, Bookmark, Maximize2, Minimize2,
-  ChevronLeft, ExternalLink, Loader2, Mail, Phone, Globe, RefreshCw, Plus, X, Pencil, Share2,
+  ChevronLeft, ChevronDown, ChevronUp, ExternalLink, Loader2, Mail, Phone, Globe, RefreshCw, Plus, X, Pencil, Share2,
 } from 'lucide-react';
 import { generateMARADMINPdf, maradminEmailBody } from './maradminPdf';
 import {
@@ -32,6 +32,7 @@ import {
   mergeArchiveMessages,
   mergeFeedMessages,
   saveCachedArticle,
+  deleteCachedArticle,
   saveCachedFeed,
   saveCustomViews,
   saveMARADMINUserState,
@@ -120,6 +121,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [detailSections, setDetailSections] = useState<ContentSection[] | null>(null);
   const [detailHeaderPOCs, setDetailHeaderPOCs] = useState<Contact[]>([]);
   const [detailLoading, setDetailLoading]   = useState(false);
+  const [detailRetryCount, setDetailRetryCount] = useState(0);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [refreshNotice, setRefreshNotice]   = useState<RefreshNotice | null>(null);
@@ -127,6 +129,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [searchQuery, setSearchQuery]       = useState('');
   const [navDirection, setNavDirection]     = useState<1 | -1>(1);
   const [filterOpen, setFilterOpen]         = useState(false);
+  const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
   const [selectedYears, setSelectedYears]         = useState<Set<string>>(new Set());
   const [selectedTags, setSelectedTags]           = useState<Set<string>>(new Set());
   const [selectedAudiences, setSelectedAudiences] = useState<Set<Audience>>(new Set());
@@ -298,6 +301,33 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     }));
   }
 
+  function markAllUnreadRead() {
+    const unreadNumbers = filteredMessages
+      .filter(message => message.unread)
+      .map(message => message.number);
+
+    if (unreadNumbers.length === 0) return;
+
+    const unreadSet = new Set(unreadNumbers);
+    const nextUserState = {
+      ...userStateRef.current,
+      readNumbers: [...userStateRef.current.readNumbers, ...unreadNumbers],
+      newNumbers: userStateRef.current.newNumbers.filter(value => !unreadSet.has(value)),
+    };
+
+    persistUserState(nextUserState);
+    setMessages(prev => {
+      const updated = applyUserStateToMessages(prev, nextUserState);
+      messagesRef.current = updated;
+      saveCachedFeed(updated, { nextPage: archiveNextPage, hasMore: archiveHasMore });
+      return updated;
+    });
+    setSelectedMsg(prev => {
+      if (!prev || !unreadSet.has(prev.number)) return prev;
+      return applyUserStateToMessages([prev], nextUserState)[0];
+    });
+  }
+
   function toggleSaved(number: string) {
     if (!number) return;
     updateMessageFlags(number, state => {
@@ -314,6 +344,22 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   function handlePrint() {
     window.print();
+  }
+
+  function handleRefreshFeed() {
+    void refreshFeed(true)
+      .then(newCount => {
+        showRefreshNotice(
+          newCount > 0 ? 'success' : 'info',
+          newCount > 0
+            ? `${newCount} new MARADMIN${newCount === 1 ? '' : 's'} fetched.`
+            : 'No new MARADMINs found.',
+        );
+      })
+      .catch(error => {
+        console.error(error);
+        showRefreshNotice('error', 'Refresh failed. Please try again.');
+      });
   }
 
   async function handleShareEmail() {
@@ -439,9 +485,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   useEffect(() => {
     if (messages.length === 0) return;
 
-    const routeMatch = routeNumber
-      ? messages.find(msg => msg.number === routeNumber)
-      : null;
+    const rawParam = messageNumber ?? '';
+    const routeMatch = rawParam.startsWith('_id_')
+      ? messages.find(msg => msg.id === decodeURIComponent(rawParam.slice(4)))
+      : routeNumber
+        ? messages.find(msg => msg.number === routeNumber)
+        : null;
 
     if (routeMatch && routeMatch.id !== selectedMsg?.id) {
       setSelectedMsg(routeMatch);
@@ -451,9 +500,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
     if (!routeMatch) {
       if (!routeNumber && selectedMsg) return;
-      const firstRoutableMessage = messages.find(msg => msg.number);
+      const firstRoutableMessage = messages[0];
       if (firstRoutableMessage) {
-        navigate(buildMessagePath(firstRoutableMessage.number), { replace: true });
+        navigate(buildMessagePath(firstRoutableMessage), { replace: true });
       }
     }
   }, [messages, navigate, routeNumber, selectedMsg?.id]);
@@ -497,7 +546,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       const extractedNumber = cachedArticle.text ? extractMARADMINNumber(cachedArticle.text) : null;
       const enrichedTags = cachedArticle.text ? tagsFromContent(selectedMsg.subject, cachedArticle.text) : null;
       const currentTags = selectedMsg.tags;
-      const numberNeedsUpdate = !!(extractedNumber && extractedNumber !== selectedMsg.number);
+      const currentNumberIsPlaceholder = !selectedMsg.number.includes('/');
+      const numberNeedsUpdate = !!(extractedNumber && extractedNumber !== selectedMsg.number && currentNumberIsPlaceholder);
       const tagsNeedUpdate = enrichedTags && (
         enrichedTags.length !== currentTags.length ||
         enrichedTags.some(t => !currentTags.includes(t))
@@ -528,7 +578,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       }
       if (numberNeedsUpdate && extractedNumber) {
         markMessageRead(extractedNumber);
-        navigate(buildMessagePath(extractedNumber), { replace: true });
+        navigate(buildMessagePath({ number: extractedNumber, id: currentMessageId }), { replace: true });
       }
       if (cachedArticle.text) updateSearchIndex(selectedMsg, cachedArticle.text);
       setDetailSections(cachedArticle.text ? parseMARADMINText(cachedArticle.text) : []);
@@ -551,7 +601,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         enrichedTags.length !== currentTags.length ||
         enrichedTags.some(t => !currentTags.includes(t))
       );
-      const numberNeedsUpdate = !!(extractedNumber && extractedNumber !== currentMsg.number);
+      const currentNumberIsPlaceholder = !currentMsg.number.includes('/');
+      const numberNeedsUpdate = !!(extractedNumber && extractedNumber !== currentMsg.number && currentNumberIsPlaceholder);
       if (extractedSource || tagsNeedUpdate || numberNeedsUpdate) {
         setMessages(prev => {
           const updated = prev.map(msg => {
@@ -578,9 +629,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       }
       if (numberNeedsUpdate && extractedNumber) {
         markMessageRead(extractedNumber);
-        navigate(buildMessagePath(extractedNumber), { replace: true });
+        navigate(buildMessagePath({ number: extractedNumber, id: currentMessageId }), { replace: true });
       }
-      saveCachedArticle(cacheKey, {
+      if (text) saveCachedArticle(cacheKey, {
         text,
         method,
         source: extractedSource,
@@ -591,7 +642,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       setDetailHeaderPOCs(text ? parseHeaderPOCs(text) : []);
       setDetailLoading(false);
     });
-  }, [archiveHasMore, archiveNextPage, selectedMsg?.id]);
+  }, [archiveHasMore, archiveNextPage, selectedMsg?.id, detailRetryCount]);
 
   const loadOlderMessages = useCallback(async (silent = false) => {
     if (archiveLoading || !archiveHasMore) return 0;
@@ -687,7 +738,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     const next = customViews.filter(v => v.id !== id);
     setCustomViews(next);
     saveCustomViews(next);
-    if (activeTab === id) setActiveTab('ALL MESSAGES');
+    if (activeTab === id) { setActiveTab('ALL MESSAGES'); resetSidebarScroll(); }
+  }
+
+  function resetSidebarScroll() {
+    const container = sidebarScrollRef.current;
+    if (!container) return;
+    container.scrollTop = 0;
+    setSidebarScrollTop(0);
   }
 
   function switchToCustomView(id: string) {
@@ -697,9 +755,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setSelectedTags(new Set());
     setSelectedAudiences(new Set());
     setSearchQuery('');
+    resetSidebarScroll();
   }
 
   function switchToStandardTab(tab: string) {
+    if (tab !== activeTab && selectedMsg) navigate('/messages');
     setActiveTab(tab);
     const saved = savedFiltersRef.current;
     if (saved) {
@@ -709,6 +769,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       setSearchQuery(saved.query);
       savedFiltersRef.current = null;
     }
+    resetSidebarScroll();
   }
 
   const availableYears = useMemo(() => {
@@ -754,7 +815,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     const activeCustomView = customViews.find(v => v.id === activeTab) ?? null;
 
     return base.filter(m => {
-      if (activeTab === 'UNREAD' && !m.unread && m.id !== selectedMsg?.id) return false;
+      if (activeTab === 'UNREAD' && !m.unread) return false;
       if (activeTab === 'SAVED' && !m.saved) return false;
       if (activeCustomView && !matchesCustomView(m, activeCustomView)) return false;
       if (selectedYears.size > 0 && !selectedYears.has(`20${m.number.split('/')[1]}`)) return false;
@@ -764,7 +825,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     });
   // searchIndexVersion forces recompute when the index gains new body text.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, customViews, messages, searchQuery, searchIndexVersion, selectedMsg?.id, selectedYears, selectedTags, selectedAudiences]);
+  }, [activeTab, customViews, messages, searchQuery, searchIndexVersion, selectedYears, selectedTags, selectedAudiences]);
+
+  const filteredUnreadCount = filteredMessages.filter(m => m.unread).length;
 
   const sidebarRows = useMemo<SidebarVirtualRow[]>(() => {
     let runningTop = 0;
@@ -857,12 +920,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   function selectMsg(msg: RSSMessage) {
     const newIdx = filteredMessages.findIndex(m => m.id === msg.id);
     setNavDirection(newIdx >= currentIdx ? 1 : -1);
-    if (msg.number) {
-      navigate(buildMessagePath(msg.number));
-    } else {
-      setSelectedMsg(msg);
-      navigate('/messages');
-    }
+    navigate(buildMessagePath(msg));
     detailScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     setMobileView('detail');
   }
@@ -871,14 +929,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     if (currentIdx > 0) {
       pendingNavScrollRef.current = true;
       setNavDirection(-1);
-      navigate(buildMessagePath(filteredMessages[currentIdx - 1].number));
+      navigate(buildMessagePath(filteredMessages[currentIdx - 1]), { preventScrollReset: true });
     }
   };
   const goToNext = () => {
     if (currentIdx < filteredMessages.length - 1) {
       pendingNavScrollRef.current = true;
       setNavDirection(1);
-      navigate(buildMessagePath(filteredMessages[currentIdx + 1].number));
+      navigate(buildMessagePath(filteredMessages[currentIdx + 1]), { preventScrollReset: true });
     }
   };
 
@@ -932,7 +990,83 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>
 
           {/* Tabs — flush at bottom of hero so the active underline sits on the border */}
-          <div className="flex items-center px-8 -mb-px overflow-x-auto scrollbar-none">
+          <div className="flex items-center -mb-px">
+            <div className="flex items-center px-8 overflow-x-auto scrollbar-none flex-1 min-w-0">
+              {tabs.map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => switchToStandardTab(tab)}
+                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {tab}
+                  {tab === 'UNREAD' && unreadCount > 0 && (
+                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                  {activeTab === tab && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                      layoutId="maradminTab"
+                    />
+                  )}
+                </button>
+              ))}
+              {customViews.map(view => {
+                const isActive = activeTab === view.id;
+                const unread = customViewUnreadCounts.get(view.id) ?? 0;
+                return (
+                  <div key={view.id} className="relative flex items-center group/cvtab">
+                    <button
+                      onClick={() => switchToCustomView(view.id)}
+                      className={`relative px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                        isActive ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                      }`}
+                    >
+                      {view.name}
+                      {unread > 0 && (
+                        <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                          {unread}
+                        </span>
+                      )}
+                      {isActive && (
+                        <motion.div
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                          layoutId="maradminTab"
+                        />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+              <button
+                onClick={() => setCreatingView(true)}
+                className="px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors flex-shrink-0"
+                aria-label="New custom view"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {onToggleFullscreen && (
+              <button
+                onClick={onToggleFullscreen}
+                className={`flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      )}
+
+      {/* Tabs in fullscreen — shown when hero is hidden */}
+      {isFullscreen && (
+        <div className="border-b border-white/12 flex items-center flex-shrink-0">
+          <div className="flex items-center px-8 overflow-x-auto scrollbar-none flex-1 min-w-0">
             {tabs.map(tab => (
               <button
                 key={tab}
@@ -990,69 +1124,15 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
-        </div>
-      </div>
-      )}
-
-      {/* Tabs in fullscreen — shown when hero is hidden */}
-      {isFullscreen && (
-        <div className="border-b border-white/12 flex items-center px-8 flex-shrink-0 overflow-x-auto scrollbar-none">
-          {tabs.map(tab => (
+          {onToggleFullscreen && (
             <button
-              key={tab}
-              onClick={() => switchToStandardTab(tab)}
-              className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-              }`}
+              onClick={onToggleFullscreen}
+              className={`flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
-              {tab}
-              {tab === 'UNREAD' && unreadCount > 0 && (
-                <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
-                  {unreadCount}
-                </span>
-              )}
-              {activeTab === tab && (
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
-                  layoutId="maradminTab"
-                />
-              )}
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
-          ))}
-          {customViews.map(view => {
-            const isActive = activeTab === view.id;
-            const unread = customViewUnreadCounts.get(view.id) ?? 0;
-            return (
-              <div key={view.id} className="relative flex items-center group/cvtab">
-                <button
-                  onClick={() => switchToCustomView(view.id)}
-                  className={`relative px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                    isActive ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {view.name}
-                  {unread > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
-                      {unread}
-                    </span>
-                  )}
-                  {isActive && (
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
-                      layoutId="maradminTab"
-                    />
-                  )}
-                </button>
-              </div>
-            );
-          })}
-          <button
-            onClick={() => setCreatingView(true)}
-            className="px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors flex-shrink-0"
-            aria-label="New custom view"
-          >
-            <Plus className="w-3.5 h-3.5" />
-          </button>
+          )}
         </div>
       )}
 
@@ -1064,8 +1144,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
           {/* Search + filter bar */}
           <div className="flex-shrink-0 border-b border-white/12">
-            <div className="relative flex gap-2 px-5 py-4">
-              <div className="relative flex-1">
+            <div className="relative px-5 py-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
                 <input
                   type="text"
@@ -1075,49 +1155,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   className="w-full bg-transparent border border-white/12 text-white pl-9 pr-3 py-2 text-[13px] font-mono placeholder:text-gray-700 focus:border-red-500/40 focus:outline-none"
                 />
               </div>
-              <button
-                onClick={() => setFilterOpen(v => !v)}
-                className={`flex items-center gap-1 px-3 py-2 border text-[11px] font-bold tracking-widest transition-colors ${
-                  filterOpen || activeFilterCount > 0
-                    ? 'border-red-600/60 text-red-500 bg-red-950/20'
-                    : 'border-white/16 text-gray-500 hover:border-white/40'
-                }`}
-              >
-                <Filter className="w-3 h-3" />
-                FILTER
-                {activeFilterCount > 0 && (
-                  <span className="ml-0.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  void refreshFeed(true)
-                    .then(newCount => {
-                      showRefreshNotice(
-                        newCount > 0 ? 'success' : 'info',
-                        newCount > 0
-                          ? `${newCount} new MARADMIN${newCount === 1 ? '' : 's'} fetched.`
-                          : 'No new MARADMINs found.',
-                      );
-                    })
-                    .catch(error => {
-                      console.error(error);
-                      showRefreshNotice('error', 'Refresh failed. Please try again.');
-                    });
-                }}
-                className={`flex items-center gap-1 px-3 py-2 border text-[11px] font-bold tracking-widest transition-colors ${
-                  feedRefreshing
-                    ? 'border-red-600/60 text-red-400 bg-red-950/20'
-                    : 'border-white/16 text-gray-500 hover:border-white/40 hover:text-gray-300'
-                }`}
-                aria-label="Refresh MARADMIN feed"
-              >
-                <RefreshCw className={`w-3 h-3 ${feedRefreshing ? 'animate-spin' : ''}`} />
-                REFRESH
-              </button>
-
               <AnimatePresence>
                 {refreshNotice && (
                   <motion.div
@@ -1146,7 +1183,96 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               </AnimatePresence>
             </div>
 
-            {/* Filter panel */}
+            <div className="relative border-t border-white/8">
+              <button
+                onClick={() => setBulkActionsOpen(open => { if (open) setFilterOpen(false); return !open; })}
+                className="absolute left-0 top-0 z-10 flex h-[34px] w-11 items-center justify-center border-r border-white/12 bg-black/95 text-gray-600 transition-colors hover:text-gray-300"
+                aria-label={bulkActionsOpen ? 'Hide actions' : 'Show actions'}
+                aria-expanded={bulkActionsOpen}
+              >
+                {bulkActionsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+
+              <AnimatePresence initial={false}>
+                {bulkActionsOpen ? (
+                  <motion.div
+                    key="bulk-actions-open"
+                    initial={{ height: 0, opacity: 0, y: -8 }}
+                    animate={{ height: 34, opacity: 1, y: 0 }}
+                    exit={{ height: 0, opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex h-[34px] items-center gap-2 bg-white/[0.02] pl-14 pr-3">
+                      <button
+                        onClick={() => setFilterOpen(v => !v)}
+                        className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-bold tracking-widest transition-colors ${
+                          filterOpen || activeFilterCount > 0
+                            ? 'border-red-600/60 text-red-500 bg-red-950/20'
+                            : 'border-white/16 text-gray-500 hover:border-white/40'
+                        }`}
+                      >
+                        <Filter className="w-3 h-3" />
+                        FILTER
+                        {activeFilterCount > 0 && (
+                          <span className="ml-0.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                            {activeFilterCount}
+                          </span>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleRefreshFeed}
+                        className={`flex items-center gap-1 px-2.5 py-1 border text-[11px] font-bold tracking-widest transition-colors ${
+                          feedRefreshing
+                            ? 'border-red-600/60 text-red-400 bg-red-950/20'
+                            : 'border-white/16 text-gray-500 hover:border-white/40 hover:text-gray-300'
+                        }`}
+                        aria-label="Refresh MARADMIN feed"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${feedRefreshing ? 'animate-spin' : ''}`} />
+                        REFRESH
+                      </button>
+                      <button
+                        onClick={markAllUnreadRead}
+                        disabled={filteredUnreadCount === 0}
+                        className={`ml-auto flex flex-shrink-0 items-center gap-1 whitespace-nowrap px-2.5 py-1 border text-[11px] font-bold tracking-widest transition-colors ${
+                          filteredUnreadCount > 0
+                            ? 'border-white/16 text-gray-500 hover:border-white/40 hover:text-red-400'
+                            : 'border-white/[0.06] text-gray-800 cursor-not-allowed'
+                        }`}
+                        aria-label="Mark all unread MARADMINs as read"
+                      >
+                        <Mail className="w-3 h-3 flex-shrink-0" />
+                        MARK ALL READ
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="bulk-actions-closed"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 34, opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.16, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex h-[34px] items-center gap-2 pl-14 pr-5">
+                      <span className="text-[10px] font-bold tracking-[0.22em] text-gray-700">
+                        ACTIONS
+                      </span>
+                      {activeFilterCount > 0 && (
+                        <span className="flex items-center gap-1 text-[10px] font-bold tracking-widest text-red-500">
+                          <Filter className="w-2.5 h-2.5 flex-shrink-0 -translate-y-px" />
+                          {activeFilterCount} FILTER{activeFilterCount !== 1 ? 'S' : ''} ACTIVE
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Filter panel — below the action bar */}
             <AnimatePresence>
               {filterOpen && (
                 <motion.div
@@ -1476,15 +1602,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 >
                   <Bookmark className={`w-4 h-4 ${selectedMsg?.saved ? 'fill-current' : ''}`} />
                 </button>
-                {onToggleFullscreen && (
-                  <button
-                    onClick={onToggleFullscreen}
-                    className="text-gray-700 hover:text-gray-400 transition-colors"
-                    aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-                  >
-                    {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-                  </button>
-                )}
               </div>
             </div>
 
@@ -1578,10 +1695,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                                   )}
                                 </div>
                                 {c.email && (
-                                  <a href={`mailto:${c.email}`}
-                                     className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
-                                    <Mail className="w-3 h-3" /> {c.email}
-                                  </a>
+                                  <div className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
+                                    <Mail className="w-3 h-3" /> {renderContactEmail(c.email)}
+                                  </div>
                                 )}
                                 {c.comm && (
                                   <a href={`tel:${c.comm.replace(/\D/g,'')}`}
@@ -1596,7 +1712,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       )}
                     </>
                   ) : (
-                    <FetchFailed url={selectedMsg.link} />
+                    <FetchFailed url={selectedMsg.link} onRetry={() => {
+                      const key = selectedMsg.number || selectedMsg.link;
+                      deleteCachedArticle(key);
+                      setDetailRetryCount(c => c + 1);
+                    }} />
                   )}
 
                   {selectedMsg.tags.length > 0 && !detailLoading && (
@@ -1649,8 +1769,9 @@ function decodeMessageNumber(messageNumber?: string): string | null {
   return messageNumber.replace(/-/g, '/');
 }
 
-function buildMessagePath(number: string): string {
-  return `/messages/${encodeMessageNumber(number)}`;
+function buildMessagePath(msg: { number: string; id: string }): string {
+  if (msg.number) return `/messages/${encodeMessageNumber(msg.number)}`;
+  return `/messages/_id_${encodeURIComponent(msg.id)}`;
 }
 
 // ── Link helpers ──────────────────────────────────────────────────────────────
@@ -1708,12 +1829,41 @@ function titleCaseWord(w: string): string {
   return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
 }
 
-function normalizeHeaderPOCEmail(value: string): string {
-  return value
+function splitContactEmails(value: string): string[] {
+  const normalized = value
+    .replace(/\s*\(\s*at\s*\)\s*/gi, '@')
+    .replace(/\s*\[\s*at\s*\]\s*/gi, '@')
+    .replace(/\s+at\s+/gi, '@')
+    .replace(/\s+(?:or|and)\s+/gi, '|')
+    .replace(/\s*[,;/]\s*/g, '|')
     .replace(/\s+/g, '')
     .replace(/\.+(?=@)/g, '.')
     .replace(/\.{2,}/g, '.')
     .toLowerCase();
+
+  return Array.from(new Set(normalized.match(/[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/g) ?? []));
+}
+
+function normalizeHeaderPOCEmail(value: string): string {
+  return splitContactEmails(value).join(' or ');
+}
+
+function renderContactEmail(email: string): ReactNode {
+  const emails = splitContactEmails(email);
+  if (emails.length === 0) return email;
+
+  return (
+    <>
+      {emails.map((addr, index) => (
+        <Fragment key={addr}>
+          {index > 0 && ' or '}
+          <a href={`mailto:${addr}`} className="underline underline-offset-2">
+            {addr}
+          </a>
+        </Fragment>
+      ))}
+    </>
+  );
 }
 
 /** Parse military header POC blocks like POC/...// and POC1/...// */
@@ -1913,10 +2063,9 @@ function ContentDisplay({ sections }: { sections: ContentSection[] }) {
                         )}
                       </div>
                       {c.email && (
-                        <a href={`mailto:${c.email}`}
-                           className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
-                          <Mail className="w-3 h-3" /> {c.email}
-                        </a>
+                        <div className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
+                          <Mail className="w-3 h-3" /> {renderContactEmail(c.email)}
+                        </div>
                       )}
                       {c.comm && (
                         <a href={`tel:${c.comm.replace(/\D/g,'')}`}
@@ -1995,7 +2144,7 @@ function TableBlock({ table }: { table: DetectedTable }) {
           {table.title}
         </div>
       )}
-      <div className="overflow-x-auto overflow-y-visible border border-white/10 bg-black/40 md:overflow-visible">
+      <div className="overflow-x-auto overflow-y-visible border border-white/10 bg-black/40">
         <table className="w-full border-collapse text-[13px] font-mono">
           {table.headers.length > 0 && (
             <thead>
@@ -2003,7 +2152,7 @@ function TableBlock({ table }: { table: DetectedTable }) {
                 {table.headers.map((h, hi) => (
                   <th
                     key={hi}
-                    className={`border-b border-white/12 bg-[#080808]/95 px-4 py-2 text-left text-[11px] font-bold tracking-[0.15em] text-gray-400 backdrop-blur-sm ${hi === 0 ? 'min-w-[160px]' : 'whitespace-nowrap'}`}
+                    className={`border-b border-white/12 bg-[#080808]/95 px-4 py-2 text-left text-[11px] font-bold tracking-[0.15em] text-gray-400 backdrop-blur-sm ${hi === 0 ? 'min-w-[160px]' : ''}`}
                   >
                     {h}
                   </th>
@@ -2021,7 +2170,7 @@ function TableBlock({ table }: { table: DetectedTable }) {
                   return (
                     <td
                       key={ci}
-                      className={`px-4 py-2 ${ci === 0 ? 'whitespace-normal break-words text-gray-200 font-bold' : `whitespace-nowrap tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
+                      className={`px-4 py-2 break-words ${ci === 0 ? 'whitespace-normal text-gray-200 font-bold' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
                     >
                       {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
                     </td>
@@ -2191,17 +2340,27 @@ function CreateViewModal({ availableTags, initialValues, onSave, onCancel }: Cre
   );
 }
 
-function FetchFailed({ url }: { url: string }) {
+function FetchFailed({ url, onRetry }: { url: string; onRetry?: () => void }) {
   return (
     <div className="border border-white/12 p-6 mb-8">
       <div className="text-[11px] text-gray-600 font-bold tracking-[0.2em] mb-2">FULL TEXT UNAVAILABLE</div>
       <p className="text-[13px] text-gray-400 leading-relaxed mb-4">
         The full message could not be retrieved automatically. Read the complete MARADMIN on Marines.mil.
       </p>
-      <a href={url} target="_blank" rel="noopener noreferrer"
-         className="inline-flex items-center gap-2 px-4 py-2 border border-red-600/40 text-red-500 text-[11px] font-bold tracking-widest hover:bg-red-900/10 transition-colors">
-        READ ON MARINES.MIL <ExternalLink className="w-3 h-3" />
-      </a>
+      <div className="flex items-center gap-3 flex-wrap">
+        {onRetry && (
+          <button
+            onClick={onRetry}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-gray-300 text-[11px] font-bold tracking-widest hover:border-white/40 hover:text-white transition-colors"
+          >
+            <RefreshCw className="w-3 h-3" /> TRY AGAIN
+          </button>
+        )}
+        <a href={url} target="_blank" rel="noopener noreferrer"
+           className="inline-flex items-center gap-2 px-4 py-2 border border-red-600/40 text-red-500 text-[11px] font-bold tracking-widest hover:bg-red-900/10 transition-colors">
+          READ ON MARINES.MIL <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
     </div>
   );
 }

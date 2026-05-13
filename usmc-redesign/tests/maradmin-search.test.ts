@@ -3,8 +3,8 @@ import {
   extractExactMARADMINNumberQuery,
   normalizeMARADMINNumber,
   promoteExactMARADMINMatches,
-} from '../src/app/components/maradminSearch';
-import type { RSSMessage } from '../src/app/components/maradminUtils';
+} from '../src/app/features/maradmin/maradminSearch';
+import type { RSSMessage } from '../src/app/features/maradmin/maradminUtils';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();

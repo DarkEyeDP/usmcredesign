@@ -267,6 +267,14 @@ export function saveCachedArticle(cacheKey: string, article: CachedArticleEntry)
   writeState(state);
 }
 
+export function deleteCachedArticle(cacheKey: string) {
+  const state = readState();
+  if (!state.articles?.[cacheKey]) return;
+  const { [cacheKey]: _removed, ...rest } = state.articles;
+  state.articles = rest;
+  writeState(state);
+}
+
 /** Approximate byte size of the stored MARADMIN state (raw JSON string length). */
 export function getMARADMINStorageSizeBytes(): number {
   if (!canUseStorage()) return 0;

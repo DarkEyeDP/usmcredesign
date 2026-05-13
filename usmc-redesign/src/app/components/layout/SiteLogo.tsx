@@ -3,11 +3,26 @@ import { useId } from 'react';
 interface SiteLogoProps {
   size?: number;
   className?: string;
+  variant?: 'gold' | 'red';
 }
 
-export function SiteLogo({ size = 44, className = '' }: SiteLogoProps) {
+const gradientStops = {
+  gold: [
+    { offset: '0%',   color: 'rgba(255,244,214,1)' },
+    { offset: '42%',  color: 'rgba(212,173,93,1)' },
+    { offset: '100%', color: 'rgba(163,29,45,1)' },
+  ],
+  red: [
+    { offset: '0%',   color: 'rgba(239,68,68,1)' },
+    { offset: '42%',  color: 'rgba(185,28,28,1)' },
+    { offset: '100%', color: 'rgba(69,10,10,1)' },
+  ],
+};
+
+export function SiteLogo({ size = 44, className = '', variant = 'gold' }: SiteLogoProps) {
   const gradientId = useId().replace(/:/g, '');
   const width = Math.round(size * 0.62);
+  const stops = gradientStops[variant];
 
   return (
     <div className={`relative shrink-0 ${className}`.trim()} style={{ width, height: size }} aria-hidden="true">
@@ -19,9 +34,9 @@ export function SiteLogo({ size = 44, className = '' }: SiteLogoProps) {
       >
         <defs>
           <linearGradient id={gradientId} x1="364.865" y1="0" x2="364.865" y2="1191.89" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="rgba(255,244,214,1)" />
-            <stop offset="42%" stopColor="rgba(212,173,93,1)" />
-            <stop offset="100%" stopColor="rgba(163,29,45,1)" />
+            {stops.map((s) => (
+              <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+            ))}
           </linearGradient>
         </defs>
         <path

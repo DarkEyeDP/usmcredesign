@@ -49,8 +49,8 @@ export function StatusBar() {
 
       <div className="flex items-center gap-3">
         <span className="text-xs text-gray-600 font-mono tracking-wide text-right leading-relaxed">
-          THIS IS AN OFFICIAL U.S. GOVERNMENT WEBSITE<br />
-          CONTENT PROVIDED BY U.S. MARINE CORPS
+          NOT AFFILIATED WITH THE U.S. DEPARTMENT OF WAR<br />
+          OR THE U.S. MARINE CORPS
         </span>
         <Shield className="w-5 h-5 text-gray-700" />
       </div>

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { parseHeaderPOCs } from '../src/app/components/MARADMINPage';
+import { parseHeaderPOCs } from '../src/app/features/maradmin/MARADMINPage';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();
