@@ -304,7 +304,7 @@ export function PayBenefitsPage() {
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           {/* Financial Readiness overlay card */}
-          <div className="absolute top-5 right-8 border border-white/10 bg-black/60 px-5 py-4 text-right">
+          <div className="hidden lg:block absolute top-5 right-8 border border-white/10 bg-black/60 px-5 py-4 text-right">
             <div className="text-xs font-black text-white tracking-widest mb-1">FINANCIAL READINESS</div>
             <div className="w-8 h-0.5 bg-red-600 ml-auto mb-2" />
             <div className="text-[13px] text-gray-400 tracking-[0.2em]">MISSION READY<span className="text-red-600">.</span></div>

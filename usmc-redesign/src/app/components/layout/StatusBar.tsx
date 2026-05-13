@@ -1,11 +1,10 @@
-import { Shield } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 
 export function StatusBar() {
   const location = useLocation();
 
   return (
-    <div className="w-full bg-black border-t border-white/12 px-4 py-3 md:px-6 md:py-2.5">
+    <div className="w-full bg-black border-t border-white/12 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] md:px-6 md:py-2.5">
       <div className="flex flex-col gap-3 md:hidden">
         <div className="flex items-center justify-center gap-4">
           <Link
@@ -27,8 +26,7 @@ export function StatusBar() {
           </Link>
         </div>
 
-        <div className="flex items-center justify-center gap-2">
-          <Shield className="w-4 h-4 text-gray-700 flex-shrink-0" />
+        <div className="flex items-center justify-center">
           <span className="text-[10px] text-gray-600 font-mono tracking-[0.14em] text-center leading-relaxed">
             NOT AFFILIATED WITH THE U.S. DEPARTMENT OF WAR OR THE U.S. MARINE CORPS
           </span>
@@ -91,12 +89,11 @@ export function StatusBar() {
           </Link>
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center">
           <span className="text-xs text-gray-600 font-mono tracking-wide text-right leading-relaxed">
             NOT AFFILIATED WITH THE U.S. DEPARTMENT OF WAR<br />
             OR THE U.S. MARINE CORPS
           </span>
-          <Shield className="w-5 h-5 text-gray-700" />
         </div>
       </div>
     </div>

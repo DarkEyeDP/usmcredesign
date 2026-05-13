@@ -1052,7 +1052,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
             {onToggleFullscreen && (
               <button
                 onClick={onToggleFullscreen}
-                className={`flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
+                className={`hidden md:block flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
                 aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
                 {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -1127,7 +1127,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           {onToggleFullscreen && (
             <button
               onClick={onToggleFullscreen}
-              className={`flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
+              className={`hidden md:block flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
               aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}

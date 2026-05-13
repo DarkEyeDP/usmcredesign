@@ -117,6 +117,9 @@ function AnimatedCurrency({ value, fromValue, shouldAnimate }: AnimatedCurrencyP
 
 export function BasicPayPage() {
   const navigate = useNavigate();
+  const tableScrollRef = useRef<HTMLDivElement | null>(null);
+  const selectedCellRef = useRef<HTMLTableCellElement | null>(null);
+  const selectedHeaderRef = useRef<HTMLTableCellElement | null>(null);
   const savedSettings = readStoredPayOverviewSettings();
   const [activeCategory, setActiveCategory] = useState<PayCategory>(savedSettings.payCategory);
   const previousCategoryRef = useRef<PayCategory>(savedSettings.payCategory);
@@ -147,6 +150,24 @@ export function BasicPayPage() {
   useEffect(() => {
     previousCategoryRef.current = activeCategory;
   }, [activeCategory]);
+
+  useEffect(() => {
+    const scrollFrame = window.requestAnimationFrame(() => {
+      const container = tableScrollRef.current;
+      const target = selectedCellRef.current ?? selectedHeaderRef.current;
+      if (!container || !target) return;
+
+      const targetCenter = target.offsetLeft + target.offsetWidth / 2;
+      const nextScrollLeft = Math.max(0, targetCenter - container.clientWidth / 2);
+
+      container.scrollTo({
+        left: nextScrollLeft,
+        behavior: 'auto',
+      });
+    });
+
+    return () => window.cancelAnimationFrame(scrollFrame);
+  }, [activeCategory, selectedBracketIndex, savedSettings.payCategory, savedSettings.payRank]);
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
@@ -288,6 +309,7 @@ export function BasicPayPage() {
           initial={{ opacity: 0, y: 14, scale: 0.995 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.32, ease: 'easeOut' }}
+          ref={tableScrollRef}
           className="overflow-x-auto border border-white/12 bg-black"
         >
           <table className="min-w-[1200px] w-full border-collapse">
@@ -301,6 +323,7 @@ export function BasicPayPage() {
                   return (
                     <th
                       key={bracket.label}
+                      ref={isSelectedBracket ? selectedHeaderRef : null}
                       className={`border-r border-white/12 px-4 py-3 text-left text-xs font-bold tracking-wide ${
                         isSelectedBracket ? 'bg-red-950/40 text-red-300' : 'text-gray-300'
                       }`}
@@ -318,7 +341,7 @@ export function BasicPayPage() {
                   <tr key={rank} className="border-b border-white/8 hover:bg-white/[0.02]">
                     <td
                       className={`sticky left-0 z-10 border-r border-white/12 px-4 py-3 text-sm font-black tracking-wide ${
-                        isSavedRank ? 'bg-red-950/35 text-white' : 'bg-[#09090c] text-gray-200'
+                        isSavedRank ? 'bg-[#2a0c10] text-white' : 'bg-[#09090c] text-gray-200'
                       }`}
                     >
                       {rank}
@@ -336,6 +359,7 @@ export function BasicPayPage() {
                       return (
                         <td
                           key={`${rank}-${PAY_BRACKETS_2026[index].label}`}
+                          ref={isSelectedCell ? selectedCellRef : null}
                           className={`border-r border-white/8 px-4 py-3 text-sm ${
                             isSelectedCell
                               ? 'pay-cell-pulse text-white font-bold'
