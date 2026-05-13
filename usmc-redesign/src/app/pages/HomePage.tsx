@@ -68,6 +68,15 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
     { icon: ArrowRightLeft, label: 'LATERAL MOVE', desc: 'Compare MOS options and find matching opportunities.', path: '/lateral-move' },
   ];
 
+  const mobileServices = [
+    leftServices[0],
+    rightServices[0],
+    leftServices[1],
+    rightServices[1],
+    leftServices[2],
+    rightServices[2],
+  ];
+
 
   const resources = [
     { label: 'UNIFORMS & APPEARANCE', href: 'https://www.tecom.marines.mil/resources/marine-corps-uniform-board/' },
@@ -116,7 +125,32 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
         <div className="max-w-7xl mx-auto">
           <div className="text-sm text-gray-500 font-mono tracking-[0.3em] mb-8">I NEED...</div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-0 relative">
+          <div className="grid grid-cols-2 gap-0 relative md:hidden">
+            {mobileServices.map((s, index) => {
+              const Icon = s.icon;
+              const isTopRow = index < 2;
+              const isLeftCol = index % 2 === 0;
+
+              return (
+                <motion.button
+                  key={s.label}
+                  onClick={() => navigate(s.path)}
+                  className={`flex h-full min-h-[160px] items-start gap-4 p-5 bg-black text-left hover:bg-red-900/10 transition-colors group border-b border-white/12 ${
+                    isTopRow ? 'border-t' : ''
+                  } ${isLeftCol ? 'border-l border-r border-white/12' : 'border-r border-white/12'}`}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Icon className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="text-xs font-bold text-white tracking-wide mb-1">{s.label}</div>
+                    <div className="text-sm text-gray-500 leading-relaxed">{s.desc}</div>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          <div className="hidden md:grid md:grid-cols-3 gap-0 relative">
             {/* Left services */}
             <div className="flex flex-col border-l border-white/12">
               {leftServices.map((s, index) => {
