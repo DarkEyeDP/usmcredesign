@@ -70,12 +70,10 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
 
 
   const resources = [
-    { label: 'SAFETY & ACCIDENT PREVENTION' },
     { label: 'UNIFORMS & APPEARANCE', href: 'https://www.tecom.marines.mil/resources/marine-corps-uniform-board/' },
-    { label: 'BOARDS & PROMOTIONS' },
     { label: 'LEGAL SERVICES', href: 'https://www.dso.marines.mil/#i-need-to-talk-to-someone' },
     { label: 'MARINE CORPS RELIEF SOCIETY', href: 'https://www.nmcrs.org' },
-    { label: 'EMERGENCY INFORMATION' },
+    { label: 'PROMOTION INFORMATION', href: 'https://www.manpower.marines.mil/Divisions/Manpower-Management/Performance-Branch/Promotion-Section/' },
     { label: 'CONTACT YOUR CONGRESSMAN' },
   ];
 
@@ -339,10 +337,12 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
                     <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
                   </a>
                 ) : (
-                  <button key={i} className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left hover:text-red-400 transition-colors group">
-                    <span className="text-sm text-gray-300 tracking-wide group-hover:text-red-400 transition-colors">{r.label}</span>
-                    <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
-                  </button>
+                  <div key={i} className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left">
+                    <span className="text-sm text-gray-500 tracking-wide">{r.label}</span>
+                    <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">
+                      COMING SOON
+                    </span>
+                  </div>
                 )
               )}
             </div>

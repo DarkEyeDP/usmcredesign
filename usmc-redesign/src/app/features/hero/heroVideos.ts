@@ -20,9 +20,9 @@ export const VIDEOS: HeroVideo[] = [
   {
     id: 'semper-fidelis-250',
     youtubeId: 'tYq6HGNGZq4',
-    title: 'CARRY THE STANDARD',
-    subtitle: '250 YEARS. STILL ADVANCING.',
-    headerLabel: 'FIELD FOOTAGE',
+    title: '250 YEARS OF LEGACY',
+    subtitle: '',
+    headerLabel: 'NARRATED BY: JON BERNTHAL',
     headerMeta: 'MARINES · 250TH ANNIVERSARY',
     year: '1775',
   },
