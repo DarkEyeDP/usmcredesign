@@ -494,7 +494,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
     if (routeMatch && routeMatch.id !== selectedMsg?.id) {
       setSelectedMsg(routeMatch);
-      detailScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+      resetDetailScrollToTop();
       return;
     }
 
@@ -917,11 +917,25 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   const currentIdx = selectedMsg ? filteredMessages.findIndex(m => m.id === selectedMsg.id) : -1;
 
+  function resetDetailScrollToTop() {
+    detailScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    const detailPanel = detailScrollRef.current?.closest('.print-maradmin-detail');
+    const topOffset = isFullscreen ? 0 : 80;
+    const targetTop = detailPanel instanceof HTMLElement
+      ? window.scrollY + detailPanel.getBoundingClientRect().top - topOffset
+      : 0;
+
+    window.scrollTo({ top: Math.max(0, targetTop), behavior: 'auto' });
+  }
+
   function selectMsg(msg: RSSMessage) {
     const newIdx = filteredMessages.findIndex(m => m.id === msg.id);
     setNavDirection(newIdx >= currentIdx ? 1 : -1);
     navigate(buildMessagePath(msg));
-    detailScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+    resetDetailScrollToTop();
     setMobileView('detail');
   }
 
@@ -1653,8 +1667,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>{/* end mobile tabs row */}
 
           {/* Detail top bar */}
-          <div className="print-hide relative flex-shrink-0 z-10 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:justify-between md:px-8">
-            <div className="flex items-center justify-between gap-3 md:contents">
+          <div className="print-hide relative z-10 flex-shrink-0 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:gap-4 md:px-8">
+            <div className="flex items-center justify-between gap-3 md:flex-shrink-0">
               <div className="flex items-center gap-3 md:gap-4">
               <button
                 onClick={() => setMobileView('list')}
@@ -1676,7 +1690,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               </button>
               </div>
 
-              <div className="flex items-center gap-3 md:gap-3">
+              <div className="flex items-center gap-3 md:hidden">
                 {/* Share button + dropdown */}
                 <div ref={shareRef} className="relative flex items-center">
                   <button
@@ -1736,41 +1750,101 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               </div>
             </div>
 
-            {/* MARADMIN number + date centered in the bar */}
-            <AnimatePresence mode="popLayout" custom={navDirection}>
-              {selectedMsg && (
-                <motion.div
-                  key={selectedMsg.id}
-                  custom={navDirection}
-                  initial={(dir: number) => ({ opacity: 0, x: dir > 0 ? -20 : 20 })}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={(dir: number) => ({ opacity: 0, x: dir > 0 ? 20 : -20 })}
-                  transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center leading-none md:pointer-events-none md:absolute md:left-1/2 md:top-1/2 md:mt-0 md:max-w-[min(50vw,720px)] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
+            <div className="md:flex-1 md:min-w-0 md:flex md:items-center md:justify-center">
+              <AnimatePresence mode="popLayout" custom={navDirection}>
+                {selectedMsg && (
+                  <motion.div
+                    key={selectedMsg.id}
+                    custom={navDirection}
+                    initial={(dir: number) => ({ opacity: 0, x: dir > 0 ? -20 : 20 })}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={(dir: number) => ({ opacity: 0, x: dir > 0 ? 20 : -20 })}
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
+                    className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center leading-none md:pointer-events-none md:mt-0 md:min-w-0 md:w-full md:max-w-[min(56vw,860px)] md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
+                  >
+                    {selectedMsg.unread && (
+                      <div className="flex items-center gap-1.5 md:flex-shrink-0">
+                        <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                        <span className="text-[10px] text-red-500 font-bold tracking-widest">UNREAD</span>
+                      </div>
+                    )}
+                    {selectedMsg.isNew && (
+                      <span className="text-[10px] text-green-400 font-bold tracking-widest md:flex-shrink-0">NEW!</span>
+                    )}
+                    <span className="text-[12px] text-red-500 font-bold tracking-widest md:flex-shrink-0">
+                      MARADMIN {selectedMsg.number}
+                    </span>
+                    <span className="h-3.5 w-px self-center bg-white/18 rounded-full md:flex-shrink-0" aria-hidden="true" />
+                    <span className="text-[12px] text-gray-500 font-mono md:flex-shrink-0">
+                      {selectedMsg.displayDate}
+                    </span>
+                    <span className="h-3.5 w-px self-center bg-white/18 rounded-full md:flex-shrink-0" aria-hidden="true" />
+                    <span className="text-[12px] text-gray-500 font-mono md:min-w-0 md:flex-1 md:truncate">
+                      {selectedMsg.source}
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="hidden md:flex md:flex-shrink-0 md:items-center md:gap-3">
+              {/* Share button + dropdown */}
+              <div ref={shareRef} className="relative flex items-center">
+                <button
+                  onClick={() => setShareOpen(o => !o)}
+                  disabled={!selectedMsg || !detailSections || shareGenerating}
+                  className="text-gray-700 hover:text-gray-400 transition-colors disabled:opacity-30"
+                  aria-label="Share message"
                 >
-                  {selectedMsg.unread && (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                      <span className="text-[10px] text-red-500 font-bold tracking-widest">UNREAD</span>
-                    </div>
+                  {shareGenerating
+                    ? <Loader2 className="w-4 h-4 animate-spin" />
+                    : <Share2 className="w-4 h-4" />
+                  }
+                </button>
+                <AnimatePresence>
+                  {shareOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                      transition={{ duration: 0.12 }}
+                      className="absolute right-0 top-7 z-50 w-44 bg-black border border-white/12 shadow-xl py-1"
+                    >
+                      <button
+                        onClick={handleShareEmail}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
+                      >
+                        <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                        SHARE VIA EMAIL
+                      </button>
+                      {isMobileDevice && (
+                        <button
+                          onClick={handleShareText}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
+                        >
+                          <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                          SHARE VIA TEXT
+                        </button>
+                      )}
+                    </motion.div>
                   )}
-                  {selectedMsg.isNew && (
-                    <span className="text-[10px] text-green-400 font-bold tracking-widest">NEW!</span>
-                  )}
-                  <span className="text-[12px] text-red-500 font-bold tracking-widest">
-                    MARADMIN {selectedMsg.number}
-                  </span>
-                  <span className="h-3.5 w-px self-center bg-white/18 rounded-full" aria-hidden="true" />
-                  <span className="text-[12px] text-gray-500 font-mono">
-                    {selectedMsg.displayDate}
-                  </span>
-                  <span className="h-3.5 w-px self-center bg-white/18 rounded-full" aria-hidden="true" />
-                  <span className="text-[12px] text-gray-500 font-mono">
-                    {selectedMsg.source}
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </AnimatePresence>
+              </div>
+              <button
+                onClick={handlePrint}
+                className="text-gray-700 hover:text-gray-400 transition-colors"
+                aria-label="Print message"
+              >
+                <Printer className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => selectedMsg && toggleSaved(selectedMsg.number)}
+                className={`${selectedMsg?.saved ? 'text-red-500' : 'text-gray-700 hover:text-gray-400'} transition-colors`}
+                aria-label={selectedMsg?.saved ? 'Remove bookmark' : 'Save message'}
+              >
+                <Bookmark className={`w-4 h-4 ${selectedMsg?.saved ? 'fill-current' : ''}`} />
+              </button>
+            </div>
           </div>
           </div>{/* end sticky header wrapper */}
 
@@ -1793,7 +1867,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               onAnimationStart={() => {
                 if (pendingNavScrollRef.current) {
                   pendingNavScrollRef.current = false;
-                  detailScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+                  resetDetailScrollToTop();
                 }
               }}
               className="print-maradmin-content relative px-8 py-7"
@@ -2280,7 +2354,7 @@ function TableBlock({ table }: { table: DetectedTable }) {
         <table className="w-full border-collapse text-[13px] font-mono">
           {table.headers.length > 0 && (
             <thead>
-              <tr className="sticky top-0 z-20 border-b border-white/12 bg-white/[0.03]">
+              <tr className="sticky top-0 z-10 border-b border-white/12 bg-white/[0.03]">
                 {table.headers.map((h, hi) => (
                   <th
                     key={hi}
