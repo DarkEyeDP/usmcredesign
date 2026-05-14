@@ -945,7 +945,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       {!isFullscreen && (
-      <div className={`print-hide relative overflow-hidden border-b border-white/12 pt-20 flex-shrink-0 ${mobileView === 'detail' ? 'hidden md:block' : ''}`}>
+      <div className={`print-hide relative overflow-hidden border-b border-white/12 pt-20 flex-shrink-0 hidden md:block`}>
         {/* Backgrounds — inset-0 covers full outer div (including pt-20 space) */}
         <div className="absolute inset-0" style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.97) 0%, rgba(5,5,10,0.93) 50%, rgba(10,3,3,0.9) 100%)',
@@ -1136,8 +1136,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         </div>
       )}
 
-      {/* Mobile header offset — compensates for the fixed header when the hero is hidden in detail view */}
-      {!isFullscreen && mobileView === 'detail' && (
+      {/* Mobile header offset — compensates for the fixed header when the hero is hidden */}
+      {!isFullscreen && (
         <div className="md:hidden h-20" aria-hidden="true" />
       )}
 
@@ -1145,7 +1145,69 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       <div className={`grid grid-cols-1 md:grid-cols-[380px_1fr] ${isFullscreen ? 'flex-1 min-h-0' : ''}`}>
 
         {/* ── LEFT SIDEBAR — message list ───────────────────────────────── */}
-        <div className={`print-hide ${mobileView === 'detail' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'sticky self-start top-20 h-[calc(100vh-80px)]'} border-r border-white/12 bg-black/60 overflow-hidden`}>
+        <div className={`print-hide ${mobileView === 'detail' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'md:sticky md:self-start md:top-20 md:h-[calc(100vh-80px)]'} border-r border-white/12 bg-black/60 md:overflow-hidden`}>
+
+          {/* Mobile sticky header — tabs + search pinned to top; desktop handled by the sticky panel */}
+          <div className="sticky top-20 z-20 flex flex-col bg-black/95 backdrop-blur-sm md:contents">
+
+          {/* Mobile-only tabs row */}
+          <div className="md:hidden flex items-center overflow-x-auto scrollbar-none border-b border-white/12">
+            {tabs.map(tab => (
+              <button
+                key={tab}
+                onClick={() => switchToStandardTab(tab)}
+                className={`relative flex-shrink-0 px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                  activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {tab}
+                {tab === 'UNREAD' && unreadCount > 0 && (
+                  <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+                {activeTab === tab && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                    layoutId="maradminTabSidebar"
+                  />
+                )}
+              </button>
+            ))}
+            {customViews.map(view => {
+              const isActive = activeTab === view.id;
+              const unread = customViewUnreadCounts.get(view.id) ?? 0;
+              return (
+                <button
+                  key={view.id}
+                  onClick={() => switchToCustomView(view.id)}
+                  className={`relative flex-shrink-0 px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    isActive ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {view.name}
+                  {unread > 0 && (
+                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                      {unread}
+                    </span>
+                  )}
+                  {isActive && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                      layoutId="maradminTabSidebar"
+                    />
+                  )}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setCreatingView(true)}
+              className="flex-shrink-0 px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors"
+              aria-label="New custom view"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
           {/* Search + filter bar */}
           <div className="flex-shrink-0 border-b border-white/12">
@@ -1366,9 +1428,10 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               )}
             </AnimatePresence>
           </div>
+          </div>{/* end mobile sticky header wrapper */}
 
           {/* Message list — scrollable */}
-          <div ref={sidebarScrollRef} className="flex-1 overflow-y-auto px-5 py-3 pb-16 md:pb-3">
+          <div ref={sidebarScrollRef} className="flex-1 md:overflow-y-auto px-5 py-3 pb-16 md:pb-3">
             {listLoading ? (
               <div className="space-y-1 pt-1">
                 {[...Array(7)].map((_, i) => (
