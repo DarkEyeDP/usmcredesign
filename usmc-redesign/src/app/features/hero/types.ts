@@ -1,7 +1,7 @@
 export interface HeroSlide {
   image: string;
   label: string;
-  heading: readonly [string, string];
+  heading: readonly [string, string, ...string[]];
   sub: readonly [string, string];
   colorGrade: string;
   sweep: string;

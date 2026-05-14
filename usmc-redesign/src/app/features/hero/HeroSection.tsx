@@ -4,7 +4,7 @@ import { Play, Maximize2, Minimize2 } from 'lucide-react';
 import { GridPulses } from './GridPulses';
 import { GridNodes } from './GridNodes';
 import { VideoPlayer } from './VideoPlayer';
-import { SLIDES, SLIDE_DURATION } from './heroSlides';
+import { getHeroSlides, SLIDE_DURATION } from './heroSlides';
 import { getVideoById, getDefaultVideo } from './heroVideos';
 
 interface HeroSectionProps {
@@ -13,6 +13,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSectionProps) {
+  const [slides] = useState(() => getHeroSlides());
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
@@ -20,19 +21,23 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
 
   useEffect(() => {
     if (carouselPaused) return;
-    const id = setInterval(() => setCurrent(c => (c + 1) % SLIDES.length), SLIDE_DURATION);
+    const id = setInterval(() => setCurrent(c => (c + 1) % slides.length), SLIDE_DURATION);
     return () => clearInterval(id);
-  }, [carouselPaused]);
+  }, [carouselPaused, slides.length]);
 
-  const slide = SLIDES[current];
+  const slide = slides[current];
+  const headingLines = slide.heading;
+  const finalHeadingLine = headingLines[headingLines.length - 1];
+  const finalHeadingText = finalHeadingLine.replace(/[,.]$/, '');
+  const finalHeadingPunctuation = finalHeadingLine.match(/[,.]$/)?.[0];
 
   // Preload next two images so cross-fades never wait on a network/decode stall
   useEffect(() => {
     [1, 2].forEach(offset => {
       const img = new window.Image();
-      img.src = SLIDES[(current + offset) % SLIDES.length].image as string;
+      img.src = slides[(current + offset) % slides.length].image as string;
     });
-  }, [current]);
+  }, [current, slides]);
 
   // Resolve which video to show: slide-specific → default
   const activeVideo = (slide.videoId ? getVideoById(slide.videoId) : undefined) ?? getDefaultVideo();
@@ -135,7 +140,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
 
       {/* Slide dot indicators */}
       <div className="hidden md:flex absolute bottom-8 left-8 items-center gap-2 z-20">
-        {SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => { setCurrent(i); setPaused(true); setTimeout(() => setPaused(false), 12000); }}
@@ -173,14 +178,15 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
             transition={{ duration: 0.65, ease: 'easeOut' }}
           >
             <div className="text-sm text-gray-400 font-mono tracking-[0.3em] mb-3">{slide.label}</div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 leading-[0.9]">
-              {slide.heading[0]}<br />
-              {slide.heading[1].replace(/[,.]$/, '').split('').map((ch, i) => {
-                const isPunct = ch === ',' || ch === '.';
-                return isPunct
-                  ? <span key={i} className="text-red-600">{ch}</span>
-                  : ch;
-              })}<span className="text-red-600">{slide.heading[1].match(/[,.]$/)?.[0]}</span>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-white mb-4 leading-[0.9]">
+              {headingLines.slice(0, -1).map((line, index) => (
+                <span key={`${line}-${index}`}>
+                  {line}
+                  <br />
+                </span>
+              ))}
+              {finalHeadingText}
+              {finalHeadingPunctuation ? <span className="text-red-600">{finalHeadingPunctuation}</span> : null}
             </h1>
             <p className="text-sm text-gray-400 mb-8 tracking-wide max-w-xs md:max-w-sm">
               {slide.sub[0]}<span className="text-red-600">.</span><br />{slide.sub[1]}<span className="text-red-600">.</span>

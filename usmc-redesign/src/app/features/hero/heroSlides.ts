@@ -12,6 +12,7 @@ import hero11 from '@/app/assets/hero-11.webp';
 import type { HeroSlide } from './types';
 
 export const SLIDE_DURATION = 20000;
+export const RANDOMIZE_HERO_SLIDES = true;
 
 /**
  * Hero slideshow entries.
@@ -28,7 +29,7 @@ export const SLIDES: HeroSlide[] = [
   {
     // Artillery crew firing M777 in arid desert — smoke, dust, amber heat
     image: hero1,
-    label: 'FIRE FOR EFFECT',
+    label: 'STEEL RAIN',
     heading: ['DOWNRANGE.', 'ON CALL. ALWAYS.'],
     sub: ['WHEN THE GRID LOCKS, WE ANSWER.', 'STEEL, SMOKE, AND TIMING.'],
     colorGrade: 'radial-gradient(ellipse at 75% 50%, rgba(160,40,0,0.32) 0%, transparent 65%)',
@@ -69,7 +70,7 @@ export const SLIDES: HeroSlide[] = [
     // Extreme close-up rifle optic, marksman focus, warm red-brown tones
     image: hero5,
     label: 'EVERY MARINE A RIFLEMAN',
-    heading: ['ONE SHOT.', 'ONE PURPOSE.'],
+    heading: ['ONE SHOT.', 'ONE KILL.'],
     sub: ['SIGHT PICTURE. BREATH. BREAK.', 'DISCIPLINE MAKES THE DIFFERENCE.'],
     colorGrade: 'radial-gradient(ellipse at 70% 50%, rgba(160,30,0,0.30) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(100,15,0,0.22) 60%, transparent 80%)',
@@ -79,7 +80,7 @@ export const SLIDES: HeroSlide[] = [
     // Two RHIBs with armed Marines in heavy ocean surf — dark navy, white foam, aerial
     image: hero6,
     label: 'MARITIME STRIKE',
-    heading: ['SWIFT.', 'LETHAL. UNSTOPPABLE.'],
+    heading: ['SWIFT.', 'LETHAL.', 'UNSTOPPABLE.'],
     sub: ['SURF LINE TO TARGET LINE.', 'WE HIT BEFORE THE HORIZON WARNS THEM.'],
     colorGrade: 'radial-gradient(ellipse at 60% 45%, rgba(0,25,90,0.32) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(0,12,60,0.24) 60%, transparent 80%)',
@@ -89,7 +90,7 @@ export const SLIDES: HeroSlide[] = [
     // USMC color guard with Eagle Globe Anchor flag at stadium ceremony — heritage, tradition
     image: hero7,
     label: 'CONTINUE OUR LEGACY',
-    heading: ['250 YEARS', 'STILL ADVANCING.'],
+    heading: ['250 YEARS', 'OF ADVANCING.'],
     sub: ['WHAT WAS BUILT IN 1775 STILL MOVES.', 'WE CARRY THE WEIGHT FORWARD.'],
     colorGrade: 'radial-gradient(ellipse at 65% 50%, rgba(100,55,0,0.28) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(80,30,0,0.20) 60%, transparent 80%)',
@@ -130,10 +131,23 @@ export const SLIDES: HeroSlide[] = [
     // Operator with NODs and suppressed rifle in darkness — deep blue-black, night vision
     image: hero11,
     label: 'DEEP STRIKE',
-    heading: ['UNSEEN.', 'UNSTOPPABLE.'],
+    heading: ['UNSEEN AND', 'UNSTOPPABLE.'],
     sub: ['IN DEEP BEFORE FIRST LIGHT.', 'GONE BEFORE THE ECHO DIES.'],
     colorGrade: 'radial-gradient(ellipse at 68% 49%, rgba(0,20,80,0.32) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(0,10,55,0.24) 60%, transparent 80%)',
     nodeColors: ['rgba(80,130,215,0.9)', 'rgba(100,165,255,0.9)', 'rgba(60,100,195,0.9)'],
   },
 ];
+
+export function getHeroSlides(randomize = RANDOMIZE_HERO_SLIDES): HeroSlide[] {
+  if (!randomize) return SLIDES;
+
+  const shuffled = [...SLIDES];
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}

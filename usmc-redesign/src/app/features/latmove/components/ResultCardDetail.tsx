@@ -61,7 +61,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
             <div className="relative mb-5">
               <div className="relative bg-[linear-gradient(to_bottom,rgba(19,4,4,0.96),rgba(19,4,4,0.96))] px-5">
                 {activeSide === 'left' ? (
-                  <div className="flex min-h-11 flex-wrap items-end gap-4 border-b border-white/12 pb-2 pt-3">
+                  <div className="flex min-h-11 flex-wrap items-end gap-4 border-b border-white/12 pb-2 pt-4">
                     <div className="pb-px font-mono text-[11px] font-bold tracking-[0.18em] text-red-500/45">
                       {formattedNumber}
                     </div>
@@ -71,7 +71,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
                     <div className="mb-1.5 h-px flex-1 bg-red-500/30" />
                   </div>
                 ) : (
-                  <div className="flex min-h-11 flex-wrap items-end gap-4 border-b border-white/12 pb-2 pt-3">
+                  <div className="flex min-h-11 flex-wrap items-end gap-4 border-b border-white/12 pb-2 pt-4">
                     <div className="mb-1.5 h-px flex-1 bg-red-500/30" />
                     <div className="pb-px font-mono text-[11px] font-bold tracking-[0.18em] text-red-500/45">
                       {formattedNumber}

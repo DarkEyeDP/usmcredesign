@@ -945,7 +945,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       {!isFullscreen && (
-      <div className="print-hide relative overflow-hidden border-b border-white/12 pt-20 flex-shrink-0">
+      <div className={`print-hide relative overflow-hidden border-b border-white/12 pt-20 flex-shrink-0 ${mobileView === 'detail' ? 'hidden md:block' : ''}`}>
         {/* Backgrounds — inset-0 covers full outer div (including pt-20 space) */}
         <div className="absolute inset-0" style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.97) 0%, rgba(5,5,10,0.93) 50%, rgba(10,3,3,0.9) 100%)',
@@ -1134,6 +1134,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
             </button>
           )}
         </div>
+      )}
+
+      {/* Mobile header offset — compensates for the fixed header when the hero is hidden in detail view */}
+      {!isFullscreen && mobileView === 'detail' && (
+        <div className="md:hidden h-20" aria-hidden="true" />
       )}
 
       {/* ── MAIN GRID ────────────────────────────────────────────────────── */}
@@ -1519,7 +1524,70 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         </div>
 
         {/* ── RIGHT COLUMN — message detail ────────────────────────────── */}
-        <div className={`print-maradmin-detail ${mobileView === 'list' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'sticky self-start top-20 h-[calc(100vh-80px)]'} overflow-hidden`}>
+        <div className={`print-maradmin-detail ${mobileView === 'list' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'md:sticky md:self-start md:top-20 md:h-[calc(100vh-80px)]'} md:overflow-hidden`}>
+
+          {/* Sticky header wrapper — on mobile this sticks below the app header; on desktop it becomes
+              display:contents so children flow directly into the fixed-height panel */}
+          <div className="sticky top-20 z-20 flex flex-col bg-black/95 backdrop-blur-sm md:contents">
+
+          {/* Mobile-only tabs row */}
+          <div className="md:hidden flex items-center overflow-x-auto scrollbar-none border-b border-white/12">
+            {tabs.map(tab => (
+              <button
+                key={tab}
+                onClick={() => { switchToStandardTab(tab); setMobileView('list'); }}
+                className={`relative flex-shrink-0 px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                  activeTab === tab ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {tab}
+                {tab === 'UNREAD' && unreadCount > 0 && (
+                  <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+                {activeTab === tab && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                    layoutId="maradminTabMobile"
+                  />
+                )}
+              </button>
+            ))}
+            {customViews.map(view => {
+              const isActive = activeTab === view.id;
+              const unread = customViewUnreadCounts.get(view.id) ?? 0;
+              return (
+                <button
+                  key={view.id}
+                  onClick={() => { switchToCustomView(view.id); setMobileView('list'); }}
+                  className={`relative flex-shrink-0 px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                    isActive ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                  }`}
+                >
+                  {view.name}
+                  {unread > 0 && (
+                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                      {unread}
+                    </span>
+                  )}
+                  {isActive && (
+                    <motion.div
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 z-10"
+                      layoutId="maradminTabMobile"
+                    />
+                  )}
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setCreatingView(true)}
+              className="flex-shrink-0 px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors"
+              aria-label="New custom view"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>{/* end mobile tabs row */}
 
           {/* Detail top bar */}
           <div className="print-hide relative flex-shrink-0 z-10 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:justify-between md:px-8">
@@ -1641,9 +1709,10 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               )}
             </AnimatePresence>
           </div>
+          </div>{/* end sticky header wrapper */}
 
           {/* Detail body */}
-          <div ref={detailScrollRef} className="print-maradmin-body flex-1 overflow-y-auto relative overflow-x-hidden">
+          <div ref={detailScrollRef} className="print-maradmin-body flex-1 md:overflow-y-auto relative overflow-x-hidden">
             {/* Subtle background texture */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{
               backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
