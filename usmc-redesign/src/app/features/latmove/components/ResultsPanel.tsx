@@ -302,7 +302,7 @@ export function ResultsPanel({
         }}
       />
       {/* Sticky header — stays pinned while the list scrolls */}
-      <div ref={stickyHeaderRef} className="sticky top-0 z-50 isolate bg-black px-6 pt-6 pb-3 border-b border-white/12">
+      <div ref={stickyHeaderRef} className="sticky top-0 z-30 isolate bg-black px-6 pt-6 pb-3 border-b border-white/12 md:z-50">
         {/* Header — stacks vertically on mobile, side-by-side on desktop */}
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:gap-6">
           {/* Left stack */}
@@ -585,7 +585,7 @@ export function ResultsPanel({
       </div>
 
       {/* Scrollable results list */}
-      <div className="relative z-10 px-6 pt-4 pb-6">
+      <div className="relative z-10 px-6 pt-4 pb-24 md:pb-6">
         <div>
         {results.length === 0 ? (
           <div className="py-16 text-center">

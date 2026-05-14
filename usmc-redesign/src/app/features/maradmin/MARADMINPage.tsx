@@ -1347,9 +1347,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.18, ease: 'easeInOut' }}
-                  className="overflow-hidden border-t border-white/12"
+                  className="max-h-[calc(100svh-18rem)] overflow-y-auto overscroll-contain border-t border-white/12 touch-pan-y [-webkit-overflow-scrolling:touch] md:max-h-none md:overflow-visible"
                 >
-                  <div className="px-5 py-4 space-y-4">
+                  <div className="px-5 py-4 pb-32 space-y-4 md:pb-4">
                     {/* Header */}
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-bold text-gray-500 tracking-[0.2em]">FILTERS</span>
