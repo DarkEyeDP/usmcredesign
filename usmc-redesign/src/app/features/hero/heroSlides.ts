@@ -40,7 +40,7 @@ export const SLIDES: HeroSlide[] = [
     // CH-53E Super Stallion over tropical jungle — blue-gray sky, green canopy below
     image: hero2,
     label: 'AIR ASSAULT',
-    heading: ['EVERY CLIME', 'AND PLACE.'],
+    heading: ['EVERY CLIME.', 'AND PLACE.'],
     sub: ['OVER THE SURF. THROUGH THE CANOPY.', 'DISTANCE DOES NOT SAVE THE TARGET.'],
     colorGrade: 'radial-gradient(ellipse at 70% 45%, rgba(0,40,120,0.30) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(0,20,80,0.22) 60%, transparent 80%)',
@@ -98,11 +98,11 @@ export const SLIDES: HeroSlide[] = [
     videoId: 'semper-fidelis-250',
   },
   {
-    // CH-53 with Marines at door — deep violet/purple twilight sky, second helo distant
+    // Huey with Marines at door — daylight flight profile, support on station
     image: hero8,
-    label: 'NIGHT OPS',
-    heading: ['OWN THE', 'NIGHT.'],
-    sub: ['BLACK SKY. QUIET ROTORS.', 'WE ARRIVE BEFORE THE WARNING DOES.'],
+    label: 'HELO OPS',
+    heading: ['FROM DAWN', 'TO SETTING SUN.'],
+    sub: ['FIRST LIGHT. LAST PASS.', 'WE STAY ON STATION UNTIL THE MISSION IS DONE.'],
     colorGrade: 'radial-gradient(ellipse at 68% 50%, rgba(55,0,110,0.28) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(38,0,75,0.22) 60%, transparent 80%)',
     nodeColors: ['rgba(170,80,255,0.9)', 'rgba(210,60,200,0.9)', 'rgba(125,60,245,0.9)'],
