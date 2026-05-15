@@ -1667,7 +1667,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>{/* end mobile tabs row */}
 
           {/* Detail top bar */}
-          <div className="print-hide relative z-10 flex-shrink-0 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:gap-4 md:px-8">
+          <div className="print-hide relative z-10 flex-shrink-0 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:justify-between md:px-8">
             <div className="flex items-center justify-between gap-3 md:flex-shrink-0">
               <div className="flex items-center gap-3 md:gap-4">
               <button
@@ -1750,9 +1750,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               </div>
             </div>
 
-            <div className="md:flex-1 md:min-w-0 md:flex md:items-center md:justify-center">
-              <AnimatePresence mode="popLayout" custom={navDirection}>
-                {selectedMsg && (
+            <AnimatePresence mode="popLayout" custom={navDirection}>
+              {selectedMsg && (
                   <motion.div
                     key={selectedMsg.id}
                     custom={navDirection}
@@ -1760,7 +1759,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     animate={{ opacity: 1, x: 0 }}
                     exit={(dir: number) => ({ opacity: 0, x: dir > 0 ? 20 : -20 })}
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center leading-none md:pointer-events-none md:mt-0 md:min-w-0 md:w-full md:max-w-[min(56vw,860px)] md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
+                    className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center md:pointer-events-none md:absolute md:left-1/2 md:top-1/2 md:mt-0 md:max-w-[min(56vw,860px)] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
                   >
                     {selectedMsg.unread && (
                       <div className="flex items-center gap-1.5 md:flex-shrink-0">
@@ -1779,13 +1778,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       {selectedMsg.displayDate}
                     </span>
                     <span className="h-3.5 w-px self-center bg-white/18 rounded-full md:flex-shrink-0" aria-hidden="true" />
-                    <span className="text-[12px] text-gray-500 font-mono md:min-w-0 md:flex-1 md:truncate">
+                    <span className="text-[12px] text-gray-500 font-mono md:truncate">
                       {selectedMsg.source}
                     </span>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
 
             <div className="hidden md:flex md:flex-shrink-0 md:items-center md:gap-3">
               {/* Share button + dropdown */}
@@ -2350,15 +2348,15 @@ function TableBlock({ table }: { table: DetectedTable }) {
           {table.title}
         </div>
       )}
-      <div className="overflow-x-auto overflow-y-visible border border-white/10 bg-black/40">
+      <div className="overflow-x-auto overflow-y-visible border border-white/10 bg-black/40 md:overflow-visible">
         <table className="w-full border-collapse text-[13px] font-mono">
           {table.headers.length > 0 && (
             <thead>
-              <tr className="sticky top-0 z-10 border-b border-white/12 bg-white/[0.03]">
+              <tr className="border-b border-white/12 bg-white/[0.03]">
                 {table.headers.map((h, hi) => (
                   <th
                     key={hi}
-                    className={`border-b border-white/12 bg-[#080808]/95 px-4 py-2 text-left text-[11px] font-bold tracking-[0.15em] text-gray-400 backdrop-blur-sm ${hi === 0 ? 'min-w-[160px]' : ''}`}
+                    className={`sticky top-0 z-10 border-b border-white/12 bg-[#080808]/95 px-4 py-2 text-left text-[11px] font-bold tracking-[0.15em] text-gray-400 backdrop-blur-sm ${hi === 0 ? 'min-w-[160px]' : ''}`}
                   >
                     {h}
                   </th>

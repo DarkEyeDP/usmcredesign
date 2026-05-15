@@ -574,6 +574,92 @@ function parseBoardPanelScheduleTable(text: string): ParsedTableFamily | null {
   };
 }
 
+function parseEnlistedBoardPanelScheduleTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bBoard\/Panel\s+Application\s+Deadline\s+Convening\s+Date\b\s*/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = text.slice(headerMatch[0].length).trim();
+  const tokens = data.split(/\s+/).filter(Boolean);
+  if (tokens.length < 9) return null;
+
+  const monthTokenRe = /^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)$/i;
+  const fourDigitYearRe = /^\d{4}$/;
+  const twoDigitYearRe = /^\d{2}$/;
+  const maradminNumberRe = /^\d+\/\d+$/i;
+
+  function readDeadline(start: number): { value: string; end: number } | null {
+    const token = tokens[start];
+    const next = tokens[start + 1];
+
+    if (/^(Quarterly|Semi-Annual)$/i.test(token)) {
+      return { value: token, end: start + 1 };
+    }
+
+    if (monthTokenRe.test(token) && next && fourDigitYearRe.test(next)) {
+      return { value: `${token} ${next}`, end: start + 2 };
+    }
+
+    return null;
+  }
+
+  function readConvening(start: number): { value: string; end: number } | null {
+    const token = tokens[start];
+    const next = tokens[start + 1];
+    const third = tokens[start + 2];
+
+    if (/^(Quarterly|Semi-Annual)$/i.test(token)) {
+      return { value: token, end: start + 1 };
+    }
+
+    if (monthTokenRe.test(token) && next && fourDigitYearRe.test(next)) {
+      return { value: `${token} ${next}`, end: start + 2 };
+    }
+
+    if (/^See$/i.test(token) && /^MARADMIN$/i.test(next ?? '') && maradminNumberRe.test(third ?? '')) {
+      return { value: `See MARADMIN ${third}`, end: start + 3 };
+    }
+
+    if (/^\d{1,2}$/.test(token) && monthTokenRe.test(next ?? '') && twoDigitYearRe.test(third ?? '')) {
+      return { value: `${token} ${next} ${third}`, end: start + 3 };
+    }
+
+    return null;
+  }
+
+  const rows: string[][] = [];
+  let cursor = 0;
+
+  while (cursor < tokens.length) {
+    let matched = false;
+
+    for (let i = cursor + 1; i < tokens.length; i += 1) {
+      const deadline = readDeadline(i);
+      if (!deadline) continue;
+
+      const convening = readConvening(deadline.end);
+      if (!convening) continue;
+
+      const boardPanel = tokens.slice(cursor, i).join(' ').trim();
+      if (!boardPanel) continue;
+
+      rows.push([boardPanel, deadline.value, convening.value]);
+      cursor = convening.end;
+      matched = true;
+      break;
+    }
+
+    if (!matched) break;
+  }
+
+  if (rows.length < 3) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Board / Panel', 'Application Deadline', 'Convening Date'], rows }],
+  };
+}
+
 // Parses LDO/WO selectee lists with "Name MCC SMOS" header, e.g.:
 // (Read in three columns). Name MCC SMOS
 // ALDRICH, RYAN M. 15A 2340 BARNETT, RUFUS B. 779 0430 ...
@@ -721,6 +807,7 @@ function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamil
 
 const TABLE_FAMILY_PARSERS = [
   parseInlineEligibilityTable,
+  parseEnlistedBoardPanelScheduleTable,
   parseBoardPanelScheduleTable,
   parseSRBKickerTable,
   parseSRBPMOSBonusTable,
