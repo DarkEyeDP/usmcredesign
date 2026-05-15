@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, ChevronDown, ExternalLink, Clock, AlertTriangle, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
@@ -175,6 +176,11 @@ export function TuitionAssistancePage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Corps Tuition Assistance"
+        description="Marine Corps Tuition Assistance (TA) program guide — eligibility requirements, $4,500 annual limit, how to apply through Marine Online, grade requirements, and recoupment rules."
+        path="/education/tuition-assistance"
+      />
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         <div className="absolute inset-0" style={{

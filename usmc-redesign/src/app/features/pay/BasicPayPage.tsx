@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, animate, useMotionValue, useTransform } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, ExternalLink, Info } from 'lucide-react';
@@ -171,6 +172,11 @@ export function BasicPayPage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Basic Pay Calculator"
+        description="2026 Marine Corps basic pay calculator. Look up monthly military pay by rank and years of service for enlisted Marines, warrant officers, and commissioned officers."
+        path="/pay-benefits/basic-pay"
+      />
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         <div
           className="absolute inset-0"

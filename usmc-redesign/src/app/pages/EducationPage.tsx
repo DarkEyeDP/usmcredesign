@@ -5,6 +5,7 @@ import { ChevronRight, Layout, Award } from 'lucide-react';
 import { useNewsItems } from '@/app/features/news';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { getCachedFeed } from '@/app/features/maradmin/maradminStorage';
+import { SEOHead } from '@/app/components/SEOHead';
 
 const tabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const inactiveTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
@@ -112,6 +113,11 @@ export function EducationPage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Education Benefits"
+        description="Marine Corps education benefits explained — Tuition Assistance (TA), college programs, certifications, and career development resources for active-duty Marines."
+        path="/education"
+      />
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         <div className="absolute inset-0" style={{

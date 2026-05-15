@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import heroBanner from '@/app/assets/hero-3.webp';
 import { motion } from 'motion/react';
@@ -289,6 +290,11 @@ export function PayBenefitsPage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Pay & Benefits"
+        description="Calculate your Marine Corps base pay, allowances, and bonuses. 2026 USMC pay tables for enlisted, warrant officer, and commissioned officer ranks with years of service."
+        path="/pay-benefits"
+      />
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         {/* Background */}

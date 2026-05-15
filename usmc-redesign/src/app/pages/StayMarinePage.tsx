@@ -1,10 +1,16 @@
 import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { SEOHead } from '@/app/components/SEOHead';
 
 export function StayMarinePage() {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Stay Marine"
+        description="Reasons to stay in the Marine Corps — career growth, leadership opportunities, pay and benefits, and resources to help you make the most of your active-duty service."
+        path="/stay-marine"
+      />
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         <div className="absolute inset-0" style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(8,5,0,0.92) 100%)',

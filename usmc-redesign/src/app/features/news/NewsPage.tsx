@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronRight, ExternalLink, Newspaper, Radio, FileText, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNewsItems } from './useNewsItems';
 import type { NewsItem, NewsAttachment } from './types';
@@ -249,6 +250,11 @@ export function NewsPage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Corps News"
+        description="Latest Marine Corps news, official press releases, and USMC announcements. Stay current on Marine Corps operations, policy changes, and command updates."
+        path="/news"
+      />
       {/* Page header */}
       <div className="relative overflow-hidden border-b border-white/12 pt-20">
         <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(5,5,10,0.92) 50%, rgba(8,5,12,0.88) 100%)', backgroundColor: '#050508' }} />

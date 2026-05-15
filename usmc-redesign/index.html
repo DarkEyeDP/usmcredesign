@@ -1,25 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-      <link rel="shortcut icon" type="image/svg+xml" href="./favicon.svg" />
-      <title>Stay Marine</title>
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-JHCCC4T0HS"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-JHCCC4T0HS');
-      </script>
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-    </head>
+    <!-- Primary meta (fallback — react-helmet-async overrides these per page) -->
+    <title>Stay Marine | USMC Tools &amp; Resources for Active-Duty Marines</title>
+    <meta name="description" content="Official tools and resources for active-duty Marines. Access MARADMIN messages, pay calculators, the lateral move tool, education benefits, and Marine Corps news." />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="USMC, Marine Corps, MARADMIN, lateral move, MOS change, Marine pay, tuition assistance, Marine education, Stay Marine, Marines, active duty" />
+    <meta name="author" content="Stay Marine" />
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
-  
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="Stay Marine" />
+    <meta property="og:title" content="Stay Marine | USMC Tools &amp; Resources for Active-Duty Marines" />
+    <meta property="og:description" content="Official tools and resources for active-duty Marines. MARADMIN messages, pay calculators, lateral move tool, education benefits, and Marine Corps news." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://stay-marine.com/" />
+    <meta property="og:image" content="https://stay-marine.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Stay Marine | USMC Tools &amp; Resources for Active-Duty Marines" />
+    <meta name="twitter:description" content="Official tools and resources for active-duty Marines. MARADMIN messages, pay calculators, lateral move tool, education benefits, and Marine Corps news." />
+    <meta name="twitter:image" content="https://stay-marine.com/og-image.jpg" />
+
+    <!-- Canonical (fallback) -->
+    <link rel="canonical" href="https://stay-marine.com/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" type="image/svg+xml" href="./favicon.svg" />
+
+    <!-- JSON-LD: Organization schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Stay Marine",
+      "url": "https://stay-marine.com",
+      "logo": "https://stay-marine.com/favicon.svg",
+      "description": "Tools and resources for active-duty United States Marines — MARADMIN messages, pay calculators, lateral move tool, education benefits, and Marine Corps news.",
+      "sameAs": [
+        "https://www.marines.mil",
+        "https://www.manpower.usmc.mil"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD: WebSite (enables Google Sitelinks searchbox) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Stay Marine",
+      "url": "https://stay-marine.com",
+      "description": "USMC tools and resources for active-duty Marines",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://stay-marine.com/messages?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JHCCC4T0HS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-JHCCC4T0HS');
+    </script>
+
+    <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

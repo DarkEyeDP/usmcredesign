@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, DollarSign, GraduationCap, ArrowRightLeft, ExternalLink, Newspaper, MessageSquare, Anchor } from 'lucide-react';
 import { HeroSection } from '@/app/features/hero';
@@ -88,6 +89,10 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
 
   return (
     <div className="relative min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        description="Official tools and resources for active-duty Marines. Browse MARADMIN messages, calculate pay and bonuses, explore lateral move MOS options, and access education benefits."
+        path="/"
+      />
       <HeroSection isFullscreen={isFullscreen} onToggleFullscreen={onToggleFullscreen} />
 
       {/* Our Mission Section */}
@@ -95,9 +100,9 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div className="md:col-span-2">
             <div className="text-sm text-red-500 font-bold tracking-[0.25em] mb-4">OUR MISSION</div>
-            <p className="text-lg font-black text-white tracking-wide leading-snug mb-4">
+            <h1 className="text-lg font-black text-white tracking-wide leading-snug mb-4">
               THE MARINE CORPS EXISTS TO WIN OUR NATION'S BATTLES AND DEVELOP QUALITY CITIZENS COMMITTED TO MAKING A DIFFERENCE.
-            </p>
+            </h1>
             <button className="text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
               STAY MARINE<span className="text-red-600">.</span>
             </button>

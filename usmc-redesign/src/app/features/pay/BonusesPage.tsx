@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronDown, ChevronRight, ExternalLink, Info, RefreshCw, Star, Target } from 'lucide-react';
@@ -127,6 +128,11 @@ export function BonusesPage() {
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Corps Bonus Calculator"
+        description="Calculate your Marine Corps Selective Reenlistment Bonus (SRBP). Enter your MOS, rank, PEBD, and contract length to estimate your reenlistment bonus payout."
+        path="/pay-benefits/bonuses"
+      />
       {/* ── Hero ── */}
       <div className="relative overflow-hidden border-b border-white/12 pt-20">
         <div

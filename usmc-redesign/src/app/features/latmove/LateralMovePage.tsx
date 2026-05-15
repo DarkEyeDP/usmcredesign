@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { PanelLeftOpen } from 'lucide-react';
 import { buildResults, sortResults } from './matching';
@@ -320,6 +321,11 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
 
   return (
     <div className="min-h-screen bg-black pb-20 md:pb-0">
+      <SEOHead
+        title="Marine Lateral Move Tool"
+        description="Find Marine Corps lateral move opportunities by MOS. Search available MOS changes, review requirements, and explore career transition options for active-duty Marines."
+        path="/lateral-move"
+      />
       {!isFullscreen && <Hero onExploreTool={handleExploreTool} />}
 
       <div

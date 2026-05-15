@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { SEOHead } from '@/app/components/SEOHead';
 import {
   createSearchIndex,
   extractExactMARADMINNumberQuery,
@@ -918,6 +919,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   return (
     <div className={`print-maradmin-root ${isFullscreen ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen pb-20 md:pb-0'} bg-black`}>
+      <SEOHead
+        title="MARADMIN Messages"
+        description="Browse and search Marine Administrative Messages (MARADMINs). Full-text search, filter by audience, and read official USMC policy and administrative messages."
+        path="/messages"
+      />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       {!isFullscreen && (

@@ -251,9 +251,9 @@ export function ResultsPanel({
       const container = scrollContainerRef.current;
       if (el) {
         if (isSingleCol) {
-          const stickyHeight = stickyHeaderRef.current?.offsetHeight ?? 150;
+          const stickyBottom = stickyHeaderRef.current?.getBoundingClientRect().bottom ?? 230;
           const elTop = el.getBoundingClientRect().top;
-          const delta = elTop - stickyHeight;
+          const delta = elTop - stickyBottom;
           if (Math.abs(delta) > 4) {
             const startY = window.scrollY;
             const targetY = Math.max(0, startY + delta);
