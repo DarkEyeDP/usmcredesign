@@ -111,7 +111,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
           <div className="border border-white/16 p-6 bg-black/50">
             <div className="space-y-4">
               {[
-                { label: 'FORWARD DEPLOYED', value: '90+', unit: 'COUNTRIES' },
+                { label: 'GLOBAL PRESENCE', value: '100+', unit: 'COUNTRIES' },
                 { label: 'ACTIVE DUTY MARINES', value: '172K+', unit: '' },
                 { label: 'ESTABLISHED', value: '1775', unit: '' },
               ].map((stat) => (
