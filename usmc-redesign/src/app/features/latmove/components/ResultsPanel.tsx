@@ -302,7 +302,7 @@ export function ResultsPanel({
         }}
       />
       {/* Sticky header — stays pinned while the list scrolls */}
-      <div ref={stickyHeaderRef} className="sticky top-0 z-30 isolate bg-black px-6 pt-6 pb-3 border-b border-white/12 md:z-50">
+      <div ref={stickyHeaderRef} className="sticky top-20 z-30 isolate bg-black px-6 pt-6 pb-3 border-b border-white/12 md:top-0 md:z-50">
         {/* Header — stacks vertically on mobile, side-by-side on desktop */}
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:gap-6">
           {/* Left stack */}
@@ -427,7 +427,7 @@ export function ResultsPanel({
         </div>
 
         {isFilterOpen && (
-          <div className="mb-4 max-h-[min(70vh,calc(100vh-240px))] overflow-y-auto border border-white/14 bg-black/80 p-3">
+          <div className="mb-4 max-h-[min(52svh,calc(100svh-300px))] overflow-y-auto border border-white/14 bg-black/80 p-3 md:max-h-[min(70vh,calc(100vh-240px))]">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="text-[12px] font-bold tracking-[0.22em] text-gray-500">
                 FILTER OPTIONS <span className="text-green-500/70">GREEN INCLUDED</span> <span className="text-red-400/80">RED HIDDEN</span>

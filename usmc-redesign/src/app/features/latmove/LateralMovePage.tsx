@@ -470,8 +470,8 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
         </div>
       </div>
 
-      {!isFullscreen && <AboutSection />}
-      {!isFullscreen && <CTABanner />}
+      {/* {!isFullscreen && <AboutSection />} */}
+      {/* {!isFullscreen && <CTABanner />} */}
     </div>
   );
 }

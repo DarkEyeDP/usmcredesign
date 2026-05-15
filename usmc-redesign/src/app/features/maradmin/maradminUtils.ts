@@ -867,3 +867,19 @@ export function tagsFromContent(subject: string, body: string): string[] {
     .slice(0, 4)
     .map(([tag]) => tag);
 }
+
+// ── Message routing helpers ───────────────────────────────────────────────────
+
+export function encodeMessageNumber(number: string): string {
+  return number.replace(/\//g, '-');
+}
+
+export function decodeMessageNumber(messageNumber?: string): string | null {
+  if (!messageNumber) return null;
+  return messageNumber.replace(/-/g, '/');
+}
+
+export function buildMessagePath(msg: { number: string; id: string }): string {
+  if (msg.number) return `/messages/${encodeMessageNumber(msg.number)}`;
+  return `/messages/_id_${encodeURIComponent(msg.id)}`;
+}
