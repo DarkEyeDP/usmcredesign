@@ -6,6 +6,11 @@ import { useNewsItems } from '@/app/features/news';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { getCachedFeed } from '@/app/features/maradmin/maradminStorage';
 import { SEOHead } from '@/app/components/SEOHead';
+import cemeLogo from '@/app/assets/ceme-logo.png';
+import mcwarLogo from '@/app/assets/mcwar-logo.png';
+import commandStaffLogo from '@/app/assets/command-staff-logo.jpeg';
+import ewsLogo from '@/app/assets/ews-logo.jpeg';
+import cdetLogo from '@/app/assets/cdet-logo.jpg';
 
 const tabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const inactiveTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
@@ -20,8 +25,8 @@ const pathwaySteps = [
 
 const topBenefits = [
   { label: 'Tuition Assistance (TA)', desc: 'Up to $4,500 per fiscal year' },
-  { label: 'GI Bill® Benefits', desc: 'Education benefits for you and your family' },
-  { label: 'Marine Corps COOL', desc: 'Credentialing opportunities for in-demand careers' },
+  { label: 'GI Bill® Benefits', desc: 'Education benefits for you and your family', href: 'https://www.va.gov/education/about-gi-bill-benefits/' },
+  { label: 'Marine Corps COOL', desc: 'Credentialing opportunities for in-demand careers', href: 'https://www.cool.osd.mil/usmc/index.html' },
   { label: 'Marines University', desc: 'Free online courses and degree programs' },
   { label: 'Apprenticeship Programs', desc: 'Earn while you learn in high-demand fields' },
 ];
@@ -29,18 +34,66 @@ const topBenefits = [
 const educationTools = [
   { label: 'Degree Planner', desc: 'Plan your degree and track your progress' },
   { label: 'TA Request (WebTA)', desc: 'Apply for Tuition Assistance online' },
-  { label: 'Navy College Program', desc: 'Access courses and manage your education' },
-  { label: 'Joint Services Transcript', desc: 'View and download your official transcript' },
+  { label: 'Navy College Program', desc: 'Access courses and manage your education', href: 'https://www.navycollege.navy.mil' },
+  { label: 'Joint Services Transcript', desc: 'View and download your official transcript', href: 'https://jst.doded.mil/jst/' },
   { label: 'Virtual Education Center', desc: 'Connect with counselors and resources' },
 ];
 
-const featuredPrograms = [
-  { label: 'MARINE CORPS UNIVERSITY', desc: 'Online degree programs designed for Marines.' },
-  { label: 'TUITION ASSISTANCE', desc: 'Financial assistance for college courses and certifications.' },
-  { label: 'COOL PROGRAM', desc: 'Turn your military skills into industry-recognized credentials.' },
-  { label: 'GI BILL® BENEFITS', desc: 'Education benefits for Marines and their dependents.' },
-  { label: 'APPRENTICESHIP PROGRAMS', desc: 'Build skills. Earn credentials. Advance your career.' },
-  { label: 'LEADERSHIP & PROFESSIONAL DEVELOPMENT', desc: 'Courses and certifications to develop leaders.' },
+type FeaturedProgram = {
+  label: string;
+  desc: string;
+  href: string;
+  imageSrc: string;
+  imageAlt: string;
+  logoClassName: string;
+};
+
+const featuredProgramCardClassName = 'aspect-video bg-gradient-to-br from-gray-900 to-black border border-white/12 mb-3 overflow-hidden relative transition-colors group-hover:border-white/30';
+const featuredProgramPanelClassName = 'absolute inset-0 flex items-center justify-center p-4';
+const featuredProgramLogoFieldClassName = 'absolute inset-3 rounded-[2px] bg-white';
+const featuredProgramCtaClassName = 'flex items-center gap-1 text-xs text-red-500 font-bold tracking-widest transition-colors group-hover:text-red-400';
+
+const featuredPrograms: FeaturedProgram[] = [
+  {
+    label: 'COLLEGE OF ENLISTED MILITARY EDUCATION',
+    desc: 'Educates Marines to prevail in combat through enlisted professional military education programs and academies.',
+    href: 'https://www.usmcu.edu/CEME/',
+    imageSrc: cemeLogo,
+    imageAlt: 'College of Enlisted Military Education logo',
+    logoClassName: 'max-h-[70%] max-w-[70%]',
+  },
+  {
+    label: 'MARINE CORPS WAR COLLEGE',
+    desc: 'Educates selected military and civilian professionals to serve as strategic advisors, military strategists, and joint warfighters.',
+    href: 'https://www.usmcu.edu/MCWAR/',
+    imageSrc: mcwarLogo,
+    imageAlt: 'Marine Corps War College logo',
+    logoClassName: 'max-h-[72%] max-w-[72%]',
+  },
+  {
+    label: 'COMMAND AND STAFF COLLEGE',
+    desc: 'Provides graduate-level education that develops critical thinkers, problem solvers, and ethical leaders for MAGTF, joint, and multinational staffs.',
+    href: 'https://www.usmcu.edu/Colleges-and-Schools/Command-and-Staff-College/',
+    imageSrc: commandStaffLogo,
+    imageAlt: 'Command and Staff College logo',
+    logoClassName: 'max-h-[76%] max-w-[68%]',
+  },
+  {
+    label: 'EXPEDITIONARY WARFARE SCHOOL',
+    desc: 'Prepares company grade officers for increased leadership responsibility with emphasis on MAGTF warfighting in a naval expeditionary environment.',
+    href: 'https://www.usmcu.edu/EWS/',
+    imageSrc: ewsLogo,
+    imageAlt: 'Expeditionary Warfare School logo',
+    logoClassName: 'max-h-[78%] max-w-[52%]',
+  },
+  {
+    label: 'COLLEGE OF DISTANCE EDUCATION AND TRAINING',
+    desc: 'Designs and delivers distance learning programs across the Marine Corps training and education continuum to increase operational readiness.',
+    href: 'https://www.usmcu.edu/CDET',
+    imageSrc: cdetLogo,
+    imageAlt: 'College of Distance Education and Training logo',
+    logoClassName: 'max-h-[78%] max-w-[78%]',
+  },
 ];
 
 const EDU_KEYWORDS = [
@@ -225,9 +278,22 @@ export function EducationPage() {
           </div>
           <div className="space-y-0">
             {topBenefits.map((b, i) => {
-              const linked = b.label === 'Tuition Assistance (TA)';
+              const internalPath = b.label === 'Tuition Assistance (TA)' ? '/education/tuition-assistance' : undefined;
+              const linked = Boolean(internalPath || b.href);
               return (
-                <button key={i} onClick={() => linked ? navigate('/education/tuition-assistance') : undefined} className={`w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group ${linked ? '' : 'cursor-default'}`}>
+                <a
+                  key={i}
+                  href={b.href ?? internalPath}
+                  onClick={(event) => {
+                    if (internalPath) {
+                      event.preventDefault();
+                      navigate(internalPath);
+                    }
+                  }}
+                  target={b.href ? '_blank' : undefined}
+                  rel={b.href ? 'noopener noreferrer' : undefined}
+                  className={`w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group ${linked ? '' : 'cursor-default'}`}
+                >
                   <div className="flex items-start gap-3">
                     <div className={`w-7 h-7 border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${linked ? 'border-white/16 group-hover:border-white/30' : 'border-white/8'}`}>
                       <Award className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
@@ -241,7 +307,7 @@ export function EducationPage() {
                     ? <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     : <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   }
-                </button>
+                </a>
               );
             })}
           </div>
@@ -256,9 +322,22 @@ export function EducationPage() {
           </div>
           <div className="space-y-0">
             {educationTools.map((t, i) => {
-              const linked = t.label === 'TA Request (WebTA)';
+              const internalPath = t.label === 'TA Request (WebTA)' ? '/education/tuition-assistance' : undefined;
+              const linked = Boolean(internalPath || t.href);
               return (
-                <button key={i} onClick={() => linked ? navigate('/education/tuition-assistance') : undefined} className={`w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group ${linked ? '' : 'cursor-default'}`}>
+                <a
+                  key={i}
+                  href={t.href ?? internalPath}
+                  onClick={(event) => {
+                    if (internalPath) {
+                      event.preventDefault();
+                      navigate(internalPath);
+                    }
+                  }}
+                  target={t.href ? '_blank' : undefined}
+                  rel={t.href ? 'noopener noreferrer' : undefined}
+                  className={`w-full flex items-center justify-between py-3.5 border-b border-white/10 last:border-0 text-left group ${linked ? '' : 'cursor-default'}`}
+                >
                   <div className="flex items-start gap-3">
                     <div className={`w-7 h-7 border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${linked ? 'border-white/16 group-hover:border-white/30' : 'border-white/8'}`}>
                       <Layout className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
@@ -272,7 +351,7 @@ export function EducationPage() {
                     ? <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     : <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   }
-                </button>
+                </a>
               );
             })}
           </div>
@@ -280,42 +359,52 @@ export function EducationPage() {
         </div>
       </div>
 
-      {/* Featured Programs */}
+      {/* Marine Corps Colleges and Schools */}
       <div className="px-8 py-10 border-b border-white/12">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-1 h-5 bg-red-600" />
-            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">FEATURED PROGRAMS</div>
+            <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">MARINE CORPS COLLEGES & SCHOOLS</div>
           </div>
-          <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
           {featuredPrograms.map((p, i) => {
-            const linked = p.label === 'TUITION ASSISTANCE';
             return (
-              <motion.div
-                key={i}
-                onClick={() => linked ? navigate('/education/tuition-assistance') : undefined}
-                className={`group ${linked ? 'cursor-pointer' : 'cursor-default'}`}
+              <motion.a
+                key={p.label}
+                href={p.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group cursor-pointer"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <div className={`aspect-video bg-gradient-to-br from-gray-900 to-black border mb-3 transition-colors overflow-hidden relative ${linked ? 'border-white/12 group-hover:border-white/30' : 'border-white/8'}`}>
+                <div className={featuredProgramCardClassName}>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(180,24,24,0.22),transparent_58%),linear-gradient(135deg,rgba(19,19,19,0.96),rgba(5,5,5,1))]" />
+                  <div className="absolute inset-0 opacity-[0.08]" style={{
+                    backgroundImage: 'linear-gradient(rgba(255,255,255,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.55) 1px, transparent 1px)',
+                    backgroundSize: '26px 26px',
+                  }} />
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+                  <div className="absolute inset-y-5 left-3 w-px bg-gradient-to-b from-transparent via-red-500/35 to-transparent" />
+                  <div className="absolute inset-y-5 right-3 w-px bg-gradient-to-b from-transparent via-white/12 to-transparent" />
                   <div className="absolute inset-0" style={{
                     background: `linear-gradient(${120 + i * 20}deg, rgba(15,10,5,1) 0%, rgba(5,5,5,1) 100%)`
                   }} />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.07]">
-                    <div className="text-4xl font-black text-white">{p.label.charAt(0)}</div>
+                  <div className={featuredProgramPanelClassName}>
+                    <div className={featuredProgramLogoFieldClassName} />
+                    <img
+                      src={p.imageSrc}
+                      alt={p.imageAlt}
+                      className={`relative z-10 h-full w-full object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,0.28)] ${p.logoClassName}`}
+                    />
                   </div>
                 </div>
-                <div className={`text-[13px] font-bold tracking-wide mb-1 leading-tight ${linked ? 'text-white' : 'text-gray-600'}`}>{p.label}</div>
+                <div className="text-[13px] font-bold tracking-wide mb-1 leading-tight text-white">{p.label}</div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-2">{p.desc}</p>
-                {linked
-                  ? <button className="flex items-center gap-1 text-xs text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">LEARN MORE <ChevronRight className="w-2.5 h-2.5" /></button>
-                  : <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
-                }
-              </motion.div>
+                <span className={featuredProgramCtaClassName}>VISIT SITE <ChevronRight className="w-2.5 h-2.5" /></span>
+              </motion.a>
             );
           })}
         </div>

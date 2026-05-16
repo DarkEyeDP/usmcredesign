@@ -340,11 +340,17 @@ export function TuitionAssistancePage() {
                 <p className="text-[14px] text-gray-400 leading-relaxed mb-5">
                   TA is authorized for one degree at the next level above what you currently hold. You cannot use TA to earn a second degree at the same level you already hold (exceptions apply for MCU graduates).
                 </p>
-                <div className="flex flex-wrap items-center gap-0">
+                <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-0">
                   {['CERTIFICATE', "ASSOCIATE'S", "BACHELOR'S", "MASTER'S"].map((level, i, arr) => (
-                    <div key={i} className="flex items-center">
-                      <div className="border border-white/16 bg-black px-4 py-2.5 text-[12px] font-bold tracking-widest text-gray-300">{level}</div>
-                      {i < arr.length - 1 && <ChevronRight className="w-4 h-4 text-red-600 mx-1" />}
+                    <div key={i} className="contents sm:flex sm:items-center">
+                      <div className="border border-white/16 bg-black px-4 py-3 text-[12px] font-bold tracking-widest text-gray-300 text-center sm:py-2.5">
+                        {level}
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className="flex justify-center py-0.5 sm:block sm:py-0">
+                          <ChevronRight className="w-4 h-4 text-red-600 rotate-90 sm:rotate-0 sm:mx-1" />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

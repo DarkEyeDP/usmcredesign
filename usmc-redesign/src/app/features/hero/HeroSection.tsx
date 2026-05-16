@@ -139,7 +139,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
       )}
 
       {/* Slide dot indicators */}
-      <div className="hidden md:flex absolute bottom-8 left-8 items-center gap-2 z-20">
+      <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 flex items-center gap-1.5 md:gap-2 z-20">
         {slides.map((_, i) => (
           <button
             key={i}
