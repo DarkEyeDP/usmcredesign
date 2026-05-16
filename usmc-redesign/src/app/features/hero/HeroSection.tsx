@@ -30,6 +30,13 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
   const finalHeadingLine = headingLines[headingLines.length - 1];
   const finalHeadingText = finalHeadingLine.replace(/[,.]$/, '');
   const finalHeadingPunctuation = finalHeadingLine.match(/[,.]$/)?.[0];
+  const longestHeadingLength = Math.max(...headingLines.map(line => line.replace(/[^\w]/g, '').length));
+  const mobileHeadingSizeClass =
+    longestHeadingLength >= 11
+      ? 'text-[clamp(2.2rem,8.8vw,3.9rem)]'
+      : longestHeadingLength >= 9
+        ? 'text-[clamp(2.55rem,10vw,4.35rem)]'
+        : 'text-[clamp(3.15rem,12vw,4.9rem)]';
 
   // Preload next two images so cross-fades never wait on a network/decode stall
   useEffect(() => {
@@ -177,8 +184,10 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.65, ease: 'easeOut' }}
           >
-            <div className="text-sm text-gray-400 font-mono tracking-[0.3em] mb-3">{slide.label}</div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-white mb-4 leading-[0.9]">
+            <div className="text-[clamp(0.85rem,2.2vw,0.95rem)] text-gray-400 font-mono tracking-[0.24em] md:tracking-[0.3em] mb-3">
+              {slide.label}
+            </div>
+            <h1 className={`${mobileHeadingSizeClass} md:text-7xl font-black tracking-[-0.045em] md:tracking-tight text-white mb-4 leading-[0.88] md:leading-[0.9] max-w-[calc(100vw-3rem)] md:max-w-none`}>
               {headingLines.slice(0, -1).map((line, index) => (
                 <span key={`${line}-${index}`}>
                   {line}
@@ -188,7 +197,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
               {finalHeadingText}
               {finalHeadingPunctuation ? <span className="text-red-600">{finalHeadingPunctuation}</span> : null}
             </h1>
-            <p className="text-sm text-gray-400 mb-8 tracking-wide max-w-xs md:max-w-sm">
+            <p className="text-[clamp(1rem,3.1vw,1.1rem)] text-gray-400 mb-8 tracking-[0.02em] md:tracking-wide max-w-[min(88vw,30rem)] md:max-w-sm leading-snug">
               {slide.sub[0]}<span className="text-red-600">.</span><br />{slide.sub[1]}<span className="text-red-600">.</span>
             </p>
           </motion.div>
