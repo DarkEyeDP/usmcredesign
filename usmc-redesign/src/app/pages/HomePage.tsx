@@ -88,7 +88,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
   ];
 
   return (
-    <div className="relative min-h-screen bg-black pb-20 md:pb-0">
+    <div className="relative min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         description="Official tools and resources for active-duty Marines. Browse MARADMIN messages, calculate pay and bonuses, explore lateral move MOS options, and access education benefits."
         path="/"

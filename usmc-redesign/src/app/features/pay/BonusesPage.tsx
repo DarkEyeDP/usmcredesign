@@ -127,7 +127,7 @@ export function BonusesPage() {
   const result = resultState.status === 'success' ? resultState.result : null;
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Corps Bonus Calculator"
         description="Calculate your Marine Corps Selective Reenlistment Bonus (SRBP). Enter your MOS, rank, PEBD, and contract length to estimate your reenlistment bonus payout."

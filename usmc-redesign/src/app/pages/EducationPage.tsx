@@ -165,7 +165,7 @@ export function EducationPage() {
   }, [newsItems, pressReleases]);
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Education Benefits"
         description="Marine Corps education benefits explained — Tuition Assistance (TA), college programs, certifications, and career development resources for active-duty Marines."

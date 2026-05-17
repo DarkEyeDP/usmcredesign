@@ -171,7 +171,7 @@ export function BasicPayPage() {
   }, [activeCategory, selectedBracketIndex, savedSettings.payCategory, savedSettings.payRank]);
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Basic Pay Calculator"
         description="2026 Marine Corps basic pay calculator. Look up monthly military pay by rank and years of service for enlisted Marines, warrant officers, and commissioned officers."

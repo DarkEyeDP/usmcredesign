@@ -320,7 +320,7 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
   }
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Lateral Move Tool"
         description="Find Marine Corps lateral move opportunities by MOS. Search available MOS changes, review requirements, and explore career transition options for active-duty Marines."

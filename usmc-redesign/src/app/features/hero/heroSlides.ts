@@ -9,6 +9,7 @@ import hero8 from '@/app/assets/hero-8.webp';
 import hero9 from '@/app/assets/hero-9.webp';
 import hero10 from '@/app/assets/hero-10.webp';
 import hero11 from '@/app/assets/hero-11.webp';
+import hero12 from '@/app/assets/hero-12.webp';
 import type { HeroSlide } from './types';
 
 export const SLIDE_DURATION = 20000;
@@ -136,6 +137,16 @@ export const SLIDES: HeroSlide[] = [
     colorGrade: 'radial-gradient(ellipse at 68% 49%, rgba(0,20,80,0.32) 0%, transparent 65%)',
     sweep: 'linear-gradient(125deg, transparent 30%, rgba(0,10,55,0.24) 60%, transparent 80%)',
     nodeColors: ['rgba(80,130,215,0.9)', 'rgba(100,165,255,0.9)', 'rgba(60,100,195,0.9)'],
+  },
+  {
+    // MWD handler in MARPAT with Belgian Malinois at MCB Quantico — combat tracking and detection
+    image: hero12,
+    label: 'MILITARY WORKING DOGS',
+    heading: ['NO SCENT', 'GOES UNSEEN.'],
+    sub: ['THREATS FOUND BEFORE THEY CLOSE THE DISTANCE.', 'HANDLER AND DOG MOVE AS ONE.'],
+    colorGrade: 'radial-gradient(ellipse at 65% 50%, rgba(10,55,10,0.30) 0%, transparent 65%)',
+    sweep: 'linear-gradient(125deg, transparent 30%, rgba(5,35,5,0.22) 60%, transparent 80%)',
+    nodeColors: ['rgba(180,155,60,0.9)', 'rgba(90,160,60,0.9)', 'rgba(130,110,40,0.9)'],
   },
 ];
 

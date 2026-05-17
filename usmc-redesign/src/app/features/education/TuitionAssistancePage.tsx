@@ -175,7 +175,7 @@ export function TuitionAssistancePage() {
   const [activeTab, setActiveTab] = useState('OVERVIEW');
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Corps Tuition Assistance"
         description="Marine Corps Tuition Assistance (TA) program guide — eligibility requirements, $4,500 annual limit, how to apply through Marine Online, grade requirements, and recoupment rules."

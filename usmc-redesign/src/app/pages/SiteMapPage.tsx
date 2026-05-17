@@ -40,7 +40,7 @@ export function SiteMapPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
         <div className="absolute inset-0" style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(10,10,14,0.92) 48%, rgba(18,8,8,0.88) 100%)',

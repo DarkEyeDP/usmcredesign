@@ -1576,7 +1576,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           <div className="sticky top-20 z-20 flex flex-col bg-black/95 backdrop-blur-sm md:contents">
 
           {/* Mobile-only tabs row */}
-          <div className="md:hidden flex items-center overflow-x-auto scrollbar-none border-b border-white/12">
+          <div className="print-hide md:hidden flex items-center overflow-x-auto scrollbar-none border-b border-white/12">
             {tabs.map(tab => (
               <button
                 key={tab}

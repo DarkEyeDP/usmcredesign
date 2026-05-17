@@ -5,7 +5,7 @@ import { SEOHead } from '@/app/components/SEOHead';
 export function StayMarinePage() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Stay Marine"
         description="Reasons to stay in the Marine Corps — career growth, leadership opportunities, pay and benefits, and resources to help you make the most of your active-duty service."

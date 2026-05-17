@@ -289,7 +289,7 @@ export function PayBenefitsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Pay & Benefits"
         description="Calculate your Marine Corps base pay, allowances, and bonuses. 2026 USMC pay tables for enlisted, warrant officer, and commissioned officer ranks with years of service."
@@ -605,7 +605,7 @@ export function PayBenefitsPage() {
       </div>
 
       {/* Photo + tagline banner */}
-      <div className="grid grid-cols-1 md:grid-cols-2 border-b border-white/12" style={{ minHeight: '240px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 border-white/12" style={{ minHeight: '240px' }}>
         <div className="relative overflow-hidden border-b md:border-b-0 md:border-r border-white/12" style={{ minHeight: '200px' }}>
           <img src={heroBanner} alt="" className="absolute inset-0 w-full h-full object-cover object-center" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%)' }} />

@@ -198,7 +198,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
               {finalHeadingPunctuation ? <span className="text-red-600">{finalHeadingPunctuation}</span> : null}
             </h1>
             <p className="text-[clamp(1rem,3.1vw,1.1rem)] text-gray-400 mb-8 tracking-[0.02em] md:tracking-wide max-w-[min(88vw,30rem)] md:max-w-sm leading-snug">
-              {slide.sub[0]}<span className="text-red-600">.</span><br />{slide.sub[1]}<span className="text-red-600">.</span>
+              {slide.sub[0]}<br />{slide.sub[1]}
             </p>
           </motion.div>
         </AnimatePresence>

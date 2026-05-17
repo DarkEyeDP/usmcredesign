@@ -249,7 +249,7 @@ export function NewsPage() {
   const rest = filtered.slice(1);
 
   return (
-    <div className="min-h-screen bg-black pb-20 md:pb-0">
+    <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Corps News"
         description="Latest Marine Corps news, official press releases, and USMC announcements. Stay current on Marine Corps operations, policy changes, and command updates."
@@ -282,8 +282,8 @@ export function NewsPage() {
             </p>
           </div>
 
-          {/* Tabs — flush at bottom so active underline sits on the hero border */}
-          <div className="flex items-center px-8 -mb-px overflow-x-auto">
+          {/* Desktop tabs — flush at bottom so active underline sits on the hero border */}
+          <div className="hidden md:flex items-center px-8 -mb-px overflow-x-auto">
             {(Object.keys(FILTER_LABELS) as Filter[]).map(f => {
               const count = f === 'all' ? allItems.length
                 : f === 'saved' ? savedItems.length
@@ -309,6 +309,36 @@ export function NewsPage() {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* Mobile sticky tabs */}
+      <div className="md:hidden sticky top-20 z-30 border-b border-white/12 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/85">
+        <div className="flex items-center px-4 overflow-x-auto">
+          {(Object.keys(FILTER_LABELS) as Filter[]).map(f => {
+            const count = f === 'all' ? allItems.length
+              : f === 'saved' ? savedItems.length
+              : allItems.filter(i => i.source === f).length;
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`relative px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
+                  filter === f ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {FILTER_LABELS[f]}
+                {!loading && (
+                  <span className={`ml-1.5 text-[11px] ${filter === f ? 'text-gray-400' : 'text-gray-600'}`}>
+                    ({count})
+                  </span>
+                )}
+                {filter === f && (
+                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

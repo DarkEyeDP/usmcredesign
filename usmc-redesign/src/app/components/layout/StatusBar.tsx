@@ -27,8 +27,8 @@ export function StatusBar() {
         </div>
 
         <div className="flex items-center justify-center">
-          <span className="text-[10px] text-gray-600 font-mono tracking-[0.14em] text-center leading-relaxed">
-            NOT AFFILIATED WITH THE U.S. DEPARTMENT OF WAR OR THE U.S. MARINE CORPS
+          <span className="text-[9px] text-gray-600 font-mono tracking-[0.12em] text-center leading-relaxed">
+            NOT AFFILIATED WITH THE U.S. MARINE CORPS. THE APPEARANCE OF DOD VISUAL INFORMATION DOES NOT IMPLY DOD ENDORSEMENT.
           </span>
         </div>
       </div>
@@ -89,10 +89,10 @@ export function StatusBar() {
           </Link>
         </div>
 
-        <div className="ml-auto flex items-center">
-          <span className="text-xs text-gray-600 font-mono tracking-wide text-right leading-relaxed">
-            NOT AFFILIATED WITH THE U.S. DEPARTMENT OF WAR<br />
-            OR THE U.S. MARINE CORPS
+        <div className="ml-auto flex items-center max-w-[26rem]">
+          <span className="text-[10px] text-gray-600 font-mono tracking-[0.12em] text-right leading-snug">
+            NOT AFFILIATED WITH THE U.S. MARINE CORPS.<br />
+            DOD VISUAL INFORMATION DOES NOT IMPLY DOD ENDORSEMENT.
           </span>
         </div>
       </div>
