@@ -36,7 +36,7 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
         <SiteLogo size={isMobile ? 40 : 54} />
         <div className="flex flex-col">
           <h1 className="text-xl font-black tracking-widest text-white leading-tight">STAY MARINE<span className="text-red-600">.</span></h1>
-          <p className="text-[13px] text-gray-400 tracking-[0.3em]">SEMPER FIDELIS<span className="text-red-600">.</span></p>
+          <p className="text-[13px] text-gray-400 tracking-[0.3em]">CONTINUE OUR LEGACY<span className="text-red-600">.</span></p>
         </div>
       </Link>
 
@@ -61,7 +61,7 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
                     <SheetTitle className="text-base font-black tracking-widest text-white leading-tight">
                       STAY MARINE<span className="text-red-600">.</span>
                     </SheetTitle>
-                    <p className="text-[11px] tracking-[0.28em] text-gray-500 leading-tight mt-0.5">SEMPER FIDELIS</p>
+                    <p className="text-[11px] tracking-[0.28em] text-gray-500 leading-tight mt-0.5">CONTINUE OUR LEGACY</p>
                   </div>
                 </div>
                 <SheetDescription className="text-[11px] font-mono tracking-[0.18em] text-gray-600 uppercase">
