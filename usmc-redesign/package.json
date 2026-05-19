@@ -1,7 +1,7 @@
 {
   "name": "usmc-redesign",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "scripts": {
     "build": "vite build && cp dist/index.html dist/404.html",

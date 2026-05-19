@@ -17,7 +17,7 @@ import { generateMARADMINPdf, maradminEmailBody } from './maradminPdf';
 import {
   fetchRSSFeed, fetchArticleContent, parseMARADMINText,
   extractMARADMINSource, extractMARADMINNumber, fetchMARADMINArchivePage, tagsFromContent,
-  encodeMessageNumber, decodeMessageNumber, buildMessagePath,
+  decodeMessageNumber, buildMessagePath,
   type RSSMessage, type ContentSection,
 } from './maradminUtils';
 import {
@@ -49,10 +49,6 @@ import { FetchFailed } from './components/FetchFailed';
 import { CreateViewModal } from './components/CreateViewModal';
 
 const tabs = ['ALL MESSAGES', 'UNREAD', 'SAVED'];
-const SIDEBAR_ITEM_HEIGHT = 108;
-const SIDEBAR_MONTH_HEADER_HEIGHT = 34;
-const SIDEBAR_MONTH_HEADER_GAP = 8;
-const SIDEBAR_OVERSCAN_PX = 480;
 const FEED_POLL_INTERVAL_MS = 3 * 60 * 1000;
 
 interface Props {
@@ -63,15 +59,6 @@ interface Props {
 interface RefreshNotice {
   tone: 'success' | 'info' | 'error';
   message: string;
-}
-
-interface SidebarVirtualRow {
-  id: string;
-  msg: RSSMessage;
-  top: number;
-  height: number;
-  showMonthHeader: boolean;
-  isFirstInMonth: boolean;
 }
 
 export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props) {
@@ -118,10 +105,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const indexedIdsRef = useRef<Set<string>>(new Set());
   const archiveCursorRef = useRef({ nextPage: archiveNextPage, hasMore: archiveHasMore });
   const savedFiltersRef = useRef<{ years: Set<string>; tags: Set<string>; audiences: Set<Audience>; query: string } | null>(null);
-  const sidebarRowMetaRef = useRef<Map<string, SidebarVirtualRow>>(new Map());
   const [searchIndexVersion, setSearchIndexVersion] = useState(0);
-  const [sidebarScrollTop, setSidebarScrollTop] = useState(0);
-  const [sidebarViewportHeight, setSidebarViewportHeight] = useState(0);
 
   const routeNumber = decodeMessageNumber(messageNumber);
 
@@ -471,34 +455,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   }, [messages, navigate, routeNumber, selectedMsg?.id]);
 
   useEffect(() => {
-    const container = sidebarScrollRef.current;
-    if (!container) return;
-
-    let rafId = 0;
-    const syncMetrics = () => {
-      setSidebarViewportHeight(container.clientHeight);
-      setSidebarScrollTop(container.scrollTop);
-    };
-    const handleScroll = () => {
-      if (rafId) return;
-      rafId = window.requestAnimationFrame(() => {
-        rafId = 0;
-        setSidebarScrollTop(container.scrollTop);
-      });
-    };
-
-    syncMetrics();
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', syncMetrics);
-
-    return () => {
-      if (rafId) window.cancelAnimationFrame(rafId);
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', syncMetrics);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!selectedMsg?.link) return;
     markMessageRead(selectedMsg.number);
     const currentMessageId = selectedMsg.id;
@@ -670,7 +626,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       window.clearTimeout(timeoutId);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const unreadCount = messages.filter(m => m.unread).length;
 
@@ -708,7 +664,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     const container = sidebarScrollRef.current;
     if (!container) return;
     container.scrollTop = 0;
-    setSidebarScrollTop(0);
   }
 
   function switchToCustomView(id: string) {
@@ -792,55 +747,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   const filteredUnreadCount = filteredMessages.filter(m => m.unread).length;
 
-  const sidebarRows = useMemo<SidebarVirtualRow[]>(() => {
-    let runningTop = 0;
-    return filteredMessages.map((msg, index) => {
-      const showMonthHeader = index === 0 || filteredMessages[index - 1].month !== msg.month;
-      const isFirstInMonth = showMonthHeader && index > 0;
-      const height =
-        SIDEBAR_ITEM_HEIGHT +
-        (showMonthHeader ? SIDEBAR_MONTH_HEADER_HEIGHT : 0) +
-        (isFirstInMonth ? SIDEBAR_MONTH_HEADER_GAP : 0);
-      const row = {
-        id: msg.id,
-        msg,
-        top: runningTop,
-        height,
-        showMonthHeader,
-        isFirstInMonth,
-      };
-      runningTop += height;
-      return row;
-    });
-  }, [filteredMessages]);
-
-  const sidebarRowMetaById = useMemo(
-    () => new Map(sidebarRows.map(row => [row.id, row])),
-    [sidebarRows],
-  );
-
-  useEffect(() => {
-    sidebarRowMetaRef.current = sidebarRowMetaById;
-  }, [sidebarRowMetaById]);
-
-  const visibleSidebarRows = useMemo(() => {
-    const start = Math.max(0, sidebarScrollTop - SIDEBAR_OVERSCAN_PX);
-    const end = sidebarScrollTop + sidebarViewportHeight + SIDEBAR_OVERSCAN_PX;
-    return sidebarRows.filter(row => row.top + row.height >= start && row.top <= end);
-  }, [sidebarRows, sidebarScrollTop, sidebarViewportHeight]);
-
-  const sidebarContentHeight = sidebarRows.length > 0
-    ? sidebarRows[sidebarRows.length - 1].top + sidebarRows[sidebarRows.length - 1].height
-    : 0;
-
   const scrollSidebarToMessage = useCallback((messageId: string, behavior: ScrollBehavior = 'smooth') => {
     const container = sidebarScrollRef.current;
-    if (!container) return;
+    const item = msgItemRefs.current.get(messageId);
+    if (!container || !item) return;
 
-    const row = sidebarRowMetaRef.current.get(messageId);
-    if (!row) return;
-
-    const target = row.top + row.height / 2 - container.clientHeight / 2;
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const target = container.scrollTop + itemRect.top - containerRect.top - (container.clientHeight - itemRect.height) / 2;
 
     const clampedTarget = Math.max(0, target);
     if (Math.abs(container.scrollTop - clampedTarget) < 4) return;
@@ -862,6 +776,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     if (!selectedMsg) return;
     scrollSidebarToMessage(selectedMsg.id, 'smooth');
   }, [selectedMsg?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const container = sidebarScrollRef.current;
+    if (!container) return;
+    container.scrollTop = 0;
+  }, [searchQuery]);
 
   function toggleYear(yr: string) {
     setSelectedYears(prev => { const next = new Set(prev); if (next.has(yr)) next.delete(yr); else next.add(yr); return next; });
@@ -1433,20 +1353,20 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 ))}
               </div>
             ) : (
-              <div className="relative" style={{ height: `${sidebarContentHeight}px` }}>
-                {visibleSidebarRows.map(row => {
-                  const msg = row.msg;
+              <div className="space-y-1">
+                {filteredMessages.map((msg, index) => {
                   const isSelected = selectedMsg?.id === msg.id;
                   const isExactMatch = exactMatchNumber !== null && normalizeMARADMINNumber(msg.number) === exactMatchNumber;
+                  const showMonthHeader = index === 0 || filteredMessages[index - 1].month !== msg.month;
+                  const isFirstInMonth = showMonthHeader && index > 0;
 
                   return (
                     <div
                       key={msg.id}
-                      className="absolute left-0 right-0"
-                      style={{ top: `${row.top}px` }}
+                      className={isFirstInMonth ? 'pt-2' : ''}
                     >
-                      <div className={row.isFirstInMonth ? 'pt-2' : ''}>
-                        {row.showMonthHeader && msg.month && (
+                      <div>
+                        {showMonthHeader && msg.month && (
                           <div className="flex items-center gap-2 mb-1 px-1 py-1.5 border-l-2 border-red-600 bg-red-950/20">
                             <span className="text-[11px] text-red-400 font-bold tracking-[0.2em] pl-2">{msg.month}</span>
                           </div>
@@ -1934,4 +1854,3 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     </div>
   );
 }
-
