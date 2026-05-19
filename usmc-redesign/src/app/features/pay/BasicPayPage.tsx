@@ -221,13 +221,16 @@ export function BasicPayPage() {
               <span className="text-red-500">BASIC PAY</span>
             </div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white tracking-tighter leading-none mb-3"
-            >
-              BASIC PAY<br />SCALES & CHARTS
-            </motion.h1>
+            <div className="flex items-start gap-4">
+              <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white tracking-tighter leading-none mb-3"
+              >
+                BASIC PAY<br />SCALES & CHARTS
+              </motion.h1>
+            </div>
             <p className="text-[14px] text-gray-400 max-w-2xl leading-relaxed mb-4">
               Browse the full 2026 basic pay charts for enlisted, warrant officer, and commissioned officer grades using the same data behind your pay overview.
             </p>

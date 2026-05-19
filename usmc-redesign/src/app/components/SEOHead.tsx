@@ -9,6 +9,7 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 interface SEOHeadProps {
   title?: string;
   description?: string;
+  keywords?: string;
   path?: string;
   ogImage?: string;
   noindex?: boolean;
@@ -18,6 +19,7 @@ interface SEOHeadProps {
 export function SEOHead({
   title,
   description = DEFAULT_DESCRIPTION,
+  keywords,
   path = '',
   ogImage = DEFAULT_OG_IMAGE,
   noindex = false,
@@ -30,6 +32,7 @@ export function SEOHead({
     <Helmet>
       <title>{pageTitle}</title>
       <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
       {noindex
         ? <meta name="robots" content="noindex, follow" />
         : <meta name="robots" content="index, follow" />

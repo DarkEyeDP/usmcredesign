@@ -1,7 +1,7 @@
-import type React from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { Home, MessageSquare, DollarSign, GraduationCap, Anchor, ArrowLeftRight, FolderOpen, Wrench, HelpCircle, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Newspaper } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { motion } from 'motion/react';
+import { loggedInItems, loggedOutItems } from './navigationConfig';
 
 interface NavigationProps {
   isLoggedIn: boolean;
@@ -11,28 +11,6 @@ interface NavigationProps {
 
 declare const __APP_VERSION__: string;
 const SIDEBAR_VERSION = `v${__APP_VERSION__}`;
-
-const loggedOutItems = [
-  { path: '/',             icon: Home,          label: 'HOME' },
-  { path: '/news',         icon: Newspaper,     label: 'NEWS' },
-  { path: '/messages',     icon: MessageSquare, label: 'MARADMINS' },
-  { path: '/pay-benefits', icon: DollarSign,    label: 'BENEFITS' },
-  { path: '/education',    icon: GraduationCap, label: 'EDUCATION' },
-  { path: '/lateral-move', icon: ArrowLeftRight, label: 'LATERAL MOVE' },
-];
-
-const loggedInItems = [
-  { path: '/',             icon: LayoutDashboard, label: 'DASHBOARD' },
-  { path: '/news',         icon: Newspaper,       label: 'NEWS' },
-  { path: '/messages',     icon: MessageSquare,   label: 'MARADMINS' },
-  { path: '/pay-benefits', icon: DollarSign,      label: 'BENEFITS' },
-  // { path: '/education', icon: GraduationCap,   label: 'EDUCATION' },  // hidden until page is ready
-  { path: '/stay-marine',  icon: Anchor,          label: 'STAY MARINE' },
-  { path: '/lateral-move', icon: ArrowLeftRight,  label: 'LATERAL MOVE' },
-  { path: '/resources',    icon: FolderOpen,      label: 'RESOURCES' },
-  { path: '/tools',        icon: Wrench,          label: 'TOOLS' },
-  { path: '/help',         icon: HelpCircle,      label: 'HELP & SUPPORT' },
-];
 
 export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: NavigationProps) {
   const navigate = useNavigate();
@@ -101,42 +79,6 @@ export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: Navigat
         {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
       </button>
     </motion.div>
-
-    {/* Mobile bottom navigation */}
-    <MobileNav items={items} isActive={isActive} navigate={navigate} />
     </>
-  );
-}
-
-interface MobileNavProps {
-  items: { path: string; icon: React.ComponentType<{ className?: string }>; label: string }[];
-  isActive: (path: string) => boolean;
-  navigate: (path: string) => void;
-}
-
-function MobileNav({ items, isActive, navigate }: MobileNavProps) {
-  const visibleItems = items.slice(0, 6);
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/95 border-t border-white/12">
-      <div className="flex">
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
-          const mobileLabel = item.path === '/lateral-move' ? 'LATMOVE' : item.label;
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-1 py-3 flex-1 transition-colors ${
-                active ? 'text-red-500' : 'text-gray-600 hover:text-gray-400'
-              }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[9px] font-bold tracking-wider truncate max-w-[52px]">{mobileLabel}</span>
-            </button>
-          );
-        })}
-      </div>
-    </nav>
   );
 }

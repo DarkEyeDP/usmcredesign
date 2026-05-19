@@ -331,6 +331,45 @@ function parseSergeantsMajorBilletSlateTable(text: string): ParsedTableFamily | 
   };
 }
 
+function parseCommandMCCTentativeReportDateTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bCOMMAND\s+MCC\s+TENTATIVE\s+REPORT\s+DATE\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/[:\s]+$/, '').trim();
+  const tokens = headerMatch[2].trim().split(/\s+/).filter(Boolean);
+  const monthRe = /^(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)$/i;
+  const yearRe = /^\d{4}$/;
+  const mccRe = /^[A-Z0-9]{3}$/i;
+  const rows: string[][] = [];
+  let cursor = 0;
+
+  while (cursor < tokens.length) {
+    const monthIdx = tokens.findIndex((token, idx) =>
+      idx > cursor && monthRe.test(token) && yearRe.test(tokens[idx + 1] ?? ''),
+    );
+    if (monthIdx < 0) break;
+
+    const rowTokens = tokens.slice(cursor, monthIdx);
+    const mcc = rowTokens.at(-1) ?? '';
+    const commandTokens = rowTokens.slice(0, -1);
+    if (!mccRe.test(mcc) || commandTokens.length === 0) break;
+
+    rows.push([
+      commandTokens.join(' '),
+      mcc.toUpperCase(),
+      `${tokens[monthIdx].toUpperCase()} ${tokens[monthIdx + 1]}`,
+    ]);
+    cursor = monthIdx + 2;
+  }
+
+  if (rows.length === 0) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Command', 'MCC', 'Tentative Report Date'], rows }],
+  };
+}
+
 function parseProjectedPromotionsTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bSenior Officer\s+Sel\s+Junior Officer\s+Sel\s+(.+)$/i);
   if (!headerMatch) return null;
@@ -816,6 +855,7 @@ const TABLE_FAMILY_PARSERS = [
   parseInlineAttendeeTable,
   parseInlineRankNameMCCTable,
   parseRecruitingStationAvailabilityTable,
+  parseCommandMCCTentativeReportDateTable,
   parseSergeantsMajorBilletSlateTable,
   parseVacancySummaryTable,
   parseProjectedPromotionsTable,

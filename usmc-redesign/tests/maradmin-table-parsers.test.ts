@@ -73,6 +73,61 @@ L. C. Lamothe 4TH CRR Marietta, GA Apr 2027
   assert.deepEqual(sections[0].tables?.[0].rows[1], ['T. Q. Tran', 'HQTRS, MAG-49', 'McGuire AFB, NJ', 'Apr 2027']);
 });
 
+test('parses parenthesized letter course entries with numbered details nested beneath them', () => {
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/2. Eligible courses are listed below.
+a. Resident Full-Length Schools (FLS) are approximately 10-months in duration.
+2.a.1. Senior Level College (SLC): (a) Marine Corps War College (MCWAR) (1) Quantico, VA (2) LtCol/LtCol (sel) (3) Jul 27 - Jun 28 (4) JPME-II certification (5) Resident (6) SMCR/IMA/IRR/AR (b) College of Naval Warfare (CNW) (1) Newport, RI (2) LtCol/LtCol (sel) (3) Jul 27 - Jun 28 (4) JPME-II certification (5) Resident (6) SMCR/IMA/IRR/AR
+`);
+
+  const resident = sections[0].bullets?.[0];
+  const slc = resident?.children?.[0];
+  const mcwar = slc?.children?.[0];
+  const cnw = slc?.children?.[1];
+
+  assert.equal(resident?.label, 'a.');
+  assert.equal(slc?.label, '1.');
+  assert.equal(slc?.body, 'Senior Level College (SLC):');
+  assert.equal(mcwar?.label, '(a)');
+  assert.equal(mcwar?.body, 'Marine Corps War College (MCWAR)');
+  assert.deepEqual(mcwar?.children?.map(child => child.body).slice(0, 3), [
+    'Quantico, VA',
+    'LtCol/LtCol (sel)',
+    'Jul 27 - Jun 28',
+  ]);
+  assert.equal(cnw?.label, '(b)');
+  assert.equal(cnw?.body, 'College of Naval Warfare (CNW)');
+  assert.equal(cnw?.children?.[0].body, 'Newport, RI');
+});
+
+test('parses command MCC tentative report date billet slate tables in sections and subsections', () => {
+  const parsed = parseRecognizedTableFamily(
+    'Force Level. COMMAND MCC TENTATIVE REPORT DATE M&RA Q55 SEP 2027 III MEF 1C1 SEP 2027 I MEF Q21 DEC 2027 CD&I 007 SEP 2027 MARCENT 1U8 SEP 2027',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, 'Force Level.');
+  assert.deepEqual(parsed.tables?.[0].headers, ['Command', 'MCC', 'Tentative Report Date']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['M&RA', 'Q55', 'SEP 2027']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['I MEF', 'Q21', 'DEC 2027']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/1. Per the reference, the following billets will be projected to be slated during July 2026:
+2. Force Level. COMMAND MCC TENTATIVE REPORT DATE M&RA Q55 SEP 2027 III MEF 1C1 SEP 2027 I MEF Q21 DEC 2027 CD&I 007 SEP 2027 MARCENT 1U8 SEP 2027
+a. Cross slated second tour Force Level. Command MCC TENTATIVE REPORT DATE MARFORPAC 110 SEP 2027 TECOM 086 SEP 2027 MARFORCOM 111 SEP 2027
+b. Major Subordinate Command Level. COMMAND MCC TENTATIVE REPORT DATE 4THMARDIV 5A5 NOV 2027 5TH MEB 1DX NOV 2027 1ST MLG 1Y1 NOV 2027
+c. High Visibility Billet Level. COMMAND MCC TENTATIVE REPORT DATE TBS 078 APR 2027 RTR-E 016 APR 2027
+`);
+
+  assert.equal(sections[1].heading, 'Force Level');
+  assert.deepEqual(sections[1].tables?.[0].rows[4], ['MARCENT', '1U8', 'SEP 2027']);
+  assert.equal(sections[1].bullets?.[0].label, 'a.');
+  assert.equal(sections[1].bullets?.[0].body, 'Cross slated second tour Force Level.');
+  assert.deepEqual(sections[1].bullets?.[0].tables?.[0].rows[1], ['TECOM', '086', 'SEP 2027']);
+  assert.equal(sections[1].bullets?.[2].body, 'High Visibility Billet Level.');
+  assert.deepEqual(sections[1].bullets?.[2].tables?.[0].rows[1], ['RTR-E', '016', 'APR 2027']);
+});
+
 test('parses projected promotion comparison tables', () => {
   const parsed = parseRecognizedTableFamily(
     'The following FY25 promotions are projected for June 2026. Senior Officer Sel Junior Officer Sel CWO4 MOS: 5702 B. J. Parvin 6 K. T. Huff 7',

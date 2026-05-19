@@ -26,6 +26,7 @@ const sitemapSections = [
     items: [
       { title: 'Education Overview', path: '/education', desc: 'Education pathways, programs, and quick-access tools.' },
       { title: 'Tuition Assistance', path: '/education/tuition-assistance', desc: 'TA requirements, funding, and practical guidance.' },
+      { title: "Commandant's Reading List", path: '/reading-list', desc: 'Official CMC Reading List — 71 books across Heritage, Leadership, Strategy, Innovation, and Foundation shelves, with purchase links and free doctrine PDF downloads.' },
     ],
   },
   {

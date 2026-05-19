@@ -25,9 +25,12 @@ export function StayMarinePage() {
             <ChevronRight className="w-3 h-3" />
             <span className="text-red-500">STAY MARINE</span>
           </div>
-          <h1 className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
-            STAY MARINE<span className="text-red-600">.</span>
-          </h1>
+          <div className="flex items-start gap-4">
+            <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+            <h1 className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
+              STAY MARINE<span className="text-red-600">.</span>
+            </h1>
+          </div>
           <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
             Re-enlistment information, career planning, and incentives for committed Marines.
           </p>

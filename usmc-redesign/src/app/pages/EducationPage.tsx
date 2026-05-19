@@ -198,13 +198,16 @@ export function EducationPage() {
               <ChevronRight className="w-3 h-3" />
               <span className="text-red-500">EDUCATION</span>
             </div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2"
-            >
-              EDUCATION
-            </motion.h1>
+            <div className="flex items-start gap-4">
+              <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2"
+              >
+                EDUCATION
+              </motion.h1>
+            </div>
             <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
               Knowledge strengthens leaders. Advance your military career and prepare for life beyond the uniform with world-class education opportunities.
             </p>

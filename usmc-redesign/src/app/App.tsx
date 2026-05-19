@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Header } from '@/app/components/layout/Header';
 import { Navigation } from '@/app/components/layout/Navigation';
 import { StatusBar } from '@/app/components/layout/StatusBar';
+import { MobileBottomNav } from '@/app/components/layout/MobileBottomNav';
 import { HomePage } from '@/app/pages/HomePage';
 import { EducationPage } from '@/app/pages/EducationPage';
 import { PrivacyPolicyPage } from '@/app/pages/PrivacyPolicyPage';
@@ -17,6 +18,7 @@ import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
 import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
 import { NewsPage } from '@/app/features/news';
+import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
 
 export default function App() {
@@ -74,7 +76,7 @@ export default function App() {
         animate={{ marginLeft: isMobile || isFullscreen ? 0 : (isSidebarExpanded ? 192 : 80) }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        <div className="flex-1">
+        <div className="flex-1 pb-[72px] md:pb-0">
           <Routes>
             <Route path="/" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
             <Route path="/messages" element={
@@ -94,6 +96,7 @@ export default function App() {
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
             <Route path="/education/tuition-assistance" element={<TuitionAssistancePage />} />
+            <Route path="/reading-list" element={<ReadingListPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/sitemap" element={<SiteMapPage />} />
             <Route path="/lateral-move" element={
@@ -112,6 +115,7 @@ export default function App() {
         </div>
         {!isFullscreen && <div className="print-hide"><StatusBar /></div>}
       </motion.div>
+      {!isFullscreen && <MobileBottomNav isLoggedIn={isLoggedIn} />}
     </div>
   );
 }

@@ -26,15 +26,15 @@ export function ContentDisplay({ sections }: { sections: ContentSection[] }) {
                   {renderWithLinks(section.body)}
                 </span>
               )}
-              {section.bullets && section.bullets.length > 0 && (
-                <SubSectionList items={section.bullets} className="mt-2 ml-2" />
-              )}
               {section.tables && section.tables.length > 0 && (
                 <div className="mt-3 space-y-4">
                   {section.tables.map((table, ti) => (
                     <TableBlock key={ti} table={table} />
                   ))}
                 </div>
+              )}
+              {section.bullets && section.bullets.length > 0 && (
+                <SubSectionList items={section.bullets} className="mt-2 ml-2" />
               )}
               {urlButtons.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">

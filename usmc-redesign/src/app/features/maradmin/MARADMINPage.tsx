@@ -962,9 +962,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
             </div>
 
             {/* Heading + description */}
-            <h1 className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
-              MARADMIN<span className="text-red-600">.</span>
-            </h1>
+            <div className="flex items-start gap-4">
+              <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+              <h1 className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
+                MARADMIN<span className="text-red-600">.</span>
+              </h1>
+            </div>
             <p className="text-[14px] text-gray-400 max-w-lg leading-relaxed">
               Official Marine Corps Administrative Messages — policy, guidance, and information
               from the Commandant affecting Marines and their families.

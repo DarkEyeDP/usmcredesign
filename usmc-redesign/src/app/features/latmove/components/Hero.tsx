@@ -42,9 +42,12 @@ export function Hero({ onExploreTool }: Props) {
             <span className="text-red-500">LATERAL MOVE</span>
           </div>
 
-          <h1 className="text-[clamp(2rem,8vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
-            LATERAL MOVE TOOL<span className="text-red-600">.</span>
-          </h1>
+          <div className="flex items-start gap-4">
+            <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+            <h1 className="text-[clamp(2rem,8vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
+              LATERAL MOVE TOOL<span className="text-red-600">.</span>
+            </h1>
+          </div>
 
           <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
             Find MOS opportunities based on your ASVAB line scores, rank, and years of service.

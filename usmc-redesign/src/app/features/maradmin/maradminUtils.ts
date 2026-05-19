@@ -616,13 +616,18 @@ const SUB_SECTION_PATTERNS: Array<{
   getBody: (match: RegExpMatchArray) => string;
 }> = [
   {
-    regex: /^(?:\d+\.)?([a-z])\. {1,4}(.*)$/i,
+    regex: /^(?:\d+\.)?([a-z])\. {1,4}(.*)$/,
     getLabel: match => `${match[1].toLowerCase()}.`,
     getBody: match => match[2],
   },
   {
-    regex: /^(?:\d+\.)?[a-z]\.(\d+)\. {1,4}(.*)$/i,
+    regex: /^(?:\d+\.)?[a-z]\.(\d+)\. {1,4}(.*)$/,
     getLabel: match => `${match[1]}.`,
+    getBody: match => match[2],
+  },
+  {
+    regex: /^\(([a-z])\) {0,4}(.*)$/,
+    getLabel: match => `(${match[1].toLowerCase()})`,
     getBody: match => match[2],
   },
   {
@@ -632,7 +637,20 @@ const SUB_SECTION_PATTERNS: Array<{
   },
 ];
 
+function splitInlineSubSectionMarkers(lines: string[]): string[] {
+  return lines.flatMap(line => {
+    const splitLine = line
+      .replace(/\s+(\([a-z]\)|\(\d+\))\s+(?=[A-Z0-9])/g, '\n$1 ')
+      .split('\n')
+      .map(part => part.trim())
+      .filter(Boolean);
+
+    return splitLine.length > 0 ? splitLine : [line];
+  });
+}
+
 function parseSubSections(lines: string[]): ContentSubSection[] {
+  lines = splitInlineSubSectionMarkers(lines);
   const subSections: ContentSubSection[] = [];
   const pattern = SUB_SECTION_PATTERNS.find(candidate => lines.some(line => candidate.regex.test(line)));
 
@@ -726,19 +744,21 @@ export function parseMARADMINText(raw: string): ContentSection[] {
 
     // Preserve sub-section continuity so table rows that belong to "a." / "b." stay attached.
     const lines = remainder.split('\n').map(l => l.trim()).filter(Boolean);
-    const parsedFullBody = parseBodyChunk(lines);
-    if (parsedFullBody.tables?.length) {
-      sections.push({
-        heading,
-        body: parsedFullBody.body,
-        tables: parsedFullBody.tables,
-      });
-      continue;
-    }
-
     const firstSubSectionIdx = lines.findIndex(line =>
       SUB_SECTION_PATTERNS.some(pattern => pattern.regex.test(line)),
     );
+    if (firstSubSectionIdx < 0) {
+      const parsedFullBody = parseBodyChunk(lines);
+      if (parsedFullBody.tables?.length) {
+        sections.push({
+          heading,
+          body: parsedFullBody.body,
+          tables: parsedFullBody.tables,
+        });
+        continue;
+      }
+    }
+
     const bodyLines = firstSubSectionIdx >= 0 ? lines.slice(0, firstSubSectionIdx) : lines;
     const subSectionLines = firstSubSectionIdx >= 0 ? lines.slice(firstSubSectionIdx) : [];
 

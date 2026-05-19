@@ -4,7 +4,7 @@ export function StatusBar() {
   const location = useLocation();
 
   return (
-    <div className="w-full bg-black border-t border-white/12 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] md:px-6 md:py-2.5">
+    <div className="w-full bg-black border-t border-white/12 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] md:px-6 md:py-2.5">
       <div className="flex flex-col gap-3 md:hidden">
         <div className="flex items-center justify-center gap-4">
           <Link
