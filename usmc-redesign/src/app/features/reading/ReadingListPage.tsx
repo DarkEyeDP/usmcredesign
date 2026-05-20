@@ -621,7 +621,7 @@ export function ReadingListPage() {
             <div className="text-xs font-black tracking-widest text-white">BUILD YOUR NEXT STACK</div>
             <div className="my-2 ml-auto h-0.5 w-8 bg-red-600" />
             <div className="text-[11px] tracking-[0.2em] text-gray-500">{totalTitles} TITLES</div>
-            <div className="text-[11px] tracking-[0.2em] text-gray-500">BOOKS + PDF READY SLOTS</div>
+            <div className="text-[11px] tracking-[0.2em] text-gray-500">BOOKS + PDFs</div>
           </div>
 
           <div className="flex flex-1 flex-col justify-center px-4 py-6 sm:px-8">
