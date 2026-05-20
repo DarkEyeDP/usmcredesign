@@ -559,18 +559,18 @@ export function ReadingListPage() {
   return (
     <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
-        title="Commandant's Reading List (CMC Reading List) — Official USMC Books"
-        description="The official Commandant of the Marine Corps Reading List — 71 books organized by category including Heritage, Leadership, Strategy, Innovation, and Foundation. Purchase links, free doctrine PDF downloads, and a personal favorites list for every active-duty Marine."
-        keywords="Commandant's Reading List, CMC Reading List, USMC reading list, Marine Corps reading list, Commandant of the Marine Corps books, Marine Corps books, USMC books, Marine Corps professional reading, CMC reading list 2025, Marine Corps leadership books, MCDP, Marine Corps doctrine, active duty Marine reading"
+        title="Commandant's Reading List 2026 (CMC Reading List) — Official USMC Books"
+        description="The official 2026 Commandant of the Marine Corps Reading List — 71 books organized by category including Heritage, Leadership, Strategy, Innovation, and Foundation. Purchase links, free doctrine PDF downloads, and a personal favorites list for every active-duty Marine."
+        keywords="Commandant's Reading List 2026, CMC Reading List 2026, USMC reading list 2026, Marine Corps reading list 2026, Commandant's Reading List, CMC Reading List, USMC reading list, Marine Corps reading list, Commandant of the Marine Corps books, Marine Corps books, USMC books, Marine Corps professional reading, Marine Corps leadership books, MCDP, Marine Corps doctrine, active duty Marine reading"
         path="/reading-list"
         ogImage="https://stay-marine.com/reading/covers/warfighting-mcdp-1.webp"
         jsonLd={[
           {
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
-            name: "Commandant's Reading List",
-            alternateName: ['CMC Reading List', 'USMC Reading List', 'Marine Corps Reading List'],
-            description: "The official Commandant of the Marine Corps Reading List — 71 books organized by Heritage, Leadership, Strategy, Innovation, and Foundation shelves.",
+            name: "Commandant's Reading List 2026",
+            alternateName: ["CMC Reading List 2026", 'CMC Reading List', 'USMC Reading List 2026', 'USMC Reading List', 'Marine Corps Reading List 2026', 'Marine Corps Reading List'],
+            description: "The official 2026 Commandant of the Marine Corps Reading List — 71 books organized by Heritage, Leadership, Strategy, Innovation, and Foundation shelves.",
             url: 'https://stay-marine.com/reading-list',
             inLanguage: 'en-US',
             publisher: {
@@ -587,7 +587,7 @@ export function ReadingListPage() {
             },
             mainEntity: {
               '@type': 'ItemList',
-              name: "Commandant's Reading List",
+              name: "Commandant's Reading List 2026",
               numberOfItems: readingShelves.reduce((n, s) => n + s.books.length, 0),
               itemListElement: readingShelves.flatMap((shelf, si) =>
                 shelf.books.map((book, bi) => ({
@@ -629,6 +629,7 @@ export function ReadingListPage() {
               <button onClick={() => navigate('/')} className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">HOME</button>
               <ChevronRight className="h-3 w-3" />
               <span className="text-red-500">READING LIST</span>
+              <span className="border border-red-600/40 bg-red-950/30 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em] text-red-400">2026</span>
             </div>
             <div className="flex items-start gap-4">
               <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
