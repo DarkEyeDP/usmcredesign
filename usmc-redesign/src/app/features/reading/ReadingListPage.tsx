@@ -117,7 +117,7 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
                 <img src={book.cover} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-xl" />
                 {/* Sharp cover with padding so it floats inside the blurred field */}
                 <div className="relative z-10 flex h-full items-center justify-center px-12 py-5">
-                  <img src={book.cover} alt={`Cover art for ${book.title}`} className="h-full w-auto object-contain drop-shadow-2xl" />
+                  <img src={book.cover} alt={`${book.title} by ${book.author} — book cover`} className="h-full w-auto object-contain drop-shadow-2xl" />
                 </div>
                 <div className="absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-black to-transparent" />
               </div>
@@ -125,7 +125,7 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
             <div className="relative hidden w-[220px] flex-shrink-0 self-stretch overflow-hidden sm:block">
               <div className="relative z-20 flex h-full items-center py-5 pl-5 pr-3">
                 {book.cover ? (
-                  <img src={book.cover} alt={`Cover art for ${book.title}`} className="max-h-full w-full object-contain drop-shadow-2xl" />
+                  <img src={book.cover} alt={`${book.title} by ${book.author} — book cover`} className="max-h-full w-full object-contain drop-shadow-2xl" />
                 ) : (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-2 opacity-20">
                     <Book className="h-10 w-10 text-white" />
@@ -208,7 +208,7 @@ function BookGridCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect
         {book.cover ? (
           <img
             src={book.cover}
-            alt={`Cover art for ${book.title}`}
+            alt={`${book.title} by ${book.author} — book cover`}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
           />
         ) : (
@@ -263,7 +263,7 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
   const coverEl = (
     <div className="relative h-[160px] w-[108px] flex-shrink-0 overflow-hidden border border-white/10 bg-black md:h-[120px] md:w-[84px]">
       {book.cover ? (
-        <img src={book.cover} alt={`Cover art for ${book.title}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+        <img src={book.cover} alt={`${book.title} by ${book.author} — book cover`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
       ) : (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 opacity-20">
           <Book className="h-5 w-5 text-white" />
