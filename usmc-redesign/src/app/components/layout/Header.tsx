@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { Menu } from 'lucide-react';
@@ -13,6 +14,16 @@ import {
 } from '@/app/components/ui/sheet';
 import { loggedInItems, loggedOutItems } from './navigationConfig';
 
+function formatZuluTime(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'UTC',
+  }).format(date);
+}
+
 interface HeaderProps {
   isLoggedIn: boolean;
   onToggleLogin: () => void;
@@ -20,10 +31,19 @@ interface HeaderProps {
   isMobile?: boolean;
 }
 
-export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: HeaderProps) {
+export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, isMobile }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const items = isLoggedIn ? loggedInItems : loggedOutItems;
+  const [zuluTime, setZuluTime] = useState(() => formatZuluTime(new Date()));
+
+  useEffect(() => {
+    const updateZuluTime = () => setZuluTime(formatZuluTime(new Date()));
+    updateZuluTime();
+
+    const intervalId = window.setInterval(updateZuluTime, 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   return (
     <motion.header
@@ -64,9 +84,15 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
                     <p className="text-[11px] tracking-[0.28em] text-gray-500 leading-tight mt-0.5">CONTINUE OUR LEGACY</p>
                   </div>
                 </div>
-                <SheetDescription className="text-[11px] font-mono tracking-[0.18em] text-gray-600 uppercase">
-                  Navigation
-                </SheetDescription>
+                <div className="flex items-center justify-between gap-3">
+                  <SheetDescription className="text-[11px] font-mono tracking-[0.18em] text-gray-600 uppercase">
+                    Navigation
+                  </SheetDescription>
+                  <div className="flex items-center gap-2 border border-white/12 bg-white/[0.03] px-3 py-1.5 font-mono rounded-sm">
+                    <span className="text-[10px] tracking-[0.24em] text-gray-500">ZULU</span>
+                    <span className="min-w-[72px] text-right text-sm tracking-widest text-white">{zuluTime}</span>
+                  </div>
+                </div>
               </SheetHeader>
 
               <div className="flex flex-col flex-1 overflow-y-auto">
@@ -129,11 +155,17 @@ export function Header({ isLoggedIn, onToggleLogin, isExpanded, isMobile }: Head
             </SheetContent>
           </Sheet>
         )}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-green-500/30 bg-green-900/10 rounded-sm">
-          <div className="flex h-4 items-center">
-            <div className="h-4 w-1.5 rounded-sm bg-green-500 animate-pulse" />
+        <div className="hidden md:flex items-stretch gap-2">
+          <div className="flex items-center gap-2 border border-white/12 bg-white/[0.03] px-3 py-1.5 font-mono rounded-sm">
+            <span className="text-[10px] tracking-[0.24em] text-gray-500">ZULU</span>
+            <span className="min-w-[72px] text-right text-sm tracking-widest text-white">{zuluTime}</span>
           </div>
-          <span className="text-sm text-green-400 font-mono tracking-widest">UNCLASSIFIED</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 border border-green-500/30 bg-green-900/10 rounded-sm">
+            <div className="flex h-4 items-center">
+              <div className="h-4 w-1.5 rounded-sm bg-green-500 animate-pulse" />
+            </div>
+            <span className="text-sm text-green-400 font-mono tracking-widest">UNCLASSIFIED</span>
+          </div>
         </div>
       </div>
     </motion.header>
