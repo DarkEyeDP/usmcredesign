@@ -184,9 +184,10 @@ export function BonusesPage() {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-3 text-[clamp(2.6rem,5vw,4.8rem)] font-black leading-none tracking-tighter text-white"
+                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+                className="page-hero-title mb-3"
               >
-                BONUSES &<br />RETENTION PAYS
+                BONUSES &<br />RETENTION PAYS<span className="text-red-600">.</span>
               </motion.h1>
             </div>
             <p className="mb-4 max-w-2xl text-[14px] leading-relaxed text-gray-400">

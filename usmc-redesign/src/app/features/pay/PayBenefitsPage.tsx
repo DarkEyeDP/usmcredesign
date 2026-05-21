@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Calculator, CalendarDays, ExternalLink, Info
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/app/components/ui/dialog';
 import { Calendar } from '@/app/components/ui/calendar';
 import { ScrollArea } from '@/app/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
 import {
   clampYearsOfService,
   formatStoredDate,
@@ -329,9 +330,10 @@ export function PayBenefitsPage() {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-3"
+                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+                className="page-hero-title mb-3"
               >
-                PAY &<br />BENEFITS
+                PAY &<br />BENEFITS<span className="text-red-600">.</span>
               </motion.h1>
             </div>
             <p className="text-[14px] text-gray-400 max-w-xs leading-relaxed mb-4">
@@ -375,7 +377,28 @@ export function PayBenefitsPage() {
                 <span className="text-4xl font-black text-white">
                   {monthlyTotalPay !== null ? formatCurrency(monthlyTotalPay) : 'N/A'}
                 </span>
-                <Info className="w-3.5 h-3.5 text-gray-600 mb-1.5" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="mb-1.5 inline-flex h-5 w-5 items-center justify-center text-gray-600 transition-colors hover:text-red-400 focus-visible:text-red-400"
+                      aria-label="About this pay estimate"
+                    >
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    side="top"
+                    className="w-72 rounded-none border-white/12 bg-black/95 p-4 text-left shadow-[0_12px_36px_rgba(0,0,0,0.65)]"
+                  >
+                    <div className="mb-2 text-[11px] font-bold tracking-[0.2em] text-red-400">PAY ESTIMATE</div>
+                    <p className="text-xs leading-relaxed text-gray-400">
+                      This uses the 2026 DFAS basic pay table for your saved rank and years of service
+                      {includeBas ? `, plus ${formatCurrency(basRates[payCategory])} BAS` : ''}. It excludes BAH, special pays, taxes, and deductions.
+                    </p>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-5">

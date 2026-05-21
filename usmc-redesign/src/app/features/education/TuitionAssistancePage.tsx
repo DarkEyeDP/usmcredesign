@@ -211,9 +211,10 @@ export function TuitionAssistancePage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2"
+              transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+              className="page-hero-title mb-2"
             >
-              TUITION ASSISTANCE
+              TUITION ASSISTANCE<span className="text-red-600">.</span>
             </motion.h1>
             <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
               Active-duty Marines can receive up to $4,500 per fiscal year in tuition assistance for college courses — taken during off-duty time, at no cost to your military career.

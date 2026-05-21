@@ -63,6 +63,35 @@
   animation: pay-cell-pulse 1.8s ease-in-out infinite;
 }
 
+.page-hero-title {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-family: var(--font-tactical);
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+@media (min-width: 640px) {
+  .page-hero-title {
+    font-size: 2.6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-hero-title {
+    font-size: 3.6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-hero-title {
+    font-size: 4.75rem;
+  }
+}
+
 /* Hide scrollbars until the scroll region is being interacted with */
 * {
   scrollbar-width: none;

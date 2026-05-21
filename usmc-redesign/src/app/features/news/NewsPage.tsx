@@ -276,9 +276,14 @@ export function NewsPage() {
             </div>
             <div className="flex items-start gap-4">
               <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
-              <h1 className="text-[clamp(2rem,8vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-2">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+                className="page-hero-title mb-2"
+              >
                 MARINE CORPS NEWS<span className="text-red-600">.</span>
-              </h1>
+              </motion.h1>
             </div>
             <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed">
               Official news and press releases from Headquarters Marine Corps.

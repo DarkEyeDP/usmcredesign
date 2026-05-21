@@ -616,7 +616,7 @@ export function ReadingListPage() {
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, transparent 30%)' }} />
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        <div className="relative z-10 flex min-h-[340px] flex-col">
+        <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute right-8 top-5 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
             <div className="text-xs font-black tracking-widest text-white">BUILD YOUR NEXT STACK</div>
             <div className="my-2 ml-auto h-0.5 w-8 bg-red-600" />
@@ -629,16 +629,17 @@ export function ReadingListPage() {
               <button onClick={() => navigate('/')} className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">HOME</button>
               <ChevronRight className="h-3 w-3" />
               <span className="text-red-500">READING LIST</span>
-              <span className="border border-red-600/40 bg-red-950/30 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em] text-red-400">2026</span>
+              <span className="border border-red-500 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em] text-white">2026</span>
             </div>
             <div className="flex min-w-0 items-start gap-4">
               <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-3 min-w-0 max-w-full break-words text-[2rem] font-black leading-none tracking-normal text-white [overflow-wrap:anywhere] sm:text-[2.6rem] md:text-[3.6rem] lg:text-[4.8rem]"
+                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+                className="page-hero-title mb-3 min-w-0"
               >
-                COMMANDANT&apos;S<br />READING LIST
+                COMMANDANT&apos;S<br />READING LIST<span className="text-red-600">.</span>
               </motion.h1>
             </div>
             <p className="mb-4 max-w-2xl text-[14px] leading-relaxed text-gray-400">
@@ -710,11 +711,11 @@ export function ReadingListPage() {
                 onChange={(e) => setSortOrder(e.target.value as SortOrder)}
                 className="w-full appearance-none border border-white/12 bg-black py-2.5 pl-4 pr-9 font-mono text-[12px] tracking-widest text-gray-400 outline-none transition-colors focus:border-red-500/70"
               >
-                <option value="default">DEFAULT ORDER</option>
-                <option value="title-az">TITLE A–Z</option>
-                <option value="title-za">TITLE Z–A</option>
-                <option value="author-az">AUTHOR A–Z</option>
-                <option value="type">TYPE (BOOKS FIRST)</option>
+                <option value="default">Default order</option>
+                <option value="title-az">Title A–Z</option>
+                <option value="title-za">Title Z–A</option>
+                <option value="author-az">Author A–Z</option>
+                <option value="type">Type (books first)</option>
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
             </div>

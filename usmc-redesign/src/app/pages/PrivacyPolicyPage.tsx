@@ -53,9 +53,10 @@ export function PrivacyPolicyPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[clamp(2.75rem,5vw,4.75rem)] font-black text-white tracking-tighter leading-none mb-3"
+              transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+              className="page-hero-title mb-3"
             >
-              PRIVACY POLICY
+              PRIVACY POLICY<span className="text-red-600">.</span>
             </motion.h1>
             <p className="text-[14px] text-gray-400 max-w-2xl leading-relaxed">
               This page explains the kinds of information the site may use, how it supports the experience, and what visitors should expect when interacting with tools, feeds, and external links.

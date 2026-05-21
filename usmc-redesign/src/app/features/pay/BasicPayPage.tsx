@@ -226,9 +226,10 @@ export function BasicPayPage() {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white tracking-tighter leading-none mb-3"
+                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+                className="page-hero-title mb-3"
               >
-                BASIC PAY<br />SCALES & CHARTS
+                BASIC PAY<br />SCALES & CHARTS<span className="text-red-600">.</span>
               </motion.h1>
             </div>
             <p className="text-[14px] text-gray-400 max-w-2xl leading-relaxed mb-4">

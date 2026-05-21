@@ -1,4 +1,5 @@
 import { AlertTriangle, RefreshCw, RotateCcw } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface Props {
   title?: string;
@@ -66,9 +67,14 @@ export function LatMoveErrorView({
               <AlertTriangle className="h-5 w-5" />
               <span className="text-[12px] font-bold tracking-[0.3em]">ERROR REPORT</span>
             </div>
-            <h1 className="text-[clamp(2.4rem,5vw,4.4rem)] font-black leading-none tracking-tighter text-white">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+              className="page-hero-title"
+            >
               {title}
-            </h1>
+            </motion.h1>
             <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-gray-400">
               {summary}
             </p>
