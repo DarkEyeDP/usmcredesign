@@ -242,6 +242,71 @@ function parseInlineRankNameMCCTable(text: string): ParsedTableFamily | null {
   return { body, tables };
 }
 
+function parseAviationBoardResultsTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bL\.\s+NAME\s+F\.\s+NAME\s+MI\s+PMOS\s+(PROGRAM|LOCATION)\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const finalHeader = headerMatch[2].toUpperCase();
+  const tokens = headerMatch[3].trim().split(/\s+/).filter(Boolean);
+  const pmosRe = /^\d{4}$/;
+  const rows: string[][] = [];
+  let cursor = 0;
+
+  while (cursor < tokens.length) {
+    const pmosIdx = tokens.findIndex((token, idx) => idx >= cursor + 2 && pmosRe.test(token));
+    if (pmosIdx < 0) break;
+
+    const nameTokens = tokens.slice(cursor, pmosIdx);
+    if (nameTokens.length < 2) break;
+
+    const maybeMi = nameTokens.at(-1) ?? '';
+    const hasMi = /^[A-Z]$/i.test(maybeMi);
+    const lastAndFirst = hasMi ? nameTokens.slice(0, -1) : nameTokens;
+    const mi = hasMi ? maybeMi.toUpperCase() : '';
+    if (lastAndFirst.length < 2) break;
+
+    const programStart = pmosIdx + 1;
+    const nextPmosIdx = tokens.findIndex((token, idx) => idx > programStart && pmosRe.test(token));
+    const programEnd = nextPmosIdx >= 0 ? findAviationBoardNameStart(tokens, nextPmosIdx) : tokens.length;
+    const programTokens = tokens.slice(programStart, programEnd);
+    if (programTokens.length === 0) break;
+
+    rows.push([
+      lastAndFirst.slice(0, -1).join(' '),
+      lastAndFirst.at(-1) ?? '',
+      mi,
+      tokens[pmosIdx],
+      programTokens.join(' '),
+    ]);
+
+    cursor = programEnd;
+  }
+
+  if (rows.length === 0 || cursor < tokens.length) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['L. Name', 'F. Name', 'MI', 'PMOS', titleCaseLabel(finalHeader)], rows }],
+  };
+}
+
+function findAviationBoardNameStart(tokens: string[], pmosIdx: number): number {
+  const hasMi = /^[A-Z]$/i.test(tokens[pmosIdx - 1] ?? '');
+  const firstNameIdx = hasMi ? pmosIdx - 2 : pmosIdx - 1;
+  let lastNameStart = firstNameIdx - 1;
+
+  if (/^(?:Jr|Sr|II|III|IV)$/i.test(tokens[lastNameStart] ?? '')) {
+    lastNameStart -= 1;
+  }
+
+  return Math.max(0, lastNameStart);
+}
+
+function titleCaseLabel(label: string): string {
+  return label.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase());
+}
+
 function parseVacancySummaryTable(text: string): ParsedTableFamily | null {
   const match = text.match(/^(.*?\(read in four columns\):)\s+BMOS\s+Grade\s+Billet\s+Quantity\s+(.+)$/i);
   if (!match) return null;
@@ -854,6 +919,7 @@ const TABLE_FAMILY_PARSERS = [
   parseLDOSelecteeTable,
   parseInlineAttendeeTable,
   parseInlineRankNameMCCTable,
+  parseAviationBoardResultsTable,
   parseRecruitingStationAvailabilityTable,
   parseCommandMCCTentativeReportDateTable,
   parseSergeantsMajorBilletSlateTable,

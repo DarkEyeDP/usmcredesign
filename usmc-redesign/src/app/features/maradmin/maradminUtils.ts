@@ -737,7 +737,9 @@ export function parseMARADMINText(raw: string): ContentSection[] {
     // Strip the leading "N.  " (1–4 spaces)
     const withoutNum = slice.replace(/^\d+\. {1,4}/, '');
 
-    const { heading, remainder } = extractHeading(withoutNum);
+    const extracted = extractHeading(withoutNum);
+    const heading = extracted.heading.replace(READ_IN_COLUMNS_RE, '').replace(/\s{2,}/g, ' ').trim();
+    const remainder = extracted.remainder;
 
     // Skip boilerplate closers
     if (/^(release authority|unclassified|bt$|nnnn|n\/a)/i.test(heading || remainder)) continue;

@@ -128,6 +128,35 @@ c. High Visibility Billet Level. COMMAND MCC TENTATIVE REPORT DATE TBS 078 APR 2
   assert.deepEqual(sections[1].bullets?.[2].tables?.[0].rows[1], ['RTR-E', '016', 'APR 2027']);
 });
 
+test('parses aviation board results tables with optional MI and program/location columns', () => {
+  const parsed = parseRecognizedTableFamily(
+    'The board selected the following Marines for TC: L. NAME F. NAME MI PMOS PROGRAM Brogan Conor J 7565 TC KC-130 Sarsam Anirudh 7525 TC NFO TO SNA Forehand Jr John R 7523 TC F-35',
+  );
+
+  assert.ok(parsed);
+  assert.deepEqual(parsed.tables?.[0].headers, ['L. Name', 'F. Name', 'MI', 'PMOS', 'Program']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['Brogan', 'Conor', 'J', '7565', 'TC KC-130']);
+  assert.deepEqual(parsed.tables?.[0].rows[1], ['Sarsam', 'Anirudh', '', '7525', 'TC NFO TO SNA']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['Forehand Jr', 'John', 'R', '7523', 'TC F-35']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/2. Results (read in five columns)
+2.a. The board selected the following Marines for TC: L. NAME F. NAME MI PMOS PROGRAM Brogan Conor J 7565 TC KC-130 Sarsam Anirudh 7525 TC NFO TO SNA Bartlett Keith M 7523 TC F-35
+2.b. The board selected the following Marines for FA: L. NAME F. NAME MI PMOS PROGRAM Hare Robert L 0302 FA 75XX Hargis Brett J 7220 FA MQ9
+2.c. The board selected the following Marines for PEP: L. NAME F. NAME MI PMOS LOCATION Menz Christopher J 7566 PEP CH-24 Benson, UK Vangorder Seth B 7557 PEP C-130 Brize Norton, UK
+2.d. The board selected the following Marines for ISE: L. NAME F. NAME MI PMOS LOCATION Williams Matthew R 7557 ISE C-130 Mildenhall, UK McLean Matthew W 7565 ISE AH-6 FT Campbell, US
+`);
+
+  assert.equal(sections[0].heading, 'Results');
+  assert.equal(sections[0].body, '');
+  assert.equal(sections[0].bullets?.length, 4);
+  assert.equal(sections[0].bullets?.[0].body, 'The board selected the following Marines for TC:');
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[1], ['Sarsam', 'Anirudh', '', '7525', 'TC NFO TO SNA']);
+  assert.deepEqual(sections[0].bullets?.[2].tables?.[0].headers, ['L. Name', 'F. Name', 'MI', 'PMOS', 'Location']);
+  assert.deepEqual(sections[0].bullets?.[2].tables?.[0].rows[1], ['Vangorder', 'Seth', 'B', '7557', 'PEP C-130 Brize Norton, UK']);
+  assert.deepEqual(sections[0].bullets?.[3].tables?.[0].rows[1], ['McLean', 'Matthew', 'W', '7565', 'ISE AH-6 FT Campbell, US']);
+});
+
 test('parses projected promotion comparison tables', () => {
   const parsed = parseRecognizedTableFamily(
     'The following FY25 promotions are projected for June 2026. Senior Officer Sel Junior Officer Sel CWO4 MOS: 5702 B. J. Parvin 6 K. T. Huff 7',
