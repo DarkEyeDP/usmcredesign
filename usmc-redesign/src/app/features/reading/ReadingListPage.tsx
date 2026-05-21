@@ -137,7 +137,7 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
 
             <div className="flex flex-1 flex-col overflow-y-auto p-6 pr-10">
               <div className="mb-2 text-[10px] font-mono tracking-[0.28em] text-red-400">{shelfLabel}</div>
-              <h2 className="text-xl font-black leading-tight tracking-tight text-white">{book.title}</h2>
+              <h2 className="break-words text-xl font-black leading-tight tracking-normal text-white [overflow-wrap:anywhere]">{book.title}</h2>
               <p className="mt-2 text-[12px] font-mono tracking-[0.18em] text-gray-500">
                 {book.author}
                 {book.pages && <span className="text-gray-700"> | {book.pages.toLocaleString()} Pages</span>}
@@ -236,7 +236,7 @@ function BookGridCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect
 
       <div className="pt-3">
         <div className="mb-1 text-[9px] font-mono tracking-[0.22em] text-red-400">{shelfLabel}</div>
-        <h3 className="text-[13px] font-black leading-snug tracking-tight text-white line-clamp-2">{book.title}</h3>
+        <h3 className="line-clamp-2 break-words text-[13px] font-black leading-snug tracking-normal text-white [overflow-wrap:anywhere]">{book.title}</h3>
         <p className="mt-1 truncate text-[11px] font-mono text-gray-600">{book.author}</p>
       </div>
     </article>
@@ -345,7 +345,7 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
 
         {/* Title, author, description full-width below */}
         <div className="mt-3">
-          <h3 className="text-[1rem] font-black leading-snug tracking-[0.02em] text-white">{book.title}</h3>
+          <h3 className="break-words text-[1rem] font-black leading-snug tracking-normal text-white [overflow-wrap:anywhere]">{book.title}</h3>
           <p className="mt-1.5 text-[12px] font-mono tracking-[0.18em] text-gray-500">
             {book.author}
             {book.pages && <span className="text-gray-700"> | {book.pages.toLocaleString()} Pages</span>}
@@ -364,7 +364,7 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
         <div className="flex justify-start">{coverEl}</div>
 
         <div className="min-w-0">
-          <h3 className="text-[1.02rem] font-black leading-snug tracking-[0.02em] text-white">{book.title}</h3>
+          <h3 className="break-words text-[1.02rem] font-black leading-snug tracking-normal text-white [overflow-wrap:anywhere]">{book.title}</h3>
           <p className="mt-2 text-[12px] font-mono tracking-[0.18em] text-gray-500">
             {book.author}
             {book.pages && <span className="text-gray-700"> | {book.pages.toLocaleString()} Pages</span>}
@@ -557,7 +557,7 @@ export function ReadingListPage() {
   );
 
   return (
-    <div className="min-h-screen bg-black pb-5 md:pb-0">
+    <div className="min-h-screen overflow-x-hidden bg-black pb-5 md:pb-0">
       <SEOHead
         title="Commandant's Reading List 2026 (CMC Reading List) — Official USMC Books"
         description="The official 2026 Commandant of the Marine Corps Reading List — 71 books organized by category including Heritage, Leadership, Strategy, Innovation, and Foundation. Purchase links, free doctrine PDF downloads, and a personal favorites list for every active-duty Marine."
@@ -631,12 +631,12 @@ export function ReadingListPage() {
               <span className="text-red-500">READING LIST</span>
               <span className="border border-red-600/40 bg-red-950/30 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em] text-red-400">2026</span>
             </div>
-            <div className="flex items-start gap-4">
+            <div className="flex min-w-0 items-start gap-4">
               <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-3 text-[clamp(2.6rem,5vw,4.8rem)] font-black leading-none tracking-tighter text-white"
+                className="mb-3 min-w-0 max-w-full break-words text-[2rem] font-black leading-none tracking-normal text-white [overflow-wrap:anywhere] sm:text-[2.6rem] md:text-[3.6rem] lg:text-[4.8rem]"
               >
                 COMMANDANT&apos;S<br />READING LIST
               </motion.h1>
@@ -687,8 +687,8 @@ export function ReadingListPage() {
         </div>
 
         {/* Search + sort + view toggle + section label */}
-        <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-8">
-          <div className="relative min-w-0 flex-1" style={{ maxWidth: '28rem' }}>
+        <div className="flex flex-col gap-3 px-4 py-3 sm:px-8 lg:flex-row lg:items-center">
+          <div className="relative w-full min-w-0 lg:max-w-md lg:flex-1">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
             <input
               value={query}
@@ -703,37 +703,39 @@ export function ReadingListPage() {
             )}
           </div>
 
-          <div className="relative flex-shrink-0">
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as SortOrder)}
-              className="appearance-none border border-white/12 bg-black py-2.5 pl-4 pr-9 font-mono text-[12px] tracking-widest text-gray-400 outline-none transition-colors focus:border-red-500/70"
-            >
-              <option value="default">DEFAULT ORDER</option>
-              <option value="title-az">TITLE A–Z</option>
-              <option value="title-za">TITLE Z–A</option>
-              <option value="author-az">AUTHOR A–Z</option>
-              <option value="type">TYPE (BOOKS FIRST)</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
-          </div>
+          <div className="flex w-full items-stretch gap-3 lg:w-auto lg:flex-shrink-0">
+            <div className="relative min-w-0 flex-1 lg:w-56 lg:flex-none">
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+                className="w-full appearance-none border border-white/12 bg-black py-2.5 pl-4 pr-9 font-mono text-[12px] tracking-widest text-gray-400 outline-none transition-colors focus:border-red-500/70"
+              >
+                <option value="default">DEFAULT ORDER</option>
+                <option value="title-az">TITLE A–Z</option>
+                <option value="title-za">TITLE Z–A</option>
+                <option value="author-az">AUTHOR A–Z</option>
+                <option value="type">TYPE (BOOKS FIRST)</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+            </div>
 
-          {/* View toggle */}
-          <div className="flex flex-shrink-0 items-center border border-white/12 bg-black p-1">
-            <button
-              onClick={() => setViewMode('list')}
-              aria-label="List view"
-              className={`p-1.5 transition-colors ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
-            >
-              <List className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              aria-label="Grid view"
-              className={`p-1.5 transition-colors ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-            </button>
+            {/* View toggle */}
+            <div className="flex flex-shrink-0 items-center border border-white/12 bg-black p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                aria-label="List view"
+                className={`p-1.5 transition-colors ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
+              >
+                <List className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
+                className={`p-1.5 transition-colors ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Active section label */}
@@ -792,7 +794,7 @@ export function ReadingListPage() {
                 <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.04] px-6 py-5 lg:flex-row lg:items-end lg:justify-between">
                   <div>
                     <div className="text-[11px] font-mono tracking-[0.24em] text-red-400">SAVED</div>
-                    <h2 className="mt-2 text-2xl font-black tracking-tight text-white">FAVORITES</h2>
+                    <h2 className="mt-2 break-words text-2xl font-black leading-tight tracking-normal text-white [overflow-wrap:anywhere]">FAVORITES</h2>
                   </div>
                   <div className="text-[11px] font-mono tracking-[0.24em] text-gray-500">{favoriteBooks.length} TITLES</div>
                 </div>
@@ -824,7 +826,7 @@ export function ReadingListPage() {
                 <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.04] px-6 py-5 lg:flex-row lg:items-end lg:justify-between">
                   <div>
                     <div className="text-[11px] font-mono tracking-[0.24em] text-red-400">{shelf.kicker}</div>
-                    <h2 className="mt-2 text-2xl font-black tracking-tight text-white">{shelf.label}</h2>
+                    <h2 className="mt-2 break-words text-2xl font-black leading-tight tracking-normal text-white [overflow-wrap:anywhere]">{shelf.label}</h2>
                     <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-400">{shelf.description}</p>
                   </div>
                   <div className="text-[11px] font-mono tracking-[0.24em] text-gray-500">{shelf.books.length} TITLES</div>
@@ -866,7 +868,7 @@ export function ReadingListPage() {
                 <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.04] px-6 py-5 lg:flex-row lg:items-end lg:justify-between">
                   <div>
                     <div className="text-[11px] font-mono tracking-[0.24em] text-red-400">{shelf.kicker}</div>
-                    <h2 className="mt-2 text-2xl font-black tracking-tight text-white">{shelf.label}</h2>
+                    <h2 className="mt-2 break-words text-2xl font-black leading-tight tracking-normal text-white [overflow-wrap:anywhere]">{shelf.label}</h2>
                     <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-400">{shelf.description}</p>
                   </div>
                   <div className="text-[11px] font-mono tracking-[0.24em] text-gray-500">{shelf.books.length} TITLES</div>
