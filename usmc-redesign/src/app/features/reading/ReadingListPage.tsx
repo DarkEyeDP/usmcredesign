@@ -557,7 +557,7 @@ export function ReadingListPage() {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black pb-5 md:pb-0">
+    <div className="min-h-screen overflow-x-clip bg-black pb-5 md:pb-0">
       <SEOHead
         title="Commandant's Reading List 2026 (CMC Reading List) — Official USMC Books"
         description="The official 2026 Commandant of the Marine Corps Reading List — 71 books organized by category including Heritage, Leadership, Strategy, Innovation, and Foundation. Purchase links, free doctrine PDF downloads, and a personal favorites list for every active-duty Marine."
@@ -651,7 +651,7 @@ export function ReadingListPage() {
       </div>
 
       {/* Sticky controls bar */}
-      <div className="sticky top-20 z-30 border-b border-white/10 bg-black/95 backdrop-blur-sm">
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
         {/* Tabs row */}
         <div className="flex items-center overflow-x-auto px-4 sm:px-8">
           <button
