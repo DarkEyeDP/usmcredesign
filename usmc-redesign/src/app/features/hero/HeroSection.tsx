@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Maximize2, Minimize2 } from 'lucide-react';
 import { GridPulses } from './GridPulses';
@@ -6,6 +6,8 @@ import { GridNodes } from './GridNodes';
 import { VideoPlayer } from './VideoPlayer';
 import { getHeroSlides, SLIDE_DURATION } from './heroSlides';
 import { getVideoById, getDefaultVideo } from './heroVideos';
+import { DAILY_HISTORY_HERO_CONFIG, getDailyHistoryHeroSlide } from '@/app/features/history';
+import heritageHeroImage from '@/app/assets/hero-7.webp';
 
 interface HeroSectionProps {
   isFullscreen?: boolean;
@@ -13,7 +15,14 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSectionProps) {
-  const [slides] = useState(() => getHeroSlides());
+  const [baseSlides] = useState(() => getHeroSlides());
+  const [dailyHistorySlide] = useState(() => getDailyHistoryHeroSlide(new Date(), heritageHeroImage));
+  const slides = useMemo(() => {
+    if (!dailyHistorySlide) return baseSlides;
+    return DAILY_HISTORY_HERO_CONFIG.mode === 'prepend'
+      ? [dailyHistorySlide, ...baseSlides]
+      : [dailyHistorySlide];
+  }, [baseSlides, dailyHistorySlide]);
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);

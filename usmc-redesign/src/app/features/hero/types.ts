@@ -13,6 +13,8 @@ export interface HeroSlide {
 export interface HeroVideo {
   id: string;
   youtubeId: string;
+  /** Optional YouTube start time in seconds. */
+  startSeconds?: number;
   /** Bold title shown in the WATCH button and modal header */
   title: string;
   /** Subtitle shown below title */

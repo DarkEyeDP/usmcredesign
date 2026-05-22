@@ -12,10 +12,11 @@ interface VideoPlayerProps {
   avoidHeader?: boolean;
 }
 
-export function VideoPlayer({ video, onClose, nodeColors, slideKey, avoidHeader = false }: VideoPlayerProps) {
+export function VideoPlayer({ video, onClose, nodeColors: _nodeColors, slideKey: _slideKey, avoidHeader = false }: VideoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&iv_load_policy=3&enablejsapi=1&origin=${encodeURIComponent(origin)}`;
+  const startParam = video.startSeconds ? `&start=${video.startSeconds}` : '';
+  const src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&iv_load_policy=3&enablejsapi=1&origin=${encodeURIComponent(origin)}${startParam}`;
 
   // Escape to close
   useEffect(() => {

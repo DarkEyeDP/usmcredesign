@@ -26,6 +26,16 @@ export const VIDEOS: HeroVideo[] = [
     headerMeta: 'MARINES · 250TH ANNIVERSARY',
     year: '1775',
   },
+  {
+    id: 'marine-aviation-cunningham',
+    youtubeId: 'KHeFPohet98',
+    startSeconds: 47,
+    title: 'MARINE AVIATION HERITAGE',
+    subtitle: 'ALFRED A. CUNNINGHAM',
+    headerLabel: 'MARINE AVIATION',
+    headerMeta: 'FIRST MARINE AVIATOR',
+    year: '1912',
+  },
 ];
 
 export function getVideoById(id: string): HeroVideo | undefined {

@@ -11,6 +11,7 @@ const testFiles = [
   path.join(root, 'tests', 'maradmin-storage.test.ts'),
   path.join(root, 'tests', 'maradmin-table-parsers.test.ts'),
   path.join(root, 'tests', 'route-utils.test.ts'),
+  path.join(root, 'tests', 'daily-history.test.ts'),
 ];
 
 const tempDir = path.join(root, '.tmp-test-build');
