@@ -36,11 +36,11 @@ const payNavTabs = [
 const popularTopics = [
   { label: 'Basic Pay', desc: 'Pay scales and charts', path: '/pay-benefits/basic-pay' },
   { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
+  { label: 'Navy-Marine Corps Relief Society', desc: 'Emergency financial assistance and support', href: 'https://www.nmcrs.org' },
   { label: 'Allowances', desc: 'BAH, BAS, and more' },
   { label: 'Special & Incentive Pays', desc: 'Career and skill incentives' },
   { label: 'Taxes', desc: 'Federal and state information' },
   { label: 'Leave & Permissive TDY', desc: 'Policy and pay impacts' },
-  { label: 'Pay Forms & Documents', desc: 'DD Forms and resources' },
 ];
 
 const benefits = [
@@ -293,8 +293,28 @@ export function PayBenefitsPage() {
     <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Pay & Benefits"
-        description="Calculate your Marine Corps base pay, allowances, and bonuses. 2026 USMC pay tables for enlisted, warrant officer, and commissioned officer ranks with years of service."
+        description="Calculate your Marine Corps base pay, allowances, and bonuses. Find 2026 USMC pay tables, payday dates, MyPay access, and financial support resources including the Navy-Marine Corps Relief Society."
+        keywords="Marine Corps pay, USMC pay benefits, 2026 military pay, Marine basic pay, Marine Corps bonuses, MyPay, Navy-Marine Corps Relief Society, NMCRS, Marine financial assistance"
         path="/pay-benefits"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'Marine Pay & Benefits',
+          url: 'https://stay-marine.com/pay-benefits',
+          description: 'Marine Corps pay and benefits tools with 2026 basic pay, bonuses, payday information, MyPay access, and financial support resources.',
+          mainEntity: {
+            '@type': 'ItemList',
+            name: 'Marine Pay & Benefits Popular Topics',
+            itemListElement: popularTopics.map((topic, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: topic.label,
+              description: topic.desc,
+              ...(topic.path ? { url: `https://stay-marine.com${topic.path}` } : {}),
+              ...(topic.href ? { url: topic.href } : {}),
+            })),
+          },
+        }}
       />
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
@@ -517,6 +537,18 @@ export function PayBenefitsPage() {
                       </div>
                       <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     </Link>
+                  );
+                }
+
+                if (topic.href) {
+                  return (
+                    <a key={i} href={topic.href} target="_blank" rel="noopener noreferrer" className={rowClassName}>
+                      <div>
+                        <div className="text-sm text-gray-300 group-hover:text-white transition-colors">{topic.label}</div>
+                        <div className="text-xs text-gray-600">{topic.desc}</div>
+                      </div>
+                      <ExternalLink className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                    </a>
                   );
                 }
 
