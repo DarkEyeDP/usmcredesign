@@ -30,6 +30,7 @@ import {
 const payNavTabs = [
   { label: 'OVERVIEW', path: '/pay-benefits' },
   { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+  { label: 'BAH LOOKUP', path: '/pay-benefits/bah' },
   { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
 ];
 
@@ -37,17 +38,17 @@ const popularTopics = [
   { label: 'Basic Pay', desc: 'Pay scales and charts', path: '/pay-benefits/basic-pay' },
   { label: 'Bonuses', desc: 'Enlistment and extension', path: '/pay-benefits/bonuses' },
   { label: 'Navy-Marine Corps Relief Society', desc: 'Emergency financial assistance and support', href: 'https://www.nmcrs.org' },
-  { label: 'Allowances', desc: 'BAH, BAS, and more' },
+  { label: 'Allowances', desc: 'BAH, BAS, and more', path: '/pay-benefits/bah' },
   { label: 'Special & Incentive Pays', desc: 'Career and skill incentives' },
   { label: 'Taxes', desc: 'Federal and state information' },
   { label: 'Leave & Permissive TDY', desc: 'Policy and pay impacts' },
 ];
 
 const benefits = [
-  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.', glyph: 'M', link: '/education', external: false },
-  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.', glyph: '1775', link: 'https://www.manpower.marines.mil/Divisions/Manpower-Management/Separation-and-Retirements-Branch/', external: true },
+  { label: 'EDUCATION', desc: 'Tuition assistance, GI Bill, and credentialing.', glyph: 'EDU', link: '/education', external: false },
+  { label: 'RETIREMENT', desc: 'Plan for your future with retirement and savings.', glyph: 'RET.', link: 'https://www.manpower.marines.mil/Divisions/Manpower-Management/Separation-and-Retirements-Branch/', external: true },
   { label: 'HEALTH CARE', desc: 'Comprehensive medical, dental, and vision coverage.', glyph: 'U', link: null, external: false },
-  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.', glyph: 'S', link: null, external: false },
+  { label: 'HOUSING', desc: 'BAH, on-base housing, and housing resources.', glyph: 'S', link: '/pay-benefits/bah', external: false },
   { label: 'FAMILY SUPPORT', desc: 'Programs and services for Marines and their families.', glyph: 'C', link: null, external: false },
 ];
 
@@ -317,7 +318,7 @@ export function PayBenefitsPage() {
         }}
       />
       {/* Hero */}
-      <div className="relative pt-20 overflow-hidden border-b border-white/12">
+      <div className="relative pt-20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0" style={{
           background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(10,10,20,0.9) 40%, rgba(20,15,5,0.8) 100%)',
@@ -328,6 +329,7 @@ export function PayBenefitsPage() {
           backgroundSize: '40px 40px'
         }} />
         <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-900/30" />
+        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           {/* Financial Readiness overlay card */}
@@ -361,24 +363,27 @@ export function PayBenefitsPage() {
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex items-center px-4 md:px-8 -mb-px overflow-x-auto">
-            {payNavTabs.map(({ label, path }) => {
-              const active = path === '/pay-benefits';
-              return (
-                <button
-                  key={label}
-                  onClick={() => navigate(path)}
-                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {label}
-                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
-                </button>
-              );
-            })}
-          </div>
+        </div>
+      </div>
+
+      {/* Sticky pay-section tab bar */}
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+        <div className="flex items-center overflow-x-auto px-4 md:px-8">
+          {payNavTabs.map(({ label, path }) => {
+            const active = path === '/pay-benefits';
+            return (
+              <button
+                key={label}
+                onClick={() => navigate(path)}
+                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                  active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {label}
+                {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -26,7 +26,7 @@ export interface NavItem {
 export const loggedOutItems: NavItem[] = [
   { path: '/', icon: Home, label: 'HOME', mobileLabel: 'HOME' },
   { path: '/news', icon: Newspaper, label: 'NEWS', mobileLabel: 'NEWS', hideFromMobileNav: true },
-  { path: '/messages', icon: MessageSquare, label: 'MARADMINS', mobileLabel: 'MSGS' },
+  { path: '/messages', icon: MessageSquare, label: 'MARADMINS', mobileLabel: 'MARADMINS' },
   { path: '/pay-benefits', icon: DollarSign, label: 'BENEFITS', mobileLabel: 'PAY' },
   { path: '/education', icon: GraduationCap, label: 'EDUCATION', mobileLabel: 'EDU', hideFromMobileNav: true },
   { path: '/lateral-move', icon: ArrowLeftRight, label: 'LATERAL MOVE', mobileLabel: 'LATMOVE' },
@@ -36,7 +36,7 @@ export const loggedOutItems: NavItem[] = [
 export const loggedInItems: NavItem[] = [
   { path: '/', icon: LayoutDashboard, label: 'DASHBOARD', mobileLabel: 'HOME' },
   { path: '/news', icon: Newspaper, label: 'NEWS', mobileLabel: 'NEWS' },
-  { path: '/messages', icon: MessageSquare, label: 'MARADMINS', mobileLabel: 'MSGS' },
+  { path: '/messages', icon: MessageSquare, label: 'MARADMINS', mobileLabel: 'MARADMINS' },
   { path: '/pay-benefits', icon: DollarSign, label: 'BENEFITS', mobileLabel: 'PAY' },
   { path: '/stay-marine', icon: Anchor, label: 'STAY MARINE', mobileLabel: 'STAY' },
   { path: '/lateral-move', icon: ArrowLeftRight, label: 'LATERAL MOVE', mobileLabel: 'LATMOVE' },

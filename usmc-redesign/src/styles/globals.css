@@ -1,5 +1,28 @@
 /* Custom animations for tactical military interface */
 
+/* Leaflet zoom control — dark USMC theme */
+.leaflet-control-zoom a {
+  background: #000 !important;
+  color: #9ca3af !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  font-family: monospace !important;
+}
+.leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #fff !important;
+}
+.leaflet-control-zoom {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+.leaflet-bottom.leaflet-right {
+  bottom: 16px !important;
+  right: 16px !important;
+}
+.leaflet-bottom.leaflet-right .leaflet-control {
+  margin: 0 !important;
+}
+
 @keyframes pulse-glow {
   0%, 100% {
     box-shadow: 0 0 5px rgba(239, 68, 68, 0.3);

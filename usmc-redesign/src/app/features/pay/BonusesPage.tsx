@@ -134,7 +134,7 @@ export function BonusesPage() {
         path="/pay-benefits/bonuses"
       />
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden border-b border-white/12 pt-20">
+      <div className="relative overflow-hidden pt-20">
         <div
           className="absolute inset-0"
           style={{
@@ -151,6 +151,7 @@ export function BonusesPage() {
             backgroundSize: '40px 40px',
           }}
         />
+        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute right-8 top-5 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
@@ -196,28 +197,32 @@ export function BonusesPage() {
             </p>
           </div>
 
-          {/* Pay section tabs */}
-          <div className="flex items-center overflow-x-auto px-4 sm:px-8 -mb-px">
-            {[
-              { label: 'OVERVIEW', path: '/pay-benefits' },
-              { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
-              { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
-            ].map(({ label, path }) => {
-              const active = path === '/pay-benefits/bonuses';
-              return (
-                <button
-                  key={label}
-                  onClick={() => navigate(path)}
-                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
-                    active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {label}
-                  {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
-                </button>
-              );
-            })}
-          </div>
+        </div>
+      </div>
+
+      {/* Sticky pay-section tab bar */}
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+        <div className="flex items-center overflow-x-auto px-4 sm:px-8">
+          {[
+            { label: 'OVERVIEW', path: '/pay-benefits' },
+            { label: 'PAY CHARTS', path: '/pay-benefits/basic-pay' },
+            { label: 'BAH LOOKUP', path: '/pay-benefits/bah' },
+            { label: 'BONUS TOOL', path: '/pay-benefits/bonuses' },
+          ].map(({ label, path }) => {
+            const active = path === '/pay-benefits/bonuses';
+            return (
+              <button
+                key={label}
+                onClick={() => navigate(path)}
+                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap ${
+                  active ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {label}
+                {active && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import { LatMoveErrorBoundary } from '@/app/features/latmove/components/LatMoveE
 import { PayBenefitsPage } from '@/app/features/pay/PayBenefitsPage';
 import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
+import { BAHCalculatorPage } from '@/app/features/pay/BAHCalculatorPage';
 import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
 import { NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
@@ -92,6 +93,7 @@ export default function App() {
               />
             } />
             <Route path="/pay-benefits/basic-pay" element={<BasicPayPage />} />
+            <Route path="/pay-benefits/bah" element={<BAHCalculatorPage />} />
             <Route path="/pay-benefits/bonuses" element={<BonusesPage />} />
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
