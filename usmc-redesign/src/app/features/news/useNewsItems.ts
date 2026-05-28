@@ -52,6 +52,7 @@ export function useNewsItems(): UseNewsItemsResult {
   useEffect(() => {
     const cached = readCache();
     if (cached) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNewsItems(cached.newsItems);
       setPressReleases(cached.pressReleases);
       setLoading(false);

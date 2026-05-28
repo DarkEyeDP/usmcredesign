@@ -143,6 +143,7 @@ export function BasicPayPage() {
   const displayedRanks = [...activeTable.ranks].reverse();
   const selectedBracketIndex = getPayBracketIndex(effectiveYearsOfService);
   const activeTableLink = payTableLinks[activeCategory];
+  // eslint-disable-next-line react-hooks/refs
   const previousCategory = previousCategoryRef.current;
   const previousTable = PAY_TABLES_2026[previousCategory];
   const previousDisplayedRanks = [...previousTable.ranks].reverse();

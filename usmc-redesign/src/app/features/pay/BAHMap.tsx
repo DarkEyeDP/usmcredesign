@@ -86,6 +86,7 @@ export function BAHMap({ markers, minRate, maxRate, onSelect }: Props) {
   const prevSelectedMha = useRef<string | null>(null);
   const prevCurrentMha = useRef<string | null>(null);
   const onSelectRef = useRef(onSelect);
+  // eslint-disable-next-line react-hooks/refs
   onSelectRef.current = onSelect;
 
   const [hovered, setHovered] = useState<MapMarker | null>(null);

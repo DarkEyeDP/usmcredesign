@@ -41,7 +41,7 @@ import {
   type CustomView,
   type MARADMINUserState,
 } from './maradminStorage';
-import { AUDIENCES, audiencesOf, matchesCustomView } from './maradminAudienceUtils';
+import { AUDIENCES, audiencesOf, matchesCustomView, type Audience } from './maradminAudienceUtils';
 import { parseHeaderPOCs, renderContactEmail } from './maradminContactUtils';
 import { ContentDisplay } from './components/ContentDisplay';
 import { ContentSkeleton } from './components/ContentSkeleton';
@@ -59,6 +59,13 @@ interface Props {
 interface RefreshNotice {
   tone: 'success' | 'info' | 'error';
   message: string;
+}
+
+interface MessageFilterState {
+  years: Set<string>;
+  tags: Set<string>;
+  audiences: Set<Audience>;
+  query: string;
 }
 
 export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props) {
@@ -109,6 +116,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   const routeNumber = decodeMessageNumber(messageNumber);
 
+  const clearSelectedMessage = useCallback(() => {
+    setSelectedMsg(null);
+    setDetailSections(null);
+    setDetailHeaderPOCs([]);
+    setDetailLoading(false);
+    setShareOpen(false);
+  }, []);
+
   // Keep cursor ref in sync so the background prefetcher never sees stale values.
   useEffect(() => {
     archiveCursorRef.current = { nextPage: archiveNextPage, hasMore: archiveHasMore };
@@ -128,6 +143,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   // Detect mobile device on mount.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobileDevice(
       window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent),
     );
@@ -439,6 +455,17 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         ? messages.find(msg => msg.number === routeNumber)
         : null;
 
+    const activeCustomView = customViews.find(v => v.id === activeTab) ?? null;
+    const routeMatchAllowed = !routeMatch ||
+      (activeTab !== 'SAVED' || routeMatch.saved) &&
+      (!activeCustomView || matchesCustomView(routeMatch, activeCustomView));
+
+    if (!routeMatchAllowed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (selectedMsg) clearSelectedMessage();
+      return;
+    }
+
     if (routeMatch && routeMatch.id !== selectedMsg?.id) {
       setSelectedMsg(routeMatch);
       resetDetailScrollToTop();
@@ -452,7 +479,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         navigate(buildMessagePath(firstRoutableMessage), { replace: true });
       }
     }
-  }, [messages, navigate, routeNumber, selectedMsg?.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, clearSelectedMessage, customViews, messageNumber, messages, navigate, routeNumber, selectedMsg?.id]);
 
   useEffect(() => {
     if (!selectedMsg?.link) return;
@@ -472,6 +500,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         enrichedTags.some(t => !currentTags.includes(t))
       );
       if (cachedArticle.source || tagsNeedUpdate || numberNeedsUpdate) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMessages(prev => {
           const updated = prev.map(msg => {
             if (msg.id !== currentMessageId) return msg;
@@ -561,6 +590,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       setDetailHeaderPOCs(text ? parseHeaderPOCs(text) : []);
       setDetailLoading(false);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [archiveHasMore, archiveNextPage, selectedMsg?.id, detailRetryCount]);
 
   const loadOlderMessages = useCallback(async (silent = false) => {
@@ -666,30 +696,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     container.scrollTop = 0;
   }
 
-  function switchToCustomView(id: string) {
-    savedFiltersRef.current = { years: selectedYears, tags: selectedTags, audiences: selectedAudiences, query: searchQuery };
-    setActiveTab(id);
-    setSelectedYears(new Set());
-    setSelectedTags(new Set());
-    setSelectedAudiences(new Set());
-    setSearchQuery('');
-    resetSidebarScroll();
-  }
-
-  function switchToStandardTab(tab: string) {
-    if (tab !== activeTab && selectedMsg) navigate('/messages');
-    setActiveTab(tab);
-    const saved = savedFiltersRef.current;
-    if (saved) {
-      setSelectedYears(saved.years);
-      setSelectedTags(saved.tags);
-      setSelectedAudiences(saved.audiences);
-      setSearchQuery(saved.query);
-      savedFiltersRef.current = null;
-    }
-    resetSidebarScroll();
-  }
-
   const availableYears = useMemo(() => {
     const years = new Set<string>();
     messages.forEach(m => {
@@ -711,8 +717,15 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     [searchQuery],
   );
 
-  const filteredMessages = useMemo(() => {
-    const q = searchQuery.trim();
+  const currentMessageFilters = useMemo<MessageFilterState>(() => ({
+    years: selectedYears,
+    tags: selectedTags,
+    audiences: selectedAudiences,
+    query: searchQuery,
+  }), [searchQuery, selectedAudiences, selectedTags, selectedYears]);
+
+  const filterMessagesForTab = useCallback((tab: string, filters: MessageFilterState = currentMessageFilters) => {
+    const q = filters.query.trim();
 
     let base: RSSMessage[];
     if (q) {
@@ -730,20 +743,101 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       base = messages;
     }
 
-    const activeCustomView = customViews.find(v => v.id === activeTab) ?? null;
+    const activeCustomView = customViews.find(v => v.id === tab) ?? null;
 
     return base.filter(m => {
-      if (activeTab === 'UNREAD' && !m.unread) return false;
-      if (activeTab === 'SAVED' && !m.saved) return false;
+      if (tab === 'UNREAD' && !m.unread) return false;
+      if (tab === 'SAVED' && !m.saved) return false;
       if (activeCustomView && !matchesCustomView(m, activeCustomView)) return false;
-      if (selectedYears.size > 0 && !selectedYears.has(`20${m.number.split('/')[1]}`)) return false;
-      if (selectedTags.size > 0 && !m.tags.some(t => selectedTags.has(t))) return false;
-      if (selectedAudiences.size > 0 && !audiencesOf(m).some(a => selectedAudiences.has(a))) return false;
+      if (filters.years.size > 0 && !filters.years.has(`20${m.number.split('/')[1]}`)) return false;
+      if (filters.tags.size > 0 && !m.tags.some(t => filters.tags.has(t))) return false;
+      if (filters.audiences.size > 0 && !audiencesOf(m).some(a => filters.audiences.has(a))) return false;
       return true;
     });
   // searchIndexVersion forces recompute when the index gains new body text.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, customViews, messages, searchQuery, searchIndexVersion, selectedYears, selectedTags, selectedAudiences]);
+  }, [currentMessageFilters, customViews, messages, searchIndexVersion]);
+
+  const filteredMessages = useMemo(
+    () => filterMessagesForTab(activeTab),
+    [activeTab, filterMessagesForTab],
+  );
+
+  function syncSelectionForTab(visibleMessages: RSSMessage[]) {
+    if (selectedMsg && visibleMessages.some(m => m.id === selectedMsg.id)) return;
+
+    const nextMessage = visibleMessages[0] ?? null;
+    if (!nextMessage) {
+      clearSelectedMessage();
+      return;
+    }
+
+    setNavDirection(1);
+    navigate(buildMessagePath(nextMessage), { preventScrollReset: true });
+    resetDetailScrollToTop();
+  }
+
+  function switchToCustomView(id: string) {
+    const emptyFilters: MessageFilterState = {
+      years: new Set(),
+      tags: new Set(),
+      audiences: new Set(),
+      query: '',
+    };
+    const nextMessages = filterMessagesForTab(id, emptyFilters);
+
+    savedFiltersRef.current = {
+      years: new Set(selectedYears),
+      tags: new Set(selectedTags),
+      audiences: new Set(selectedAudiences),
+      query: searchQuery,
+    };
+    setActiveTab(id);
+    setSelectedYears(emptyFilters.years);
+    setSelectedTags(emptyFilters.tags);
+    setSelectedAudiences(emptyFilters.audiences);
+    setSearchQuery('');
+    syncSelectionForTab(nextMessages);
+    resetSidebarScroll();
+  }
+
+  function switchToStandardTab(tab: string) {
+    const saved = savedFiltersRef.current;
+    const nextFilters = saved
+      ? {
+        years: new Set(saved.years),
+        tags: new Set(saved.tags),
+        audiences: new Set(saved.audiences),
+        query: saved.query,
+      }
+      : currentMessageFilters;
+    const nextMessages = filterMessagesForTab(tab, nextFilters);
+
+    setActiveTab(tab);
+    if (saved) {
+      setSelectedYears(nextFilters.years);
+      setSelectedTags(nextFilters.tags);
+      setSelectedAudiences(nextFilters.audiences);
+      setSearchQuery(nextFilters.query);
+      savedFiltersRef.current = null;
+    }
+    syncSelectionForTab(nextMessages);
+    resetSidebarScroll();
+  }
+
+  useEffect(() => {
+    if (activeTab !== 'SAVED' || !selectedMsg?.id || selectedMsg.saved) return;
+
+    const nextSavedMessage = filteredMessages[0] ?? null;
+    if (!nextSavedMessage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      clearSelectedMessage();
+      return;
+    }
+
+    setNavDirection(1);
+    navigate(buildMessagePath(nextSavedMessage), { replace: true, preventScrollReset: true });
+  }, [activeTab, clearSelectedMessage, filteredMessages, navigate, selectedMsg?.id, selectedMsg?.saved]);
 
   const filteredUnreadCount = filteredMessages.filter(m => m.unread).length;
 
@@ -1416,7 +1510,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                                 className={`transition-all cursor-pointer ${
                                   msg.saved
                                     ? 'text-red-500 opacity-100'
-                                    : 'text-gray-600 hover:text-gray-300 opacity-0 group-hover/msgitem:opacity-100'
+                                    : 'text-gray-700 hover:text-gray-300 opacity-100 md:opacity-0 md:group-hover/msgitem:opacity-100'
                                 }`}
                                 aria-label={msg.saved ? 'Remove from saved' : 'Save message'}
                               >
@@ -1441,7 +1535,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>
 
           {/* Sidebar footer — fixed above mobile nav bar, normal flow on desktop */}
-          <div className={`${mobileView === 'detail' ? 'hidden' : ''} md:flex flex-shrink-0 fixed bottom-[60px] left-0 right-0 z-40 bg-black/95 backdrop-blur-sm md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:bg-transparent md:backdrop-blur-none px-5 py-3 border-t border-white/12 flex items-center justify-between`}>
+          <div className={`${mobileView === 'detail' ? 'hidden' : ''} md:flex flex-shrink-0 fixed bottom-[72px] left-0 right-0 z-40 bg-black/95 backdrop-blur-sm md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:bg-transparent md:backdrop-blur-none px-5 py-3 border-t border-white/12 flex items-center justify-between`}>
             <div className="flex items-center gap-3">
               {customViews.find(v => v.id === activeTab) && (
                 <>

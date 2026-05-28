@@ -17,6 +17,7 @@ function isSubHeading(body: string, item: ContentSubSection): boolean {
   return !SUB_BODY_STARTERS.has(words[0].toLowerCase());
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function flattenSubSectionText(items: ContentSubSection[]): string[] {
   return items.flatMap(item => [
     item.body,

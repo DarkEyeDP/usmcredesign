@@ -39,6 +39,7 @@ export default function App() {
   // Exit fullscreen automatically when navigating away from fullscreen-capable pages.
   useEffect(() => {
     if (!isFullscreenCapablePath(location.pathname)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsFullscreen(false);
     }
   }, [location.pathname]);

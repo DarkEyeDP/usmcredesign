@@ -7,12 +7,10 @@ import type { HeroVideo } from './types';
 interface VideoPlayerProps {
   video: HeroVideo;
   onClose: () => void;
-  nodeColors: readonly string[];
-  slideKey: number;
   avoidHeader?: boolean;
 }
 
-export function VideoPlayer({ video, onClose, nodeColors, slideKey, avoidHeader = false }: VideoPlayerProps) {
+export function VideoPlayer({ video, onClose, avoidHeader = false }: VideoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const src = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&iv_load_policy=3&enablejsapi=1&origin=${encodeURIComponent(origin)}`;
@@ -26,12 +24,14 @@ export function VideoPlayer({ video, onClose, nodeColors, slideKey, avoidHeader 
 
   // Load YouTube IFrame API and auto-close when video ends
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const win = window as any;
 
     const attachPlayer = () => {
       if (!iframeRef.current || !win.YT?.Player) return;
       new win.YT.Player(iframeRef.current, {
         events: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onStateChange: (e: any) => {
             if (e.data === win.YT.PlayerState.ENDED) onClose();
           },

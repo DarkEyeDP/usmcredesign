@@ -69,6 +69,22 @@ test('applies persisted read and saved state to messages', () => {
   assert.equal(messages[1].isNew, true);
 });
 
+test('does not treat cached message flags as saved user state', () => {
+  const userState: MARADMINUserState = {
+    readNumbers: [],
+    newNumbers: [],
+    savedNumbers: [],
+  };
+
+  const messages = applyUserStateToMessages([
+    makeMessage({ saved: true, unread: false, isNew: true }),
+  ], userState);
+
+  assert.equal(messages[0].saved, false);
+  assert.equal(messages[0].unread, true);
+  assert.equal(messages[0].isNew, false);
+});
+
 test('preserves extracted sources while merging fresh feed messages', () => {
   const userState: MARADMINUserState = {
     readNumbers: [],

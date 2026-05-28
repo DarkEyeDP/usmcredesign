@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, DollarSign, GraduationCap, ArrowRightLeft, ExternalLink, Newspaper, MessageSquare, Anchor } from 'lucide-react';
+import { ChevronRight, DollarSign, GraduationCap, ArrowRightLeft, ExternalLink, Newspaper, MessageSquare } from 'lucide-react';
 import { HeroSection } from '@/app/features/hero';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { useNewsItems } from '@/app/features/news';

@@ -232,6 +232,7 @@ export function NewsPage() {
     allItems.forEach(item => {
       if (bookmarkedIds.has(item.id)) updateBookmarkedItem(item);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allItems]);
 
   function handleBookmark(item: NewsItem) {

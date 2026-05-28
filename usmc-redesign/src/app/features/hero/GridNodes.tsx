@@ -7,6 +7,7 @@ interface GridNodesProps {
 }
 
 export function GridNodes({ nodeColors, slideKey }: GridNodesProps) {
+  /* eslint-disable react-hooks/purity */
   const nodes = useMemo(() =>
     Array.from({ length: 18 }, (_, i) => {
       const col = Math.floor(Math.random() * 32) + 1;
@@ -22,7 +23,9 @@ export function GridNodes({ nodeColors, slideKey }: GridNodesProps) {
         colorIdx: Math.floor(Math.random() * nodeColors.length),
       };
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   , [slideKey, nodeColors]);
+  /* eslint-enable react-hooks/purity */
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 7 }}>

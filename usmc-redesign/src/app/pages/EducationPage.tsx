@@ -128,13 +128,6 @@ const events = [
   { date: 'JUN 12, 2024', time: '1400 EST', title: 'CAREER TRANSITION WORKSHOP', desc: 'Plan Your Future Beyond the Corps' },
 ];
 
-const quickLinks = [
-  'Education Center Locator',
-  'Contact Your Education Services Officer (ESO)',
-  'Marine Corps Voluntary Education Program (VEP)',
-  'Navy College Program',
-];
-
 export function EducationPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('OVERVIEW');

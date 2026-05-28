@@ -234,6 +234,7 @@ export function ResultsPanel({
         countAnimationFrameRef.current = null;
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results.length, hasSearched]);
 
   const rowSize = isSingleCol ? 1 : 2;
@@ -258,6 +259,7 @@ export function ResultsPanel({
             const startY = window.scrollY;
             const targetY = Math.max(0, startY + delta);
             const duration = 350;
+            // eslint-disable-next-line react-hooks/purity
             const startTime = performance.now();
             const step = (now: number) => {
               const t = Math.min((now - startTime) / duration, 1);

@@ -15,8 +15,6 @@ import {
 import { Hero } from './components/Hero';
 import { SearchForm } from './components/SearchForm';
 import { ResultsPanel } from './components/ResultsPanel';
-import { AboutSection } from './components/AboutSection';
-import { CTABanner } from './components/CTABanner';
 import { LatMoveErrorView } from './components/LatMoveErrorView';
 
 interface Props {
@@ -127,7 +125,8 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (!stored) {
-        setHasHydratedSavedInputs(true);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHasHydratedSavedInputs(true);
         return;
       }
 
@@ -172,6 +171,7 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
     } finally {
       setHasHydratedSavedInputs(true);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

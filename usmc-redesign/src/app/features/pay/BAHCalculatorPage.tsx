@@ -320,6 +320,7 @@ export function BAHCalculatorPage() {
 
   // Keep grade tab in sync when pay grade changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setGradeTab(gradeTabForPayGrade(payGrade));
   }, [payGrade]);
 

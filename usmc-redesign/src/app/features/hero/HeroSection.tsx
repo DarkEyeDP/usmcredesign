@@ -210,8 +210,6 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
           <VideoPlayer
             video={activeVideo}
             onClose={() => setVideoOpen(false)}
-            nodeColors={slide.nodeColors}
-            slideKey={current}
             avoidHeader={!isFullscreen}
           />
         )}

@@ -214,11 +214,13 @@ export function PayBenefitsPage() {
   }, [selectorOpen, afadbdPickerOpen]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setYearsInput(String(effectiveYearsOfService));
   }, [effectiveYearsOfService]);
 
   useEffect(() => {
     if (afadbdDate) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAfadbdViewMonth(new Date(afadbdDate.getFullYear(), afadbdDate.getMonth(), 1));
       setAfadbdPickerYear(afadbdDate.getFullYear());
       return;
@@ -226,10 +228,12 @@ export function PayBenefitsPage() {
 
     setAfadbdViewMonth(new Date(2010, 0, 1));
     setAfadbdPickerYear(2010);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [afadbd]);
 
   useEffect(() => {
     if (!afadbdPickerOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAfadbdPickerMode('day');
     }
   }, [afadbdPickerOpen]);

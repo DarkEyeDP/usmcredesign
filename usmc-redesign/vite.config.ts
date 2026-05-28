@@ -49,4 +49,14 @@ export default defineConfig(({ command, mode }) => {
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'pdf-libs': ['jspdf'],
+        },
+      },
+    },
+  },
 })})
