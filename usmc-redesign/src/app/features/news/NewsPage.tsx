@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, type KeyboardEvent } from 'react';
 import { ChevronRight, ExternalLink, Newspaper, Radio, FileText, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SEOHead } from '@/app/components/SEOHead';
@@ -7,6 +7,7 @@ import { useNewsItems } from './useNewsItems';
 import type { NewsItem, NewsAttachment } from './types';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import { getBookmarkedIds, getBookmarkedItems, toggleBookmark, updateBookmarkedItem } from './newsBookmarkStorage';
+import { getNewsArticlePath } from './newsArticleUtils';
 
 type Filter = 'all' | 'news' | 'press-release' | 'saved';
 
@@ -97,15 +98,23 @@ interface CardProps {
   item: NewsItem;
   isBookmarked: boolean;
   onBookmark: (item: NewsItem) => void;
+  onOpen: (item: NewsItem) => void;
 }
 
-function FeaturedHero({ item, isBookmarked, onBookmark }: CardProps) {
+function openOnKeyboard(event: KeyboardEvent<HTMLElement>, item: NewsItem, onOpen: (item: NewsItem) => void) {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  onOpen(item);
+}
+
+function FeaturedHero({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
   return (
-    <a
-      href={item.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative flex flex-col md:flex-row overflow-hidden border border-white/12 bg-black hover:border-white/30 transition-colors mb-8"
+    <article
+      role="link"
+      tabIndex={0}
+      onClick={() => onOpen(item)}
+      onKeyDown={event => openOnKeyboard(event, item, onOpen)}
+      className="group relative flex cursor-pointer flex-col md:flex-row overflow-hidden border border-white/12 bg-black hover:border-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600 transition-colors mb-8"
     >
       {/* Image — right side on desktop, top on mobile */}
       <div className="md:order-2 md:w-[45%] flex-shrink-0 relative overflow-hidden" style={{ minHeight: '240px' }}>
@@ -140,7 +149,7 @@ function FeaturedHero({ item, isBookmarked, onBookmark }: CardProps) {
         <div className={`flex items-center gap-4 ${item.attachments.length > 0 ? 'mt-4' : ''}`}>
           <span className="text-[11px] font-mono text-gray-600">{formatDate(item.pubDate)}</span>
           <span className="text-[11px] font-bold text-red-500 tracking-widest flex items-center gap-1 group-hover:text-red-400 transition-colors">
-            FULL STORY <ExternalLink className="w-3 h-3" />
+            READ ARTICLE <ChevronRight className="w-3 h-3" />
           </span>
           <button
             type="button"
@@ -152,17 +161,18 @@ function FeaturedHero({ item, isBookmarked, onBookmark }: CardProps) {
           </button>
         </div>
       </div>
-    </a>
+    </article>
   );
 }
 
-function NewsCard({ item, isBookmarked, onBookmark }: CardProps) {
+function NewsCard({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
   return (
-    <a
-      href={item.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col overflow-hidden border border-white/12 bg-black hover:border-white/30 transition-colors"
+    <article
+      role="link"
+      tabIndex={0}
+      onClick={() => onOpen(item)}
+      onKeyDown={event => openOnKeyboard(event, item, onOpen)}
+      className="group flex cursor-pointer flex-col overflow-hidden border border-white/12 bg-black hover:border-white/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600 transition-colors"
     >
       <div className="relative overflow-hidden flex-shrink-0" style={{ height: '140px' }}>
         {item.imageUrl ? (
@@ -202,7 +212,7 @@ function NewsCard({ item, isBookmarked, onBookmark }: CardProps) {
           <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0" />
         </div>
       </div>
-    </a>
+    </article>
   );
 }
 
@@ -239,6 +249,10 @@ export function NewsPage() {
     const nextIds = toggleBookmark(item);
     setBookmarkedIds(nextIds);
     setSavedItems(getBookmarkedItems());
+  }
+
+  function handleOpenArticle(item: NewsItem) {
+    navigate(getNewsArticlePath(item));
   }
 
   const filtered = useMemo(() => {
@@ -406,6 +420,7 @@ export function NewsPage() {
                     item={item}
                     isBookmarked
                     onBookmark={handleBookmark}
+                    onOpen={handleOpenArticle}
                   />
                 </motion.div>
               ))}
@@ -419,6 +434,7 @@ export function NewsPage() {
                 item={featured}
                 isBookmarked={bookmarkedIds.has(featured.id)}
                 onBookmark={handleBookmark}
+                onOpen={handleOpenArticle}
               />
             )}
 
@@ -433,6 +449,7 @@ export function NewsPage() {
                       item={item}
                       isBookmarked={bookmarkedIds.has(item.id)}
                       onBookmark={handleBookmark}
+                      onOpen={handleOpenArticle}
                     />
                   ))}
                 </div>

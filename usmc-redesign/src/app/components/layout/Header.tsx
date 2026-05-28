@@ -14,6 +14,9 @@ import {
 } from '@/app/components/ui/sheet';
 import { loggedInItems, loggedOutItems } from './navigationConfig';
 
+declare const __APP_VERSION__: string;
+const MOBILE_MENU_VERSION = `v${__APP_VERSION__}`;
+
 function formatZuluTime(date: Date) {
   return new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
@@ -149,6 +152,9 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
                         PRIVACY POLICY
                       </button>
                     </SheetClose>
+                  </div>
+                  <div className="mt-5 border-t border-white/8 pt-4 text-center font-mono text-[10px] uppercase tracking-[0.32em] text-white/18">
+                    {MOBILE_MENU_VERSION}
                   </div>
                 </div>
               </div>

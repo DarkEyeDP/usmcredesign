@@ -16,3 +16,24 @@ export interface NewsItem {
   source: 'news' | 'press-release';
   attachments: NewsAttachment[];
 }
+
+export type NewsArticleBlockType = 'paragraph' | 'heading' | 'quote';
+
+export interface NewsArticleBlock {
+  type: NewsArticleBlockType;
+  text: string;
+}
+
+export interface NewsArticleLink {
+  label: string;
+  url: string;
+}
+
+export interface NewsArticleDetail {
+  title: string;
+  pubDate: Date | null;
+  body: NewsArticleBlock[];
+  links: NewsArticleLink[];
+  imageUrl: string | null;
+  description: string | null;
+}

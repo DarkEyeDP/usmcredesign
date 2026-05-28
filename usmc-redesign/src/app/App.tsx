@@ -18,7 +18,7 @@ import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
 import { BAHCalculatorPage } from '@/app/features/pay/BAHCalculatorPage';
 import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
-import { NewsPage } from '@/app/features/news';
+import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
 
@@ -113,6 +113,7 @@ export default function App() {
             } />
             <Route path="/stay-marine" element={<StayMarinePage />} />
             <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:articleSlug" element={<NewsArticlePage />} />
             <Route path="*" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
           </Routes>
         </div>

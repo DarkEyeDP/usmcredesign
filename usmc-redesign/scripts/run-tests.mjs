@@ -10,6 +10,7 @@ const testFiles = [
   path.join(root, 'tests', 'maradmin-search.test.ts'),
   path.join(root, 'tests', 'maradmin-storage.test.ts'),
   path.join(root, 'tests', 'maradmin-table-parsers.test.ts'),
+  path.join(root, 'tests', 'news-article-utils.test.ts'),
   path.join(root, 'tests', 'route-utils.test.ts'),
 ];
 
