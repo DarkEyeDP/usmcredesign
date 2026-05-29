@@ -275,6 +275,11 @@ export function deleteCachedArticle(cacheKey: string) {
   writeState(state);
 }
 
+export function clearMARADMINLocalState() {
+  if (!canUseStorage()) return;
+  window.localStorage.removeItem(STORAGE_KEY);
+}
+
 /** Approximate byte size of the stored MARADMIN state (raw JSON string length). */
 export function getMARADMINStorageSizeBytes(): number {
   if (!canUseStorage()) return 0;

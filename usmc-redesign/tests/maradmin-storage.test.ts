@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import {
   applyUserStateToMessages,
+  clearMARADMINLocalState,
   getCachedArchiveCursor,
+  getCachedFeed,
   limitStoredFeedMessages,
   mergeArchiveMessages,
   mergeFeedMessages,
@@ -202,6 +204,18 @@ test('persists archive cursor state with cached feed metadata', () => {
   saveCachedFeed([makeMessage({ number: '215/26' })], { nextPage: 4, hasMore: false });
 
   assert.deepEqual(getCachedArchiveCursor(), { nextPage: 4, hasMore: false });
+});
+
+test('clears MARADMIN local state for clean acceptance testing', () => {
+  storageMap.clear();
+
+  saveCachedFeed([makeMessage({ number: '215/26' })], { nextPage: 4, hasMore: false });
+  assert.equal(getCachedFeed()?.length, 1);
+
+  clearMARADMINLocalState();
+
+  assert.equal(getCachedFeed(), null);
+  assert.deepEqual(getCachedArchiveCursor(), { nextPage: 2, hasMore: true });
 });
 
 markTestFilePass();

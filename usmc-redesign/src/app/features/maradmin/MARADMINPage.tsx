@@ -22,6 +22,7 @@ import {
 } from './maradminUtils';
 import {
   applyUserStateToMessages,
+  clearMARADMINLocalState,
   getCachedArticle,
   getCachedArchiveCursor,
   getCachedFeed,
@@ -83,6 +84,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [archiveLoading, setArchiveLoading] = useState(false);
   const [refreshNotice, setRefreshNotice]   = useState<RefreshNotice | null>(null);
   const [activeTab, setActiveTab]           = useState('ALL MESSAGES');
+  const [heldUnreadMessageId, setHeldUnreadMessageId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery]       = useState('');
   const [navDirection, setNavDirection]     = useState<1 | -1>(1);
   const [filterOpen, setFilterOpen]         = useState(false);
@@ -147,6 +149,21 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setIsMobileDevice(
       window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent),
     );
+  }, []);
+
+  // Dev-only escape hatch for clean acceptance testing without clearing every localhost site.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+
+    const devWindow = window as Window & { __resetMARADMINCache?: () => void };
+    devWindow.__resetMARADMINCache = () => {
+      clearMARADMINLocalState();
+      window.location.reload();
+    };
+
+    return () => {
+      delete devWindow.__resetMARADMINCache;
+    };
   }, []);
 
   // Close share dropdown on outside click.
@@ -271,6 +288,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
     if (unreadNumbers.length === 0) return;
 
+    setHeldUnreadMessageId(null);
     const unreadSet = new Set(unreadNumbers);
     const nextUserState = {
       ...userStateRef.current,
@@ -464,6 +482,16 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (selectedMsg) clearSelectedMessage();
       return;
+    }
+
+    if (activeTab === 'UNREAD' && routeMatch) {
+      // Preserve the selected unread item in the sidebar after it is marked read.
+      // It will be released when the user moves to another message or leaves the tab.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHeldUnreadMessageId(prev => {
+        if (routeMatch.unread) return routeMatch.id;
+        return prev === routeMatch.id ? prev : null;
+      });
     }
 
     if (routeMatch && routeMatch.id !== selectedMsg?.id) {
@@ -746,7 +774,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     const activeCustomView = customViews.find(v => v.id === tab) ?? null;
 
     return base.filter(m => {
-      if (tab === 'UNREAD' && !m.unread) return false;
+      if (tab === 'UNREAD' && !m.unread && m.id !== heldUnreadMessageId) return false;
       if (tab === 'SAVED' && !m.saved) return false;
       if (activeCustomView && !matchesCustomView(m, activeCustomView)) return false;
       if (filters.years.size > 0 && !filters.years.has(`20${m.number.split('/')[1]}`)) return false;
@@ -756,7 +784,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     });
   // searchIndexVersion forces recompute when the index gains new body text.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMessageFilters, customViews, messages, searchIndexVersion]);
+  }, [currentMessageFilters, customViews, heldUnreadMessageId, messages, searchIndexVersion]);
 
   const filteredMessages = useMemo(
     () => filterMessagesForTab(activeTab),
@@ -786,6 +814,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     };
     const nextMessages = filterMessagesForTab(id, emptyFilters);
 
+    setHeldUnreadMessageId(null);
     savedFiltersRef.current = {
       years: new Set(selectedYears),
       tags: new Set(selectedTags),
@@ -813,6 +842,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       : currentMessageFilters;
     const nextMessages = filterMessagesForTab(tab, nextFilters);
 
+    if (tab !== 'UNREAD') setHeldUnreadMessageId(null);
     setActiveTab(tab);
     if (saved) {
       setSelectedYears(nextFilters.years);
@@ -910,6 +940,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   function selectMsg(msg: RSSMessage) {
     const newIdx = filteredMessages.findIndex(m => m.id === msg.id);
+    setHeldUnreadMessageId(activeTab === 'UNREAD' && msg.unread ? msg.id : null);
     setNavDirection(newIdx >= currentIdx ? 1 : -1);
     navigate(buildMessagePath(msg));
     resetDetailScrollToTop();
@@ -918,16 +949,20 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   const goToPrev = () => {
     if (currentIdx > 0) {
+      const targetMessage = filteredMessages[currentIdx - 1];
       pendingNavScrollRef.current = true;
+      setHeldUnreadMessageId(activeTab === 'UNREAD' && targetMessage.unread ? targetMessage.id : null);
       setNavDirection(-1);
-      navigate(buildMessagePath(filteredMessages[currentIdx - 1]), { preventScrollReset: true });
+      navigate(buildMessagePath(targetMessage), { preventScrollReset: true });
     }
   };
   const goToNext = () => {
     if (currentIdx < filteredMessages.length - 1) {
+      const targetMessage = filteredMessages[currentIdx + 1];
       pendingNavScrollRef.current = true;
+      setHeldUnreadMessageId(activeTab === 'UNREAD' && targetMessage.unread ? targetMessage.id : null);
       setNavDirection(1);
-      navigate(buildMessagePath(filteredMessages[currentIdx + 1]), { preventScrollReset: true });
+      navigate(buildMessagePath(targetMessage), { preventScrollReset: true });
     }
   };
 
