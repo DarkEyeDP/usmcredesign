@@ -1876,7 +1876,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     <>
                       <ContentDisplay sections={detailSections} />
                       {/* Header POC cards — shown only when no dedicated POC paragraph already rendered them */}
-                      {detailHeaderPOCs.length > 0 && !detailSections.some(s => /\bpoc\b|point of contact|points of contact/i.test(s.heading)) && (
+                      {detailHeaderPOCs.length > 0 && !detailSections.some(s => /\bpoc\b|point of contact|points of contact/i.test(`${s.heading} ${s.body}`)) && (
                         <div className="mt-6 pt-6 border-t border-white/12">
                           <div className="text-[11px] font-bold tracking-[0.2em] text-red-500 mb-3">POINTS OF CONTACT</div>
                           <div className="space-y-2">

@@ -9,19 +9,22 @@ export function ContentDisplay({ sections }: { sections: ContentSection[] }) {
   return (
     <div className="space-y-5 mb-8">
       {sections.map((section, i) => {
-        const isPOC      = /\bpoc\b|point of contact|points of contact/i.test(section.heading);
         const urlButtons = extractURLButtons(section.body);
         const bulletText = flattenSubSectionText(section.bullets ?? []).join(' ');
+        const sectionText = [section.heading, section.body, bulletText].filter(Boolean).join(' ');
+        const isPOC      = /\bpoc\b|point of contact|points of contact/i.test(sectionText);
         const contacts   = isPOC ? extractContacts(section.body + ' ' + bulletText) : [];
+        const shouldRenderBody = Boolean(section.body) && !(isPOC && contacts.length > 0);
+        const displayHeading = section.heading || (isPOC && contacts.length > 0 ? 'Points of Contact' : '');
 
         return (
           <div key={i} className="flex gap-3">
             <span className="text-sm text-gray-700 font-mono mt-0.5 flex-shrink-0">{i + 1}.</span>
             <div className="flex-1 min-w-0">
-              {section.heading && (
-                <span className="text-[15px] font-bold text-white">{section.heading}. </span>
+              {displayHeading && (
+                <span className="text-[15px] font-bold text-white">{displayHeading}. </span>
               )}
-              {section.body && (
+              {shouldRenderBody && (
                 <span className="text-[15px] text-gray-300 leading-relaxed">
                   {renderWithLinks(section.body)}
                 </span>

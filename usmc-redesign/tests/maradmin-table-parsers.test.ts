@@ -36,6 +36,18 @@ test('parses inline vacancy summary tables', () => {
   assert.deepEqual(parsed.tables?.[0].rows[1], ['8850', 'O3/O4', 'Mathematics Instructor', '2']);
 });
 
+test('parses TLS milestone timeline tables', () => {
+  const parsed = parseRecognizedTableFamily(
+    'Major timeline milestones are: Date Milestone Release of this message TLS questionnaire opens 3 July 2026 Completed questionnaires due 3 July 2026 Remove by requests (RBR) due 3 August 2026 TLS Board convenes',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, 'Major timeline milestones are');
+  assert.deepEqual(parsed.tables?.[0].headers, ['Date', 'Milestone']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['Release of this message', 'TLS questionnaire opens']);
+  assert.deepEqual(parsed.tables?.[0].rows[3], ['3 August 2026', 'TLS Board convenes']);
+});
+
 test('parses inline attendee tables read in three columns', () => {
   const parsed = parseRecognizedTableFamily(
     'Read in three columns. Name Rank MCC Asher, Justin J. SSgt J88 Backes, Jessica H. GySgt J88 Helwig, Michael J. SSgt R2R',
@@ -46,6 +58,18 @@ test('parses inline attendee tables read in three columns', () => {
   assert.deepEqual(parsed.tables?.[0].headers, ['Name', 'Rank', 'MCC']);
   assert.deepEqual(parsed.tables?.[0].rows[0], ['Asher, Justin J.', 'SSgt', 'J88']);
   assert.deepEqual(parsed.tables?.[0].rows[1], ['Backes, Jessica H.', 'GySgt', 'J88']);
+});
+
+test('parses selected rank name IMOS/MCC lateral move tables', () => {
+  const parsed = parseRecognizedTableFamily(
+    'Selected 1321 Master Gunnery Sergeant and Master Sergeants. Rank Name IMOS/MCC MGySgt Gutierrez Jr CM 1349/1C1 MSgt Cureo MO 1349/1Y8 MSgt Reynolds Q 2181/J78 5. Training:',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, 'Selected 1321 Master Gunnery Sergeant and Master Sergeants.');
+  assert.deepEqual(parsed.tables?.[0].headers, ['Rank', 'Name', 'IMOS/MCC']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['MGySgt', 'Gutierrez Jr CM', '1349/1C1']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['MSgt', 'Reynolds Q', '2181/J78']);
 });
 
 test('parses sergeants major billet slate tables without treating initials as subsections', () => {
@@ -128,6 +152,157 @@ c. High Visibility Billet Level. COMMAND MCC TENTATIVE REPORT DATE TBS 078 APR 2
   assert.deepEqual(sections[1].bullets?.[2].tables?.[0].rows[1], ['RTR-E', '016', 'APR 2027']);
 });
 
+test('parses MCC unit description note tables in district subsections', () => {
+  const parsed = parseRecognizedTableFamily(
+    '1st Marine Corps District MCC Unit Description Note 922 RS Albany, NY 926 RS Baltimore, MD 1 930 RS Boston, MA A48 OST Jersey City, NJ AAN OST Manhattan, NY',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, '1st Marine Corps District');
+  assert.deepEqual(parsed.tables?.[0].headers, ['MCC', 'Unit Description', 'Note']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['922', 'RS Albany, NY', '']);
+  assert.deepEqual(parsed.tables?.[0].rows[1], ['926', 'RS Baltimore, MD', '1']);
+  assert.deepEqual(parsed.tables?.[0].rows[4], ['AAN', 'OST Manhattan, NY', '']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/5. Billet Openings. The below listed vacancies are projected for 2027.
+5.a. 1st Marine Corps District
+MCC Unit Description Note
+922 RS Albany, NY
+926 RS Baltimore, MD 1
+930 RS Boston, MA
+AAN OST Manhattan, NY
+5.b. 4th Marine Corps District
+MCC Unit Description Note
+90L RS Indianapolis, IN
+968 RS Louisville, KY 1,2
+AAB OST Salem, VA 2
+`);
+
+  assert.equal(sections[0].heading, 'Billet Openings');
+  assert.equal(sections[0].bullets?.[0].body, '1st Marine Corps District');
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[3], ['AAN', 'OST Manhattan, NY', '']);
+  assert.equal(sections[0].bullets?.[1].body, '4th Marine Corps District');
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[1], ['968', 'RS Louisville, KY', '1,2']);
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[2], ['AAB', 'OST Salem, VA', '2']);
+});
+
+test('parses TLS course allocation tables with wrapped school titles and notes', () => {
+  const parsed = parseRecognizedTableFamily(
+    'The AY27-28 TLS Board will select officers to attend the Senior Service Colleges listed below. (Read in five columns) Course Title/School Quota Convenes Graduates Note Air War College (AWC) (Montgomery, AL) 7 Jul 27 May 28 4 Army War College (USAWC) (Carlisle, PA) 15 Jul 27 Jun 28 1 College of Naval Warfare (CNW) (Newport, RI) 15 Jul 27 Jun 28 Note 1: Two USAWC quotas are for the blended education program. Note 4: Aviation PMOS priority.',
+  );
+
+  assert.ok(parsed);
+  assert.deepEqual(parsed.tables?.[0].headers, ['Course Title / School', 'Quota', 'Convenes', 'Graduates', 'Note']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['Air War College (AWC) (Montgomery, AL)', '7', 'Jul 27', 'May 28', '4']);
+  assert.deepEqual(parsed.tables?.[0].rows[1], ['Army War College (USAWC) (Carlisle, PA)', '15', 'Jul 27', 'Jun 28', '1']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['College of Naval Warfare (CNW) (Newport, RI)', '15', 'Jul 27', 'Jun 28', '']);
+  assert.equal(parsed.tables?.[1].title, 'Notes');
+  assert.deepEqual(parsed.tables?.[1].headers, ['Note', 'Details']);
+  assert.deepEqual(parsed.tables?.[1].rows[0], ['Note 1', 'Two USAWC quotas are for the blended education program.']);
+  assert.deepEqual(parsed.tables?.[1].rows[1], ['Note 4', 'Aviation PMOS priority.']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/4. Education program allocations
+4.a. Senior Service Colleges. The AY27-28 TLS Board will select officers to attend the Senior Service Colleges listed below. (Read in five columns)
+Course Title/School Quota Convenes Graduates Note
+Air War College (AWC)
+(Montgomery, AL) 7 Jul 27 May 28 4
+Army War College (USAWC)
+(Carlisle, PA) 15 Jul 27 Jun 28 1
+College of Naval Warfare (CNW)
+(Newport, RI) 15 Jul 27 Jun 28
+Note 1: Two USAWC quotas are for the blended education program.
+Note 4: Aviation PMOS priority.
+4.b. The TLS Selection Board will select officers for assignment to the foreign senior service colleges and fellowships listed below.
+4.b.1. Foreign Professional Military Education (FPME). Additional FPME information is located online. (Read in five columns)
+Course Title/School Quota Convenes Graduates Note
+Center des Hautes Etudes Militaires (France) 1 Aug 27 Jun 28 6
+North Atlantic Treaty Organization (NATO) Defense College Senior Course (Rome, Italy) 1st session 2 Sep 27 Feb 28 7 2nd session 2 Feb 28 Jul 28 7
+UK Higher Command and Staff Course 1 Jan 28 May 28 7
+Note 6: Foreign language proficiency is required.
+4.b.2. CMC Fellowships. Additional details are located online. (Read in five columns)
+Course Title/School Quota Convenes Graduates Note
+Advanced Strategic Leadership Studies Program (Fort Leavenworth, KS) 1 Jun 27 Jun 28 8,10,12
+Department of State (DOS) (Washington, DC) 1 Jul 27 Jun 28
+Stockdale Center for Ethical Leadership at U.S. Naval Academy (Annapolis, MD) 1 Jul 26 Jun 27 11,12
+Note 8: Graduates will complete a mandatory one-year follow-on assignment.
+`);
+
+  assert.equal(sections[0].heading, 'Education Program Allocations');
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[0], ['Air War College (AWC) (Montgomery, AL)', '7', 'Jul 27', 'May 28', '4']);
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[1].rows[0], ['Note 1', 'Two USAWC quotas are for the blended education program.']);
+  assert.deepEqual(sections[0].bullets?.[1].children?.[0].tables?.[0].rows[1], [
+    'North Atlantic Treaty Organization (NATO) Defense College Senior Course (Rome, Italy) 1st session',
+    '2',
+    'Sep 27',
+    'Feb 28',
+    '7',
+  ]);
+  assert.deepEqual(sections[0].bullets?.[1].children?.[1].tables?.[0].rows[0], [
+    'Advanced Strategic Leadership Studies Program (Fort Leavenworth, KS)',
+    '1',
+    'Jun 27',
+    'Jun 28',
+    '8,10,12',
+  ]);
+});
+
+test('parses SNCO projected promotion status and projection tables with notes', () => {
+  const status = parseRecognizedTableFamily(
+    'STATUS OF FY 2025 INDIVIDUAL READY RESERVE (IRR) SNCO PROMOTION LISTS: NUMBER SENIOR NO. JUN 26 LAST SENIOR PROJECTED GRADE SELECTED PROM MAY 26 PROM NO. PROM FOR JUL 26 MGySgt (Note 2) (Note 2) (Note 2) (Note 2) (Note 2) MSgt 6 4 1 5 (Note 1) GySgt 7 (Note 1) (Note 1) (Note 1) (Note 1) SSgt 36 25 3 28 3',
+  );
+
+  assert.ok(status);
+  assert.equal(status.body, 'STATUS OF FY 2025 INDIVIDUAL READY RESERVE (IRR) SNCO PROMOTION LISTS');
+  assert.deepEqual(status.tables?.[0].headers, [
+    'Grade',
+    'Number Selected',
+    'Senior No. Prom May 26',
+    'Jun 26 Prom',
+    'Last Senior No. Prom',
+    'Projected For Jul 26',
+  ]);
+  assert.deepEqual(status.tables?.[0].rows[0], ['MGySgt', '(Note 2)', '(Note 2)', '(Note 2)', '(Note 2)', '(Note 2)']);
+  assert.deepEqual(status.tables?.[0].rows[1], ['MSgt', '6', '4', '1', '5', '(Note 1)']);
+
+  const projection = parseRecognizedTableFamily(
+    'FY 2026 SNCO PROJECTED AUGUST 2026 PROMOTIONS: AR SMCR IRR SgtMaj/MGySgt (Note 3) 0 0 1stSgt/MSgt 3 0 0 GySgt 6 0 0 SSgt 20 0 0 Note 1: List cleared. Note 2: There are no selections for this component. Note 3: No promotions due to TIG requirements.',
+  );
+
+  assert.ok(projection);
+  assert.equal(projection.body, 'FY 2026 SNCO PROJECTED AUGUST 2026 PROMOTIONS');
+  assert.deepEqual(projection.tables?.[0].headers, ['Grade', 'AR', 'SMCR', 'IRR']);
+  assert.deepEqual(projection.tables?.[0].rows[0], ['SgtMaj/MGySgt', '(Note 3)', '0', '0']);
+  assert.deepEqual(projection.tables?.[1].rows[2], ['Note 3', 'No promotions due to TIG requirements.']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/4. Projected Monthly Promotions
+4.a. STATUS OF FY 2025 SELECTED MARINE CORPS RESERVE (SMCR) SNCO PROMOTION LISTS:
+NUMBER SENIOR NO. JUN 26 LAST SENIOR PROJECTED
+GRADE SELECTED PROM MAY 26 PROM NO. PROM FOR JUL 26
+SgtMaj/MGySgt 48 32 4 36 4
+1stSgt/MSgt 136 95 11 106 11
+GySgt 187 125 16 141 15
+SSgt 273 187 23 210 21
+4.e. FY 2026 SNCO PROJECTED AUGUST 2026 PROMOTIONS:
+AR SMCR IRR
+SgtMaj/MGySgt (Note 3) 0 0
+1stSgt/MSgt 3 0 0
+GySgt 6 0 0
+SSgt 20 0 0
+Note 1: List cleared.
+Note 2: There are no selections for this component.
+Note 3: No promotions due to TIG requirements.
+5. For Reserve SNCO allocation questions, contact Reserve Affairs.
+`);
+
+  assert.equal(sections[0].heading, 'Projected Monthly Promotions');
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[0], ['SgtMaj/MGySgt', '48', '32', '4', '36', '4']);
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[0], ['SgtMaj/MGySgt', '(Note 3)', '0', '0']);
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[1].rows[0], ['Note 1', 'List cleared.']);
+});
+
 test('parses aviation board results tables with optional MI and program/location columns', () => {
   const parsed = parseRecognizedTableFamily(
     'The board selected the following Marines for TC: L. NAME F. NAME MI PMOS PROGRAM Brogan Conor J 7565 TC KC-130 Sarsam Anirudh 7525 TC NFO TO SNA Forehand Jr John R 7523 TC F-35',
@@ -155,6 +330,32 @@ GENTEXT/REMARKS/2. Results (read in five columns)
   assert.deepEqual(sections[0].bullets?.[2].tables?.[0].headers, ['L. Name', 'F. Name', 'MI', 'PMOS', 'Location']);
   assert.deepEqual(sections[0].bullets?.[2].tables?.[0].rows[1], ['Vangorder', 'Seth', 'B', '7557', 'PEP C-130 Brize Norton, UK']);
   assert.deepEqual(sections[0].bullets?.[3].tables?.[0].rows[1], ['McLean', 'Matthew', 'W', '7565', 'ISE AH-6 FT Campbell, US']);
+});
+
+test('parses IAP selection panel results tables read in six columns', () => {
+  const tableText =
+    'Based on their background, operational experience, and academic credentials, the IAP experience track selection panel selected the Marines listed below for assignment for the Foreign Area Officer (FAO) and Regional Affairs Officer (RAO) Additional Military Occupational Specialty (AMOS). Selection panel results.: Name Rank PMOS AMOS Desig Region Ahonen, J.T Maj 0302 8244 FAO Middle East Barnett, B LtCol 0202 8221 RAO LATAM Barnett, B LtCol 0202 8223 RAO INDO-PACOM Berentson, M.D Col 8041 8241 FAO LATAM Berentson, M.D Col 8041 8245 FAO Africa Ding, M.H Maj 0802 8242 FAO Europe Gibson, H.R Maj 0602 8222 RAO Europe Kopach, S.J LtCol 0202 8224 RAO Middle East Nerswick, S.E Maj 6602 8223 RAO INDO-PACOM Vega, F.J LtCol 0302 8222 RAO Europe';
+  const parsed = parseRecognizedTableFamily(tableText);
+
+  assert.ok(parsed);
+  assert.equal(parsed.body.endsWith('Selection panel results.'), true);
+  assert.deepEqual(parsed.tables?.[0].headers, ['Name', 'Rank', 'PMOS', 'AMOS', 'Desig', 'Region']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['Ahonen, J.T', 'Maj', '0302', '8244', 'FAO', 'Middle East']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['Barnett, B', 'LtCol', '0202', '8223', 'RAO', 'INDO-PACOM']);
+  assert.deepEqual(parsed.tables?.[0].rows[9], ['Vega, F.J', 'LtCol', '0302', '8222', 'RAO', 'Europe']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/1. The purpose of this MARADMIN is to announce results.
+2. Based on their background, operational experience, and academic credentials, the IAP experience track selection panel selected the Marines listed below for assignment for the Foreign Area Officer (FAO) and Regional Affairs Officer (RAO) Additional Military Occupational Specialty (AMOS). Selection panel results. (Read in 6 columns):
+Name Rank PMOS AMOS Desig Region
+Ahonen, J.T Maj 0302 8244 FAO Middle East
+Barnett, B LtCol 0202 8221 RAO LATAM
+Barnett, B LtCol 0202 8223 RAO INDO-PACOM
+3. This MARADMIN serves as authority to assign the respective AMOS as listed above.
+`);
+
+  assert.equal(sections[1].body.endsWith('Selection panel results.'), true);
+  assert.deepEqual(sections[1].tables?.[0].rows[1], ['Barnett, B', 'LtCol', '0202', '8221', 'RAO', 'LATAM']);
 });
 
 test('parses projected promotion comparison tables', () => {

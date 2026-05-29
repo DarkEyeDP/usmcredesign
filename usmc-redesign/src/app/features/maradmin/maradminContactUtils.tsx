@@ -117,7 +117,96 @@ const POC_RANK_PAT = [
   'ADM', 'CAPT', 'CDR', 'ENS', 'LT',
 ].join('|');
 
+const FULL_RANK_NORM: Record<string, string> = {
+  colonel: 'Col',
+  'lieutenant colonel': 'LtCol',
+  major: 'Maj',
+  captain: 'Capt',
+  'gunnery sergeant': 'GySgt',
+  'master sergeant': 'MSgt',
+  'staff sergeant': 'SSgt',
+  'mr.': 'Mr.',
+  'ms.': 'Ms.',
+  'mrs.': 'Mrs.',
+};
+
+const FORMAL_RANK_PAT = [
+  'Lieutenant\\s+Colonel',
+  'Gunnery\\s+Sergeant',
+  'Master\\s+Sergeant',
+  'Staff\\s+Sergeant',
+  'Colonel',
+  'Captain',
+  'Major',
+  'Mr\\.',
+  'Ms\\.',
+  'Mrs\\.',
+].join('|');
+
+function splitNameAndRole(value: string): { name: string; section?: string } {
+  const cleaned = value.replace(/\s+/g, ' ').replace(/,+$/, '').trim();
+  if (!cleaned) return { name: '' };
+
+  const roleMatch = cleaned.match(/\b(?:Branch Head|Ground Col Monitor|Aviation Col Monitor|Combat Arms|Combat Service Support|Aviation Lieutenant Colonel Monitor|Information Lieutenant Colonel Monitor|CMC Fellowships|Foreign PME|Registrar)\b/i);
+  if (roleMatch?.index && roleMatch.index > 0) {
+    return {
+      name: cleaned.slice(0, roleMatch.index).trim().replace(/,+$/, ''),
+      section: cleaned.slice(roleMatch.index).trim(),
+    };
+  }
+
+  const commaIdx = cleaned.indexOf(',');
+  if (commaIdx > 0) {
+    const name = cleaned.slice(0, commaIdx).trim();
+    const section = cleaned.slice(commaIdx + 1).trim();
+    return { name, section: section || undefined };
+  }
+
+  return { name: cleaned };
+}
+
+function normalizeFormalRank(rank: string): string {
+  return FULL_RANK_NORM[rank.replace(/\s+/g, ' ').toLowerCase()] ?? rank;
+}
+
+function extractFormalBodyContacts(text: string): Contact[] {
+  const starts = [...text.matchAll(new RegExp(`\\b(${FORMAL_RANK_PAT})\\s+(?!Monitor\\b)(?=[A-Z])`, 'gi'))];
+  if (starts.length === 0) return [];
+
+  const contacts: Contact[] = [];
+
+  starts.forEach((match, index) => {
+    const chunkStart = match.index ?? 0;
+    const chunkEnd = starts[index + 1]?.index ?? text.length;
+    const chunk = text.slice(chunkStart, chunkEnd).replace(/\s+/g, ' ').trim();
+    const rankMatch = chunk.match(new RegExp(`^(${FORMAL_RANK_PAT})\\s+(?!Monitor\\b)`, 'i'));
+    if (!rankMatch) return;
+
+    const rank = normalizeFormalRank(rankMatch[1]);
+    const content = chunk.slice(rankMatch[0].length).trim();
+    const emailMatch = content.match(/Email:\s*([\w.+-]+@[\w.-]+\.[a-zA-Z]{2,})/i);
+    const commMatch = content.match(/Comm:\s*([\d()\-. ]+?)(?=\s+Email:|$)/i);
+    const email = emailMatch ? normalizeHeaderPOCEmail(emailMatch[1]) : undefined;
+    const comm = commMatch?.[1]?.trim();
+
+    const commIdx = content.search(/\bComm:/i);
+    const emailIdx = content.search(/\bEmail:/i);
+    const metaIdxs = [commIdx, emailIdx].filter(idx => idx >= 0);
+    const nameRoleEnd = metaIdxs.length > 0 ? Math.min(...metaIdxs) : content.length;
+    const { name, section } = splitNameAndRole(content.slice(0, nameRoleEnd));
+
+    if (name && (email || comm)) {
+      contacts.push({ name: `${rank} ${name}`.trim(), section, email, comm });
+    }
+  });
+
+  return contacts;
+}
+
 export function extractContacts(text: string): Contact[] {
+  const formalContacts = extractFormalBodyContacts(text);
+  if (formalContacts.length > 0) return formalContacts;
+
   const SPLIT_RE = new RegExp(`(^|\\s)((?:[A-Z]{2,6})\\s+)?(${POC_RANK_PAT})\\s+(?=[A-Z])`, 'g');
 
   const starts: Array<{ index: number; section: string | undefined }> = [];

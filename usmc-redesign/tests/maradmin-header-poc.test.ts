@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { parseHeaderPOCs } from '../src/app/features/maradmin/maradminContactUtils';
+import { extractContacts, parseHeaderPOCs } from '../src/app/features/maradmin/maradminContactUtils';
 import { markTestFilePass, markTestFileStart, test } from './test-helpers';
 
 markTestFileStart();
@@ -63,6 +63,44 @@ POC 2/ANDREW R. WING/LTCOL/RAM DEPUTY - AVIATION MONITOR/TEL:
     section: 'RAM DEPUTY - AVIATION MONITOR',
     email: 'andrew.wing@usmc.mil',
     comm: '703-784-0530',
+  });
+});
+
+test('parses formal body points of contact into separate cards', () => {
+  const text = `Points of contact. Colonel E. J. Smith Branch Head, MMOA Comm: (703) 784-9300 Email: erik.smith@usmc.mil Colonel E. F. Bradley, Ground Col Monitor Comm: (703)784-9300 Email: evan.bradley@usmc.mil Colonel R. B. Tompkins, Aviation Col Monitor Comm: (703) 784-9300 Email: ralph.tompkins@usmc.mil Colonel E. F. Bradley Combat Arms Lieutenant Colonel Monitor Comm: (703) 784-9274 Email: evan.bradley@usmc.mil Colonel N. V. Bastian Combat Service Support Lieutenant Colonel Monitor Comm: (703) 784-9274 Email: nicole.v.bastian.mil@usmc.mil Lieutenant Colonel E. C. Buxton Aviation Lieutenant Colonel Monitor Comm: (703) 784-9267 Email: eben.buxton@usmc.mil Lieutenant Colonel D. C. Burton Information Lieutenant Colonel Monitor Comm: (703) 784-9274 Email: david.c.burton@usmc.mil Lieutenant Colonel James Pineiro, CMC Fellowships, MCU Comm: (703) 432-4837 Email: James.Pineiro@usmcu.edu Major Taylor Wulff-Morrison, Foreign PME, MCU Comm: (703) 784-1209 Email: taylor.wulffmorrison@usmcu.edu Mr. J. A. Bilyew, Registrar, MCU Comm: (703) 432-0696 Email: jake.bilyew@usmcu.edu`;
+
+  const contacts = extractContacts(text);
+
+  assert.equal(contacts.length, 10);
+  assert.deepEqual(contacts[0], {
+    name: 'Col E. J. Smith',
+    section: 'Branch Head, MMOA',
+    email: 'erik.smith@usmc.mil',
+    comm: '(703) 784-9300',
+  });
+  assert.deepEqual(contacts[1], {
+    name: 'Col E. F. Bradley',
+    section: 'Ground Col Monitor',
+    email: 'evan.bradley@usmc.mil',
+    comm: '(703)784-9300',
+  });
+  assert.deepEqual(contacts[3], {
+    name: 'Col E. F. Bradley',
+    section: 'Combat Arms Lieutenant Colonel Monitor',
+    email: 'evan.bradley@usmc.mil',
+    comm: '(703) 784-9274',
+  });
+  assert.deepEqual(contacts[5], {
+    name: 'LtCol E. C. Buxton',
+    section: 'Aviation Lieutenant Colonel Monitor',
+    email: 'eben.buxton@usmc.mil',
+    comm: '(703) 784-9267',
+  });
+  assert.deepEqual(contacts[9], {
+    name: 'Mr. J. A. Bilyew',
+    section: 'Registrar, MCU',
+    email: 'jake.bilyew@usmcu.edu',
+    comm: '(703) 432-0696',
   });
 });
 

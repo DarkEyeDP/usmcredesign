@@ -166,6 +166,31 @@ function parseInlineAttendeeTable(text: string): ParsedTableFamily | null {
   };
 }
 
+function parseRankNameImosMccTable(text: string): ParsedTableFamily | null {
+  const match = text.match(/^(.*?)\bRank\s+Name\s+IMOS\/MCC\s+(.+)$/is);
+  if (!match) return null;
+
+  const body = match[1].trim();
+  const rankPattern = '(?:SgtMaj|MGySgt|1stSgt|MSgt|GySgt|SSgt)';
+  const rowRe = new RegExp(
+    `\\b(${rankPattern})\\s+(.+?)\\s+(\\d{4}\\/[A-Z0-9]{2,4})(?=\\s+(?:${rankPattern})\\s+|\\s+\\d+\\.\\s+[A-Z]|$)`,
+    'gi',
+  );
+
+  const rows = [...match[2].trim().matchAll(rowRe)].map(rowMatch => [
+    rowMatch[1],
+    rowMatch[2].replace(/\s+/g, ' ').trim(),
+    rowMatch[3],
+  ]);
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Rank', 'Name', 'IMOS/MCC'], rows }],
+  };
+}
+
 function parseInlineRankNameMCCTable(text: string): ParsedTableFamily | null {
   const sectionRe = /Read in (?:three|3) columns\.?\s+Rank\s+Name\s+MCC\s*/gi;
   const firstMatch = sectionRe.exec(text);
@@ -303,8 +328,225 @@ function findAviationBoardNameStart(tokens: string[], pmosIdx: number): number {
   return Math.max(0, lastNameStart);
 }
 
+function parseIAPSelectionPanelResultsTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bName\s+Rank\s+PMOS\s+AMOS\s+Desig\s+Region\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/\s*:\s*$/, '').trim();
+  const data = headerMatch[2].trim();
+  const rankPattern = '(?:Gen|LtGen|MajGen|BGen|Col|LtCol|Maj|Capt|1stLt|2ndLt)';
+  const namePattern = "[A-Z][A-Za-z'-]+(?:\\s+(?:Jr|Sr|II|III|IV))?,\\s*[A-Z](?:\\.[A-Z])?\\.?";
+  const rowRe = new RegExp(
+    `(${namePattern})\\s+(${rankPattern})\\s+(\\d{4})\\s+(\\d{4})\\s+([A-Z]{2,5})\\s+(.+?)(?=\\s+${namePattern}\\s+${rankPattern}\\s+\\d{4}\\s+\\d{4}\\s+[A-Z]{2,5}\\s|$)`,
+    'gi',
+  );
+
+  const rows = [...data.matchAll(rowRe)].map(match => [
+    match[1].replace(/\s+/g, ' ').trim(),
+    match[2],
+    match[3],
+    match[4],
+    match[5].toUpperCase(),
+    match[6].replace(/\s+/g, ' ').trim(),
+  ]);
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'Rank', 'PMOS', 'AMOS', 'Desig', 'Region'], rows }],
+  };
+}
+
 function titleCaseLabel(label: string): string {
   return label.toLowerCase().replace(/\b\w/g, letter => letter.toUpperCase());
+}
+
+const SHORT_MONTH_RE = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
+const MONTH_NAME_RE = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
+
+function parseTLSMilestoneTimelineTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bDate\s+Milestone\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/[:\s]+$/, '').trim();
+  const data = headerMatch[2].trim();
+  const dateStartRe = new RegExp(`(?:Release\\s+of\\s+this\\s+message|\\d{1,2}\\s+${MONTH_NAME_RE}\\s+\\d{4})`, 'gi');
+  const starts = [...data.matchAll(dateStartRe)].map(match => match.index ?? 0);
+  if (starts.length < 2) return null;
+
+  const rows: string[][] = [];
+  for (let i = 0; i < starts.length; i += 1) {
+    const segment = data.slice(starts[i], starts[i + 1] ?? data.length).trim();
+    const rowMatch = segment.match(new RegExp(`^(Release\\s+of\\s+this\\s+message|\\d{1,2}\\s+${MONTH_NAME_RE}\\s+\\d{4})\\s+(.+)$`, 'i'));
+    if (!rowMatch) return null;
+
+    rows.push([
+      rowMatch[1].replace(/\s+/g, ' ').trim(),
+      rowMatch[2].replace(/\s+/g, ' ').trim(),
+    ]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Date', 'Milestone'], rows }],
+  };
+}
+
+function parseNumberedNoteRows(text: string): string[][] {
+  const noteStarts = [...text.matchAll(/\bNote\s+(\d+):\s*/gi)];
+  if (noteStarts.length === 0) return [];
+
+  return noteStarts.map((match, index) => {
+    const noteNumber = match[1];
+    const noteStart = (match.index ?? 0) + match[0].length;
+    const noteEnd = noteStarts[index + 1]?.index ?? text.length;
+    const noteText = text.slice(noteStart, noteEnd).replace(/\s+/g, ' ').trim();
+
+    return [`Note ${noteNumber}`, noteText];
+  }).filter(([, noteText]) => noteText.length > 0);
+}
+
+function preserveNoteRefs(text: string): string {
+  return text.replace(/\(Note\s+(\d+)\)/gi, '(Note_$1)');
+}
+
+function restoreNoteRefs(value: string): string {
+  return value.replace(/\(Note_(\d+)\)/gi, '(Note $1)');
+}
+
+function parseTLSCourseAllocationTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bCourse\s+Title\/School\s+Quota\s+Convenes\s+Graduates\s+Note\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const intro = headerMatch[1]
+    .replace(/\(Read in (?:five|5) columns?\)\s*$/i, '')
+    .replace(/[:\s]+$/, '')
+    .trim();
+  const afterHeader = headerMatch[2].trim();
+  const firstNoteIdx = afterHeader.search(/\bNote\s+\d+:/i);
+  const tableData = firstNoteIdx >= 0 ? afterHeader.slice(0, firstNoteIdx).trim() : afterHeader;
+  const notes = firstNoteIdx >= 0 ? afterHeader.slice(firstNoteIdx).trim() : '';
+
+  const dateValue = `${SHORT_MONTH_RE}\\s+\\d{2}`;
+  const rowRe = new RegExp(`(.+?)\\s+(\\d+)\\s+(${dateValue})\\s+(${dateValue})(?:\\s+(\\d+(?:,\\d+)*))?(?=\\s+.+?\\s+\\d+\\s+${dateValue}\\s+${dateValue}|$)`, 'gis');
+  const rows: string[][] = [];
+  let m: RegExpExecArray | null;
+
+  while ((m = rowRe.exec(tableData)) !== null) {
+    const title = m[1].replace(/\s+/g, ' ').trim();
+    if (!title) continue;
+
+    rows.push([
+      title,
+      m[2],
+      m[3].replace(/\s+/g, ' ').trim(),
+      m[4].replace(/\s+/g, ' ').trim(),
+      m[5] ?? '',
+    ]);
+  }
+
+  if (rows.length < 2) return null;
+
+  const noteRows = parseNumberedNoteRows(notes);
+  const tables: DetectedTable[] = [
+    { headers: ['Course Title / School', 'Quota', 'Convenes', 'Graduates', 'Note'], rows },
+  ];
+
+  if (noteRows.length > 0) {
+    tables.push({
+      title: 'Notes',
+      headers: ['Note', 'Details'],
+      rows: noteRows,
+    });
+  }
+
+  return {
+    body: intro,
+    tables,
+  };
+}
+
+function parseSNCOProjectedPromotionsTable(text: string): ParsedTableFamily | null {
+  const noteStart = text.search(/\bNote\s+\d+:/i);
+  const mainText = noteStart >= 0 ? text.slice(0, noteStart).trim() : text.trim();
+  const notesText = noteStart >= 0 ? text.slice(noteStart).trim() : '';
+
+  const projectionMatch = mainText.match(/^(.*?)\bAR\s+SMCR\s+IRR\s+(.+)$/is);
+  const gradeRe = /^(?:SgtMaj\/MGySgt|1stSgt\/MSgt|MGySgt|MGYSGT|MSGT|MSgt|GySgt|SSgt)$/i;
+  const valueRe = /^(?:\d+|\(Note_\d+\))$/i;
+
+  if (projectionMatch) {
+    const body = projectionMatch[1].replace(/[:\s]+$/, '').trim();
+    const tokens = preserveNoteRefs(projectionMatch[2]).split(/\s+/).filter(Boolean);
+    const rows: string[][] = [];
+    let cursor = 0;
+
+    while (cursor < tokens.length) {
+      const grade = tokens[cursor];
+      if (!gradeRe.test(grade)) break;
+
+      const values = tokens.slice(cursor + 1, cursor + 4);
+      if (values.length < 3 || !values.every(value => valueRe.test(value))) break;
+
+      rows.push([grade, ...values.map(restoreNoteRefs)]);
+      cursor += 4;
+    }
+
+    if (rows.length < 2) return null;
+
+    const tables: DetectedTable[] = [{ headers: ['Grade', 'AR', 'SMCR', 'IRR'], rows }];
+    const noteRows = parseNumberedNoteRows(notesText);
+    if (noteRows.length > 0) {
+      tables.push({ title: 'Notes', headers: ['Note', 'Details'], rows: noteRows });
+    }
+
+    return { body, tables };
+  }
+
+  const statusHeaderRe = /\bNUMBER\s+SENIOR\s+NO\.\s+JUN\s+26\s+LAST\s+SENIOR\s+PROJECTED\s+GRADE\s+SELECTED\s+PROM\s+MAY\s+26\s+PROM\s+NO\.\s+PROM\s+FOR\s+JUL\s+26\s+/i;
+  const statusMatch = mainText.match(statusHeaderRe);
+  if (!statusMatch?.index && statusMatch?.index !== 0) return null;
+
+  const body = mainText.slice(0, statusMatch.index).replace(/[:\s]+$/, '').trim();
+  const data = mainText.slice(statusMatch.index + statusMatch[0].length).trim();
+  const tokens = preserveNoteRefs(data).split(/\s+/).filter(Boolean);
+  const rows: string[][] = [];
+  let cursor = 0;
+
+  while (cursor < tokens.length) {
+    const grade = tokens[cursor];
+    if (!gradeRe.test(grade)) break;
+
+    const values = tokens.slice(cursor + 1, cursor + 6);
+    if (values.length < 5 || !values.every(value => valueRe.test(value))) break;
+
+    rows.push([grade, ...values.map(restoreNoteRefs)]);
+    cursor += 6;
+  }
+
+  if (rows.length < 2) return null;
+
+  const tables: DetectedTable[] = [{
+    headers: [
+      'Grade',
+      'Number Selected',
+      'Senior No. Prom May 26',
+      'Jun 26 Prom',
+      'Last Senior No. Prom',
+      'Projected For Jul 26',
+    ],
+    rows,
+  }];
+
+  const noteRows = parseNumberedNoteRows(notesText);
+  if (noteRows.length > 0) {
+    tables.push({ title: 'Notes', headers: ['Note', 'Details'], rows: noteRows });
+  }
+
+  return { body, tables };
 }
 
 function parseVacancySummaryTable(text: string): ParsedTableFamily | null {
@@ -432,6 +674,46 @@ function parseCommandMCCTentativeReportDateTable(text: string): ParsedTableFamil
   return {
     body,
     tables: [{ headers: ['Command', 'MCC', 'Tentative Report Date'], rows }],
+  };
+}
+
+function parseMCCUnitDescriptionNoteTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bMCC\s+Unit\s+Description\s+Note\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/[:\s]+$/, '').trim();
+  const data = headerMatch[2].trim();
+  const rowStartRe = /\b[A-Z0-9]{3}\s+(?:RS|OST)\b/gi;
+  const starts = [...data.matchAll(rowStartRe)].map(match => match.index ?? 0);
+  if (starts.length === 0) return null;
+
+  const noteRe = /\s+(\d(?:,\d)*)$/;
+  const rows: string[][] = [];
+
+  for (let i = 0; i < starts.length; i += 1) {
+    const segment = data.slice(starts[i], starts[i + 1] ?? data.length).trim();
+    const mccMatch = segment.match(/^([A-Z0-9]{3})\s+(.+)$/i);
+    if (!mccMatch) return null;
+
+    const mcc = mccMatch[1].toUpperCase();
+    let unitDescription = mccMatch[2].trim();
+    let note = '';
+
+    const noteMatch = unitDescription.match(noteRe);
+    if (noteMatch) {
+      note = noteMatch[1];
+      unitDescription = unitDescription.slice(0, noteMatch.index).trim();
+    }
+
+    if (!/^(?:RS|OST)\b/i.test(unitDescription)) return null;
+    rows.push([mcc, unitDescription, note]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['MCC', 'Unit Description', 'Note'], rows }],
   };
 }
 
@@ -911,6 +1193,9 @@ function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamil
 
 const TABLE_FAMILY_PARSERS = [
   parseInlineEligibilityTable,
+  parseTLSMilestoneTimelineTable,
+  parseTLSCourseAllocationTable,
+  parseSNCOProjectedPromotionsTable,
   parseEnlistedBoardPanelScheduleTable,
   parseBoardPanelScheduleTable,
   parseSRBKickerTable,
@@ -918,10 +1203,13 @@ const TABLE_FAMILY_PARSERS = [
   parseInlinePromotionTable,
   parseLDOSelecteeTable,
   parseInlineAttendeeTable,
+  parseRankNameImosMccTable,
   parseInlineRankNameMCCTable,
   parseAviationBoardResultsTable,
+  parseIAPSelectionPanelResultsTable,
   parseRecruitingStationAvailabilityTable,
   parseCommandMCCTentativeReportDateTable,
+  parseMCCUnitDescriptionNoteTable,
   parseSergeantsMajorBilletSlateTable,
   parseVacancySummaryTable,
   parseProjectedPromotionsTable,
