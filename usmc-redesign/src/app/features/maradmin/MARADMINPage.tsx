@@ -1591,11 +1591,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         </div>
 
         {/* ── RIGHT COLUMN — message detail ────────────────────────────── */}
-        <div className={`print-maradmin-detail ${mobileView === 'list' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'md:sticky md:self-start md:top-20 md:h-[calc(100vh-80px)]'} md:overflow-hidden`}>
+        <div className={`print-maradmin-detail ${mobileView === 'list' ? 'hidden md:flex' : `fixed inset-x-0 ${isFullscreen ? 'top-0 bottom-0' : 'top-20 bottom-[72px]'} z-30 flex overflow-hidden bg-black md:inset-auto md:z-auto md:bg-transparent`} md:flex flex-col ${isFullscreen ? 'md:relative' : 'md:sticky md:self-start md:top-20 md:h-[calc(100vh-80px)]'} md:overflow-hidden`}>
 
           {/* Sticky header wrapper — on mobile this sticks below the app header; on desktop it becomes
               display:contents so children flow directly into the fixed-height panel */}
-          <div className="sticky top-20 z-20 flex flex-col bg-black/95 backdrop-blur-sm md:contents">
+          <div className="z-20 flex flex-shrink-0 flex-col bg-black/95 backdrop-blur-sm md:contents">
 
           {/* Mobile-only tabs row */}
           <div className="print-hide md:hidden flex items-center overflow-x-auto scrollbar-none border-b border-white/12">
@@ -1837,7 +1837,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>{/* end sticky header wrapper */}
 
           {/* Detail body */}
-          <div ref={detailScrollRef} className="print-maradmin-body flex-1 md:overflow-y-auto relative overflow-x-hidden">
+          <div ref={detailScrollRef} className="print-maradmin-body flex-1 overflow-y-auto overflow-x-hidden relative">
             {/* Subtle background texture */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{
               backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
