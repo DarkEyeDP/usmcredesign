@@ -6,11 +6,14 @@ function getColumnWidth(header: string): number {
 
   if (normalized.includes('course') || normalized.includes('school')) return 360;
   if (normalized.includes('unit description')) return 320;
+  if (normalized.includes('officer')) return 280;
+  if (normalized.includes('position')) return 220;
   if (normalized.includes('tentative report')) return 220;
   if (normalized.includes('location') || normalized.includes('program')) return 220;
+  if (normalized.includes('convening')) return 180;
   if (normalized.includes('name')) return 240;
   if (normalized.includes('note')) return 100;
-  if (/(mcc|rank|grade|quota|pmos|amos|imos|desig|sel)\b/.test(normalized)) return 120;
+  if (/(mcc|rank|grade|quota|pmos|amos|imos|mos|desig|sel|dor|lcn)\b/.test(normalized)) return 120;
 
   return 160;
 }

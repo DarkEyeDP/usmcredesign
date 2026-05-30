@@ -26,6 +26,92 @@ test('parses inline promotion tables', () => {
   assert.deepEqual(parsed.tables?.[0].rows[0], ['Victor M. Berg, Jr.', '03May26', '175']);
 });
 
+test('parses general officer promotion board schedule and zone tables', () => {
+  const schedule = parseRecognizedTableFamily(
+    'As announced by reference (a), the FY28 U.S. Marine Corps Major General and Brigadier General Promotion Selection Boards will convene at 2008 Elliot Road, Quantico, VA 22134, as follows: Selection To Component Bd.Corr.Due Convening Date MajGen Active 27 Jun 26 08 Jul 26 BGen Active 03 Jul 26 14 Jul 26',
+  );
+
+  assert.ok(schedule);
+  assert.deepEqual(schedule.tables?.[0].headers, ['Selection To', 'Component', 'Bd.Corr.Due', 'Convening Date']);
+  assert.deepEqual(schedule.tables?.[0].rows[0], ['MajGen', 'Active', '27 Jun 26', '08 Jul 26']);
+  assert.deepEqual(schedule.tables?.[0].rows[1], ['BGen', 'Active', '03 Jul 26', '14 Jul 26']);
+
+  const zone = parseRecognizedTableFamily(
+    'Primary Zone: Senior Officer Above-Zone - Col Riley Jr., Donald J. DOR 01 Oct 11 LCN 03358000 Junior Officer Above-Zone - Col Mann, Nicole A. DOR 01 Oct 21 LCN 19641000 Senior Officer In-Zone - Col Lundgren, Matthew D. DOR 01 Nov 21 LCN 19648000 Junior Officer In-Zone - Col Lombardo, William L. DOR 01 Sep 22 LCN 19755000',
+  );
+
+  assert.ok(zone);
+  assert.equal(zone.body, 'Primary Zone:');
+  assert.deepEqual(zone.tables?.[0].headers, ['Position', 'Officer', 'DOR', 'LCN']);
+  assert.deepEqual(zone.tables?.[0].rows[0], ['Senior Officer Above-Zone', 'Col Riley Jr., Donald J.', '01 Oct 11', '03358000']);
+  assert.deepEqual(zone.tables?.[0].rows[3], ['Junior Officer In-Zone', 'Col Lombardo, William L.', '01 Sep 22', '19755000']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/1. As announced by reference (a), the FY28 U.S. Marine Corps Major General and Brigadier General Promotion Selection Boards will convene at 2008 Elliot Road, Quantico, VA 22134, as follows:
+Selection To   Component     Bd.Corr.Due        Convening Date
+MajGen         Active        27 Jun 26          08 Jul 26
+BGen           Active        03 Jul 26          14 Jul 26
+2. Promotion Boards. The boards will consider two categories of officers. The senior and junior officers in each zone are as follows:
+2.a. Major General Promotion Selection Board
+2.a.1. Primary Zone:
+        Senior Officer In-Zone -    BGen Ryans II, James A.
+                                    DOR 05 Jun 23
+                                    LCN 03343000
+        Junior Officer In-Zone -    BGen Weiler, Robert S.
+                                    DOR 18 May 24
+                                    LCN 03353000
+2.a.2. Secondary Zone:
+        Only Officer Below-Zone -   BGen Wilburn Jr., William T.
+                                    DOR 01 Jun 24
+                                    LCN 03354000
+`);
+
+  assert.deepEqual(sections[0].tables?.[0].rows[1], ['BGen', 'Active', '03 Jul 26', '14 Jul 26']);
+  assert.equal(sections[1].bullets?.[0].body, 'Major General Promotion Selection Board');
+  assert.equal(sections[1].bullets?.[0].children?.[0].body, 'Primary Zone:');
+  assert.deepEqual(sections[1].bullets?.[0].children?.[0].tables?.[0].rows[1], [
+    'Junior Officer In-Zone',
+    'BGen Weiler, Robert S.',
+    '18 May 24',
+    '03353000',
+  ]);
+  assert.deepEqual(sections[1].bullets?.[0].children?.[1].tables?.[0].rows[0], [
+    'Only Officer Below-Zone',
+    'BGen Wilburn Jr., William T.',
+    '01 Jun 24',
+    '03354000',
+  ]);
+});
+
+test('parses slash-delimited program rank name MCC MOS selectee tables', () => {
+  const parsed = parseRecognizedTableFamily(
+    "Congratulations to this year's selectees (Read: Program/ Rank /Name/ MCC /MOS): MECCAP/ Sgt/ Holman R. P./ 174/ 2641 MINSAP/ Cpl/ Baker A. M./ 819/ 2631 MOSAP/ Sgt/ Huddleston W. G./174 / 2631 DSDP/SSgt/Bohm E. G./K21/2651",
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, "Congratulations to this year's selectees");
+  assert.deepEqual(parsed.tables?.[0].headers, ['Program', 'Rank', 'Name', 'MCC', 'MOS']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['MECCAP', 'Sgt', 'Holman R. P.', '174', '2641']);
+  assert.deepEqual(parsed.tables?.[0].rows[3], ['DSDP', 'SSgt', 'Bohm E. G.', 'K21', '2651']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/3. Execution. The following Marines were selected to individual programs.
+3.a. Congratulations to this year's selectees (Read: Program/ Rank /Name/ MCC /MOS):
+MECCAP/ Sgt/ Holman R. P./ 174/ 2641
+MINSAP/ Cpl/ Baker A. M./ 819/ 2631
+MINSAP/ Sgt/ Sanders R. W./ 800/ 2631
+MLAP/ Cpl/ Pinargote M. J./ 819/ 2641
+MOSAP/ Sgt/ Huddleston W. G./174 / 2631
+MSAP/ Sgt/ Bland D. J./ 1RA/ 2621
+DSDP/SSgt/Bohm E. G./K21/2651
+DSDP/SSgt/Stewart B. M./K21/2651
+`);
+
+  assert.equal(sections[0].bullets?.[0].body, "Congratulations to this year's selectees");
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[5], ['MSAP', 'Sgt', 'Bland D. J.', '1RA', '2621']);
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[7], ['DSDP', 'SSgt', 'Stewart B. M.', 'K21', '2651']);
+});
+
 test('parses inline vacancy summary tables', () => {
   const parsed = parseRecognizedTableFamily(
     'Requires master’s degrees (read in four columns): BMOS Grade Billet Quantity 8824 O3/O4 Electrical Engineer 2 8850 O3/O4 Mathematics Instructor 2',

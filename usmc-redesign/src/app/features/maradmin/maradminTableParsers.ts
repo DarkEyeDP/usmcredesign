@@ -365,6 +365,91 @@ function titleCaseLabel(label: string): string {
 const SHORT_MONTH_RE = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
 const MONTH_NAME_RE = '(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)';
 
+function parsePromotionBoardConveningTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bSelection\s+To\s+Component\s+Bd\.?Corr\.?Due\s+Convening\s+Date\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = headerMatch[2].trim();
+  const rankPattern = '(?:Gen|LtGen|MajGen|BGen|Col|LtCol|Maj|Capt|CWO[2-5]|WO)';
+  const componentPattern = '(?:Active|Reserve|AR|SMCR|IRR)';
+  const datePattern = `\\d{1,2}\\s+${SHORT_MONTH_RE}\\s+\\d{2}`;
+  const rowRe = new RegExp(
+    `\\b(${rankPattern})\\s+(${componentPattern})\\s+(${datePattern})\\s+(${datePattern})(?=\\s+(?:${rankPattern})\\s+(?:${componentPattern})\\s+|$)`,
+    'gi',
+  );
+  const rows = [...data.matchAll(rowRe)].map(match => [
+    match[1],
+    match[2],
+    match[3].replace(/\s+/g, ' ').trim(),
+    match[4].replace(/\s+/g, ' ').trim(),
+  ]);
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Selection To', 'Component', 'Bd.Corr.Due', 'Convening Date'], rows }],
+  };
+}
+
+function parseGeneralOfficerPromotionZoneTable(text: string): ParsedTableFamily | null {
+  const firstRowMatch = text.match(/\b(?:Senior|Junior|Only)\s+Officer\s+(?:Above-Zone|In-Zone|Below-Zone)\s*-\s*/i);
+  if (!firstRowMatch?.index && firstRowMatch?.index !== 0) return null;
+
+  const body = text.slice(0, firstRowMatch.index).trim();
+  const data = text.slice(firstRowMatch.index).trim();
+  const rowStartRe = /\b(?:Senior|Junior|Only)\s+Officer\s+(?:Above-Zone|In-Zone|Below-Zone)\s*-\s*/gi;
+  const starts = [...data.matchAll(rowStartRe)].map(match => match.index ?? 0);
+  if (starts.length === 0) return null;
+
+  const datePattern = `${SHORT_MONTH_RE}\\s+\\d{2}`;
+  const rows: string[][] = [];
+
+  for (let i = 0; i < starts.length; i += 1) {
+    const segment = data.slice(starts[i], starts[i + 1] ?? data.length).trim();
+    const rowMatch = segment.match(new RegExp(`^((?:Senior|Junior|Only)\\s+Officer\\s+(?:Above-Zone|In-Zone|Below-Zone))\\s*-\\s*(.+?)\\s+DOR\\s+(\\d{1,2}\\s+${datePattern})\\s+LCN\\s+(\\d{8})`, 'i'));
+    if (!rowMatch) return null;
+
+    rows.push([
+      rowMatch[1].replace(/\s+/g, ' ').trim(),
+      rowMatch[2].replace(/\s+/g, ' ').trim(),
+      rowMatch[3].replace(/\s+/g, ' ').trim(),
+      rowMatch[4],
+    ]);
+  }
+
+  if (rows.length === 0) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Position', 'Officer', 'DOR', 'LCN'], rows }],
+  };
+}
+
+function parseProgramRankNameMccMosTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\(\s*Read:\s*Program\s*\/\s*Rank\s*\/\s*Name\s*\/\s*MCC\s*\/\s*MOS\s*\):?\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = headerMatch[2].trim();
+  const rowRe = /\b([A-Z0-9]{2,8})\s*\/\s*([A-Za-z0-9]+)\s*\/\s*(.+?)\s*\/\s*([A-Z0-9]{3})\s*\/\s*(\d{4})(?=\s+[A-Z0-9]{2,8}\s*\/|$)/g;
+  const rows = [...data.matchAll(rowRe)].map(match => [
+    match[1],
+    match[2],
+    match[3].replace(/\s+/g, ' ').trim(),
+    match[4],
+    match[5],
+  ]);
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Program', 'Rank', 'Name', 'MCC', 'MOS'], rows }],
+  };
+}
+
 function parseTLSMilestoneTimelineTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bDate\s+Milestone\s+(.+)$/is);
   if (!headerMatch) return null;
@@ -1193,6 +1278,9 @@ function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamil
 
 const TABLE_FAMILY_PARSERS = [
   parseInlineEligibilityTable,
+  parsePromotionBoardConveningTable,
+  parseGeneralOfficerPromotionZoneTable,
+  parseProgramRankNameMccMosTable,
   parseTLSMilestoneTimelineTable,
   parseTLSCourseAllocationTable,
   parseSNCOProjectedPromotionsTable,
