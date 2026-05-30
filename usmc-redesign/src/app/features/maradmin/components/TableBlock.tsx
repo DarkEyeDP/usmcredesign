@@ -1,4 +1,4 @@
-import { useEffect, useRef, type UIEvent } from 'react';
+import { useEffect, useRef, type CSSProperties, type UIEvent } from 'react';
 import type { DetectedTable } from '../maradminUtils';
 
 function getColumnWidth(header: string): number {
@@ -6,6 +6,7 @@ function getColumnWidth(header: string): number {
 
   if (normalized.includes('course') || normalized.includes('school')) return 360;
   if (normalized.includes('unit description')) return 320;
+  if (normalized.includes('details')) return 640;
   if (normalized.includes('officer')) return 280;
   if (normalized.includes('position')) return 220;
   if (normalized.includes('tentative report')) return 220;
@@ -28,7 +29,8 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     getColumnWidth(table.headers[index] ?? ''),
   );
   const tableWidth = columnWidths.reduce((total, width) => total + width, 0);
-  const tableStyle = {
+  const tableStyle: CSSProperties = {
+    width: '100%',
     minWidth: `${tableWidth}px`,
   };
 
@@ -40,7 +42,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
   const renderColGroup = () => (
     <colgroup>
       {columnWidths.map((width, index) => (
-        <col key={index} style={{ width: `${width}px` }} />
+        <col key={index} style={{ width: `${(width / tableWidth) * 100}%` }} />
       ))}
     </colgroup>
   );
