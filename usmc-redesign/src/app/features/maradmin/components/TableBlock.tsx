@@ -1,4 +1,5 @@
-import { useEffect, useRef, type CSSProperties, type UIEvent } from 'react';
+import { ChevronsLeftRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
 import type { DetectedTable } from '../maradminUtils';
 
 function getColumnWidth(header: string): number {
@@ -21,6 +22,12 @@ function getColumnWidth(header: string): number {
 
 export function TableBlock({ table }: { table: DetectedTable }) {
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [scrollHints, setScrollHints] = useState({
+    canScrollLeft: false,
+    canScrollRight: false,
+    hasOverflow: false,
+  });
   const columnCount = Math.max(
     table.headers.length,
     ...table.rows.map((row) => row.length),
@@ -34,7 +41,25 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     minWidth: `${tableWidth}px`,
   };
 
+  const updateScrollHints = useCallback((element: HTMLDivElement) => {
+    const maxScrollLeft = Math.max(0, element.scrollWidth - element.clientWidth);
+    const nextHints = {
+      canScrollLeft: element.scrollLeft > 1,
+      canScrollRight: element.scrollLeft < maxScrollLeft - 1,
+      hasOverflow: maxScrollLeft > 1,
+    };
+
+    setScrollHints(current =>
+      current.canScrollLeft === nextHints.canScrollLeft &&
+      current.canScrollRight === nextHints.canScrollRight &&
+      current.hasOverflow === nextHints.hasOverflow
+        ? current
+        : nextHints,
+    );
+  }, []);
+
   const syncStickyHeader = (event: UIEvent<HTMLDivElement>) => {
+    updateScrollHints(event.currentTarget);
     if (!stickyHeaderTrackRef.current) return;
     stickyHeaderTrackRef.current.style.transform = `translate3d(-${event.currentTarget.scrollLeft}px, 0, 0)`;
   };
@@ -51,6 +76,18 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     if (!stickyHeaderTrackRef.current) return;
     stickyHeaderTrackRef.current.style.transform = 'translate3d(0, 0, 0)';
   }, [table]);
+
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+
+    updateScrollHints(scrollArea);
+
+    const resizeObserver = new ResizeObserver(() => updateScrollHints(scrollArea));
+    resizeObserver.observe(scrollArea);
+
+    return () => resizeObserver.disconnect();
+  }, [table, tableWidth, updateScrollHints]);
 
   return (
     <div className="space-y-2">
@@ -81,7 +118,18 @@ export function TableBlock({ table }: { table: DetectedTable }) {
             </div>
           </div>
         )}
-        <div className="maradmin-table-scroll overflow-x-auto" onScroll={syncStickyHeader}>
+        {scrollHints.hasOverflow && scrollHints.canScrollLeft && (
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-8 bg-gradient-to-r from-black via-black/70 to-transparent md:hidden" />
+        )}
+        {scrollHints.hasOverflow && scrollHints.canScrollRight && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-gradient-to-l from-black via-black/70 to-transparent md:hidden" />
+        )}
+        {scrollHints.hasOverflow && scrollHints.canScrollRight && !scrollHints.canScrollLeft && (
+          <div className="pointer-events-none absolute right-2 top-2 z-40 flex h-5 w-8 items-center justify-center border border-white/10 bg-black/70 text-gray-400 md:hidden">
+            <ChevronsLeftRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </div>
+        )}
+        <div ref={scrollAreaRef} className="maradmin-table-scroll overflow-x-auto" onScroll={syncStickyHeader}>
           <table className="maradmin-data-table min-w-full table-fixed border-separate border-spacing-0 text-[13px] font-mono" style={tableStyle}>
             {renderColGroup()}
             <tbody>
