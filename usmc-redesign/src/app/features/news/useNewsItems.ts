@@ -5,81 +5,214 @@ import type { NewsItem } from './types';
 const CACHE_KEY = 'usmc-news-cache';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
+type StoredNewsItem = Omit<NewsItem, 'pubDate'> & { pubDate: string };
+
 interface CacheShape {
   ts: number;
-  newsItems: (Omit<NewsItem, 'pubDate'> & { pubDate: string })[];
-  pressReleases: (Omit<NewsItem, 'pubDate'> & { pubDate: string })[];
+  complete?: boolean;
+  newsItems: StoredNewsItem[];
+  pressReleases: StoredNewsItem[];
 }
 
-function reviveDates(items: CacheShape['newsItems']): NewsItem[] {
-  return items.map(item => ({ attachments: [], ...item, pubDate: new Date(item.pubDate) }));
+interface FeedData {
+  newsItems: NewsItem[];
+  pressReleases: NewsItem[];
 }
 
-function readCache(): { newsItems: NewsItem[]; pressReleases: NewsItem[] } | null {
+interface CacheSnapshot extends FeedData {
+  ts: number;
+  isFresh: boolean;
+}
+
+interface FeedLoadResult extends FeedData {
+  error: string | null;
+}
+
+let memoryCache: CacheSnapshot | null = null;
+let feedRequest: Promise<FeedLoadResult> | null = null;
+
+function hasAnyItems(data: FeedData): boolean {
+  return data.newsItems.length > 0 || data.pressReleases.length > 0;
+}
+
+function reviveDates(items: StoredNewsItem[] | undefined): NewsItem[] {
+  if (!Array.isArray(items)) return [];
+
+  return items.map(item => {
+    const pubDate = new Date(item.pubDate);
+    return {
+      attachments: [],
+      ...item,
+      pubDate: Number.isNaN(pubDate.getTime()) ? new Date() : pubDate,
+    };
+  });
+}
+
+function serializeItems(items: NewsItem[]): StoredNewsItem[] {
+  return items.map(item => ({ ...item, pubDate: item.pubDate.toISOString() }));
+}
+
+function toSnapshot(cache: CacheShape): CacheSnapshot | null {
+  const ts = typeof cache.ts === 'number' ? cache.ts : 0;
+  const data = {
+    newsItems: reviveDates(cache.newsItems),
+    pressReleases: reviveDates(cache.pressReleases),
+  };
+
+  if (!ts || !hasAnyItems(data)) return null;
+
+  return {
+    ...data,
+    ts,
+    isFresh: cache.complete !== false && Date.now() - ts <= CACHE_TTL,
+  };
+}
+
+function readCache(): CacheSnapshot | null {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const cache = JSON.parse(raw) as CacheShape;
-    if (Date.now() - cache.ts > CACHE_TTL) return null;
-    return { newsItems: reviveDates(cache.newsItems), pressReleases: reviveDates(cache.pressReleases) };
+    return toSnapshot(JSON.parse(raw) as CacheShape);
   } catch {
     return null;
   }
 }
 
-function writeCache(newsItems: NewsItem[], pressReleases: NewsItem[]) {
+function getCachedSnapshot(): CacheSnapshot | null {
+  if (memoryCache) {
+    return {
+      ...memoryCache,
+      isFresh: memoryCache.isFresh && Date.now() - memoryCache.ts <= CACHE_TTL,
+    };
+  }
+
+  const cached = readCache();
+  memoryCache = cached;
+  return cached;
+}
+
+function writeCache(newsItems: NewsItem[], pressReleases: NewsItem[], complete: boolean) {
+  const ts = Date.now();
+  memoryCache = {
+    ts,
+    isFresh: complete,
+    newsItems,
+    pressReleases,
+  };
+
   try {
-    const cache: CacheShape = { ts: Date.now(), newsItems: newsItems as CacheShape['newsItems'], pressReleases: pressReleases as CacheShape['pressReleases'] };
+    const cache: CacheShape = {
+      ts,
+      complete,
+      newsItems: serializeItems(newsItems),
+      pressReleases: serializeItems(pressReleases),
+    };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
   } catch {
     // session storage unavailable — silently skip
   }
 }
 
+async function fetchLatestFeeds(fallback?: FeedData): Promise<FeedLoadResult> {
+  const [newsResult, pressResult] = await Promise.allSettled([fetchNewsFeed(), fetchPressReleaseFeed()]);
+  const newsLoaded = newsResult.status === 'fulfilled';
+  const pressLoaded = pressResult.status === 'fulfilled';
+  const newsItems = newsLoaded ? newsResult.value : fallback?.newsItems ?? [];
+  const pressReleases = pressLoaded ? pressResult.value : fallback?.pressReleases ?? [];
+  const data = { newsItems, pressReleases };
+  const complete = newsLoaded && pressLoaded;
+
+  if (newsLoaded || pressLoaded) {
+    writeCache(newsItems, pressReleases, complete);
+  }
+
+  if (!hasAnyItems(data)) {
+    throw new Error('Failed to load Marine Corps news feeds');
+  }
+
+  return {
+    ...data,
+    error: complete ? null : 'Some Marine Corps news feeds could not be refreshed',
+  };
+}
+
+function getFeedRequest(fallback?: FeedData): Promise<FeedLoadResult> {
+  if (!feedRequest) {
+    feedRequest = fetchLatestFeeds(fallback).finally(() => {
+      feedRequest = null;
+    });
+  }
+
+  return feedRequest;
+}
+
 export interface UseNewsItemsResult {
   newsItems: NewsItem[];
   pressReleases: NewsItem[];
   loading: boolean;
+  refreshing: boolean;
   error: string | null;
 }
 
 export function useNewsItems(): UseNewsItemsResult {
-  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
-  const [pressReleases, setPressReleases] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<UseNewsItemsResult>(() => {
+    const cached = getCachedSnapshot();
+    return {
+      newsItems: cached?.newsItems ?? [],
+      pressReleases: cached?.pressReleases ?? [],
+      loading: !cached,
+      refreshing: Boolean(cached && !cached.isFresh),
+      error: null,
+    };
+  });
 
   useEffect(() => {
-    const cached = readCache();
+    const cached = getCachedSnapshot();
     if (cached) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setNewsItems(cached.newsItems);
-      setPressReleases(cached.pressReleases);
-      setLoading(false);
-      return;
+      setState({
+        newsItems: cached.newsItems,
+        pressReleases: cached.pressReleases,
+        loading: false,
+        refreshing: !cached.isFresh,
+        error: null,
+      });
+
+      if (cached.isFresh) return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    if (!cached) {
+      setState(prev => ({ ...prev, loading: true, refreshing: false, error: null }));
+    }
 
-    Promise.all([fetchNewsFeed(), fetchPressReleaseFeed()])
-      .then(([news, press]) => {
+    getFeedRequest(cached ?? undefined)
+      .then(result => {
         if (cancelled) return;
-        setNewsItems(news);
-        setPressReleases(press);
-        writeCache(news, press);
+        setState({
+          newsItems: result.newsItems,
+          pressReleases: result.pressReleases,
+          loading: false,
+          refreshing: false,
+          error: hasAnyItems(result) ? null : result.error,
+        });
       })
       .catch(err => {
         if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load news');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        const fallback = getCachedSnapshot();
+        setState({
+          newsItems: fallback?.newsItems ?? [],
+          pressReleases: fallback?.pressReleases ?? [],
+          loading: false,
+          refreshing: false,
+          error: fallback && hasAnyItems(fallback)
+            ? null
+            : err instanceof Error ? err.message : 'Failed to load news',
+        });
       });
 
     return () => { cancelled = true; };
   }, []);
 
-  return { newsItems, pressReleases, loading, error };
+  return state;
 }

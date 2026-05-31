@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router';
+import Clarity from '@microsoft/clarity';
 import { motion } from 'motion/react';
 import { Header } from '@/app/components/layout/Header';
 import { Navigation } from '@/app/components/layout/Navigation';
@@ -21,6 +22,8 @@ import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistanc
 import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
+
+Clarity.init('wzgag6wt8k');
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

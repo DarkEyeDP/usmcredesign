@@ -43,30 +43,74 @@ const PROXIES: [string, boolean][] = [
   ['https://api.codetabs.com/v1/proxy?quest=', false],
 ];
 
-async function tryProxy(proxyUrl: string, isJson: boolean, url: string): Promise<string> {
-  const res = await fetch(`${proxyUrl}${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return isJson ? (await res.json() as { contents: string }).contents : await res.text();
+interface ProxyFetchOptions {
+  timeoutMs?: number;
+  validate?: (text: string) => boolean;
 }
 
-async function fetchViaProxy(url: string): Promise<string> {
-  let lastErr: unknown;
-  for (const [proxy, isJson] of PROXIES) {
-    try {
-      return await tryProxy(proxy, isJson, url);
-    } catch (err) {
-      lastErr = err;
-    }
+async function tryProxy(proxyUrl: string, isJson: boolean, url: string, timeoutMs = 8000): Promise<string> {
+  const res = await fetch(`${proxyUrl}${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(timeoutMs) });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!isJson) return res.text();
+
+  const payload = await res.json() as { contents?: unknown };
+  if (typeof payload.contents !== 'string') throw new Error('Proxy returned malformed JSON');
+  return payload.contents;
+}
+
+async function fetchViaProxy(url: string, options: ProxyFetchOptions = {}): Promise<string> {
+  const errors: string[] = [];
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let pending = PROXIES.length;
+
+    PROXIES.forEach(([proxy, isJson]) => {
+      tryProxy(proxy, isJson, url, options.timeoutMs)
+        .then(text => {
+          if (settled) return;
+          if (options.validate && !options.validate(text)) {
+            throw new Error('Proxy returned an unusable response');
+          }
+
+          settled = true;
+          resolve(text);
+        })
+        .catch(err => {
+          if (settled) return;
+
+          errors.push(err instanceof Error ? err.message : String(err));
+          pending -= 1;
+
+          if (pending === 0) {
+            reject(new Error(`All proxies failed: ${errors.join('; ')}`));
+          }
+        });
+    });
+  });
+}
+
+function parseXmlText(xml: string): Document {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  if (doc.querySelector('parsererror') || doc.querySelectorAll('item').length === 0) {
+    throw new Error('XML parse error');
   }
-  throw lastErr;
+  return doc;
+}
+
+function isUsableRssXml(xml: string): boolean {
+  try {
+    parseXmlText(xml);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function fetchXml(rssUrl: string): Promise<Document> {
-  const xml = await fetchViaProxy(rssUrl);
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
-  if (doc.querySelector('parsererror')) throw new Error('XML parse error');
-  return doc;
+  const xml = await fetchViaProxy(rssUrl, { validate: isUsableRssXml });
+  return parseXmlText(xml);
 }
 
 function decodeHtml(html: string): string {
@@ -438,7 +482,10 @@ export async function fetchNewsArticleDetail(item: NewsItem): Promise<NewsArticl
     // Fall through to the HTML proxy path.
   }
 
-  const html = await fetchViaProxy(item.link);
+  const html = await fetchViaProxy(item.link, {
+    timeoutMs: 10000,
+    validate: text => text.trim().length > 0 && !htmlLooksBlocked(text),
+  });
   const detail = parseNewsArticleDetailHtml(html, item.link, item);
   if (!detailLooksUsable(detail, item)) {
     throw new Error('Article source did not include a usable full body');

@@ -113,7 +113,7 @@ function uniqueItems(items: NewsItem[]): NewsItem[] {
 
 export function NewsArticlePage() {
   const { articleSlug } = useParams();
-  const { newsItems, pressReleases, loading, error } = useNewsItems();
+  const { newsItems, pressReleases, loading, refreshing, error } = useNewsItems();
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(() => getBookmarkedIds());
   const [savedItems, setSavedItems] = useState<NewsItem[]>(() => getBookmarkedItems());
   const [detail, setDetail] = useState<NewsArticleDetail | null>(null);
@@ -172,7 +172,7 @@ export function NewsArticlePage() {
     setSavedItems(getBookmarkedItems());
   }
 
-  if (loading && !item) {
+  if ((loading || refreshing) && !item) {
     return (
       <div className="min-h-screen bg-black px-6 pt-28 text-white md:px-8">
         <SEOHead title="Marine Corps News" description="Loading Marine Corps news article." path="/news" />

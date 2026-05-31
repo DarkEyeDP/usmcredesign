@@ -1,7 +1,7 @@
 {
   "name": "usmc-redesign",
   "private": true,
-  "version": "1.2.18",
+  "version": "1.2.19",
   "type": "module",
   "scripts": {
     "build": "vite build && cp dist/index.html dist/404.html",
@@ -10,6 +10,7 @@
     "test": "node scripts/run-tests.mjs"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.3",
     "@radix-ui/react-alert-dialog": "1.1.6",
     "@radix-ui/react-aspect-ratio": "1.1.2",

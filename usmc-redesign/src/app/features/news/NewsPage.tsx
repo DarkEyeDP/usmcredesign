@@ -373,7 +373,7 @@ export function NewsPage() {
           </div>
         )}
 
-        {loading ? (
+        {loading && allItems.length === 0 ? (
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row border border-white/8 animate-pulse" style={{ minHeight: '240px' }}>
               <div className="flex-1 p-8 space-y-3">
