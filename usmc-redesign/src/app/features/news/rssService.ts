@@ -39,6 +39,7 @@ const JINA_READER_URL = 'https://r.jina.ai/';
 // Each entry is [proxyUrl, isJsonWrapper] — json wrappers return { contents: "..." }
 const PROXIES: [string, boolean][] = [
   ['https://api.allorigins.win/get?url=', true],
+  ['https://api.allorigins.win/raw?url=', false],
   ['https://corsproxy.io/?url=', false],
   ['https://api.codetabs.com/v1/proxy?quest=', false],
 ];
@@ -58,7 +59,7 @@ async function tryProxy(proxyUrl: string, isJson: boolean, url: string, timeoutM
   return payload.contents;
 }
 
-async function fetchViaProxy(url: string, options: ProxyFetchOptions = {}): Promise<string> {
+function raceProxies(url: string, options: ProxyFetchOptions): Promise<string> {
   const errors: string[] = [];
 
   return new Promise((resolve, reject) => {
@@ -88,6 +89,16 @@ async function fetchViaProxy(url: string, options: ProxyFetchOptions = {}): Prom
         });
     });
   });
+}
+
+async function fetchViaProxy(url: string, options: ProxyFetchOptions = {}): Promise<string> {
+  try {
+    return await raceProxies(url, options);
+  } catch {
+    // All proxies failed — wait briefly and retry once (handles transient rate-limiting)
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    return raceProxies(url, options);
+  }
 }
 
 function parseXmlText(xml: string): Document {
