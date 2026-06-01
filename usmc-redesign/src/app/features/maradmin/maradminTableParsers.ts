@@ -1230,8 +1230,9 @@ function parseNameImosSrnoMccTable(text: string): ParsedTableFamily | null {
   const data = headerMatch[2].trim();
 
   // Pattern: LASTNAME [SUFFIX] INITIALS IMOS/ SRNO/MCC
-  // e.g.  ABAKAR A 3381/ 2936/026   or   ABBOTT IV RM 3529/ 291/1CM
-  const rowRe = /\b([A-Z]{2,}(?:\s+(?:II|III|IV|JR|SR))?)\s+([A-Z]{1,3})\s+(\d{4})\/\s+(\d{2,4})\/([A-Z0-9]{2,4})\b/g;
+  // SRNO may carry a letter suffix (e.g. 940A, 2653A) or be plain digits (e.g. 2936, 291)
+  // e.g.  ABAKAR A 3381/ 2936/026   or   ARMSTRONG CC 6483/ 940A/H60   or   ABBOTT IV RM 3529/ 291/1CM
+  const rowRe = /\b([A-Z]{2,}(?:\s+(?:II|III|IV|JR|SR))?)\s+([A-Z]{1,3})\s+(\d{4})\/\s+(\d{2,4}[A-Z]?)\/([A-Z0-9]{2,4})\b/g;
   const rows: string[][] = [];
 
   for (const match of data.matchAll(rowRe)) {
