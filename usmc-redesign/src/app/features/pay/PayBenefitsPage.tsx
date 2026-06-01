@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import heroBanner from '@/app/assets/hero-3.webp';
@@ -7,7 +7,6 @@ import { Link, useNavigate } from 'react-router';
 import { ChevronLeft, ChevronRight, Calculator, CalendarDays, ExternalLink, Info, Shield, TrendingUp, DollarSign, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/app/components/ui/dialog';
 import { Calendar } from '@/app/components/ui/calendar';
-import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
 import {
   clampYearsOfService,
@@ -240,6 +239,22 @@ export function PayBenefitsPage() {
 
   const modalScrollRef = useRef<HTMLDivElement>(null);
   const afadbdSectionRef = useRef<HTMLDivElement>(null);
+  const yearScrollRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!afadbdPickerOpen || afadbdPickerMode !== 'month-year') return;
+    const container = yearScrollRef.current;
+    if (!container) return;
+    const buttons = container.querySelectorAll('button');
+    const selectedIndex = selectableYears.indexOf(afadbdPickerYear);
+    if (selectedIndex >= 0 && buttons[selectedIndex]) {
+      const btn = buttons[selectedIndex] as HTMLElement;
+      const btnTop = btn.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+      container.scrollTop = btnTop - container.clientHeight / 2 + btn.offsetHeight / 2;
+    }
+  // Only re-run when the picker opens or mode changes — not on every year click
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [afadbdPickerOpen, afadbdPickerMode]);
 
   useEffect(() => {
     if (afadbdPickerOpen && afadbdSectionRef.current && modalScrollRef.current) {
@@ -805,7 +820,12 @@ export function PayBenefitsPage() {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setAfadbdPickerOpen((current) => !current)}
+                  onClick={() => {
+                    setAfadbdPickerOpen((current) => {
+                      if (!current) setAfadbdPickerMode('month-year');
+                      return !current;
+                    });
+                  }}
                   className="flex min-w-[220px] items-center justify-between border border-white/12 bg-black px-4 py-3 text-left text-sm text-white hover:border-white/30 transition-colors"
                 >
                   <span>{formattedAfadbd ?? 'Select AFADBD'}</span>
@@ -821,6 +841,9 @@ export function PayBenefitsPage() {
                 <div className="mt-4 w-[320px] border border-white/12 bg-[#09090c] p-3 text-white">
                   {afadbdPickerMode === 'day' ? (
                     <>
+                      <div className="mb-3 text-center text-[11px] font-bold tracking-[0.18em] text-gray-500">
+                        PICK A DAY — {afadbdViewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()}
+                      </div>
                       <div className="mb-2 flex items-center justify-between">
                         <button
                           type="button"
@@ -873,24 +896,22 @@ export function PayBenefitsPage() {
                         <div className="w-10" />
                       </div>
                       <div className="grid grid-cols-[92px_1fr] gap-3">
-                        <ScrollArea className="h-[280px] border border-white/10 bg-black/40">
-                          <div className="pr-2">
-                            {selectableYears.map((year) => (
-                              <button
-                                type="button"
-                                key={year}
-                                onClick={() => setAfadbdPickerYear(year)}
-                                className={`w-full border-b border-white/6 px-3 py-2 text-left text-sm transition-colors last:border-b-0 ${
-                                  afadbdPickerYear === year
-                                    ? 'bg-red-950/40 text-white'
-                                    : 'text-gray-400 hover:bg-white/[0.05] hover:text-white'
-                                }`}
-                              >
-                                {year}
-                              </button>
-                            ))}
-                          </div>
-                        </ScrollArea>
+                        <div ref={yearScrollRef} className="h-[280px] overflow-y-auto border border-white/10 bg-black/40">
+                          {selectableYears.map((year) => (
+                            <button
+                              type="button"
+                              key={year}
+                              onClick={() => setAfadbdPickerYear(year)}
+                              className={`w-full border-b border-white/6 px-3 py-2 text-left text-sm transition-colors last:border-b-0 ${
+                                afadbdPickerYear === year
+                                  ? 'bg-red-950/40 text-white'
+                                  : 'text-gray-400 hover:bg-white/[0.05] hover:text-white'
+                              }`}
+                            >
+                              {year}
+                            </button>
+                          ))}
+                        </div>
                         <div className="grid grid-cols-3 gap-2">
                           {monthLabels.map((month, monthIndex) => (
                             <button
