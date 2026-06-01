@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import heroBanner from '@/app/assets/hero-3.webp';
@@ -235,6 +235,20 @@ export function PayBenefitsPage() {
     if (!afadbdPickerOpen) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setAfadbdPickerMode('day');
+    }
+  }, [afadbdPickerOpen]);
+
+  const modalScrollRef = useRef<HTMLDivElement>(null);
+  const afadbdSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (afadbdPickerOpen && afadbdSectionRef.current && modalScrollRef.current) {
+      const container = modalScrollRef.current;
+      const section = afadbdSectionRef.current;
+      const sectionTop = section.getBoundingClientRect().top;
+      const containerTop = container.getBoundingClientRect().top;
+      const scrollTarget = sectionTop - containerTop + container.scrollTop - 24;
+      container.scrollTo({ top: scrollTarget, behavior: 'smooth' });
     }
   }, [afadbdPickerOpen]);
 
@@ -686,15 +700,15 @@ export function PayBenefitsPage() {
       </div>
 
       <Dialog open={selectorOpen} onOpenChange={setSelectorOpen}>
-        <DialogContent className="max-w-3xl border-white/12 bg-[#09090c] p-0 text-white">
-          <div className="border-b border-white/10 px-6 py-5">
+        <DialogContent className="flex w-[calc(100%-2.5rem)] max-w-3xl max-h-[calc(100vh-5rem)] flex-col border-white/12 bg-[#09090c] p-0 text-white">
+          <div className="flex-shrink-0 border-b border-white/10 px-6 py-5">
             <DialogTitle className="text-2xl font-black tracking-tight">Set Rank & Service</DialogTitle>
             <DialogDescription className="mt-2 text-sm text-gray-400">
               Choose a 2026 pay category, pay grade, and years of service. Add AFADBD for a precise time-in-service calculation and pay-step countdowns.
             </DialogDescription>
           </div>
 
-          <div className="max-h-[75vh] overflow-y-auto px-6 py-6">
+          <div ref={modalScrollRef} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
             <div className="mb-6">
               <div className="text-[12px] font-bold tracking-[0.2em] text-gray-500 mb-3">CATEGORY</div>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -776,7 +790,7 @@ export function PayBenefitsPage() {
               )}
             </div>
 
-            <div className="mb-6">
+            <div ref={afadbdSectionRef} className="mb-6">
               <div className="flex items-center justify-between gap-4 mb-3">
                 <div className="text-[12px] font-bold tracking-[0.2em] text-gray-500">AFADBD</div>
                 {afadbd && (
@@ -952,6 +966,16 @@ export function PayBenefitsPage() {
                 No chart value is listed for this combination yet. The next available rate for {payRank} starts at {nextAvailableBracket.label.toLowerCase()} years of service.
               </p>
             )}
+          </div>
+
+          <div className="flex-shrink-0 border-t border-white/10 px-6 py-5">
+            <button
+              type="button"
+              onClick={() => setSelectorOpen(false)}
+              className="w-full border border-red-600 bg-red-950/40 px-6 py-3.5 text-sm font-bold tracking-[0.18em] text-white transition-colors hover:bg-red-600"
+            >
+              SAVE & CLOSE
+            </button>
           </div>
         </DialogContent>
       </Dialog>
