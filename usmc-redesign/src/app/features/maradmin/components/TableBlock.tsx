@@ -1,5 +1,4 @@
 import { ChevronsLeftRight, PartyPopper, Search, X } from 'lucide-react';
-import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import type { DetectedTable } from '../maradminUtils';
@@ -172,11 +171,9 @@ export function TableBlock({ table }: { table: DetectedTable }) {
 
   return (
     <div className="space-y-2">
-      <AnimatePresence>
-        {celebrationId && (
-          <CelebrationOverlay key={celebrationId} onDone={dismissCelebration} />
-        )}
-      </AnimatePresence>
+      {celebrationId && (
+        <CelebrationOverlay key={celebrationId} onDone={dismissCelebration} />
+      )}
       {table.title && (
         <div className="text-[11px] font-bold tracking-[0.18em] text-red-500">
           {table.title}

@@ -1,18 +1,17 @@
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 const COLORS = [
   '#22c55e',
-  'var(--usmc-green-400)',
-  'var(--usmc-red-600)',
-  'var(--usmc-red-500)',
+  '#4ade80',
+  '#dc2626',
+  '#ef4444',
   'rgba(212,173,93,1)',
   'rgba(255,244,214,1)',
   '#eab308',
-  'var(--usmc-amber-500)',
-  'var(--usmc-amber-300)',
+  '#f59e0b',
+  '#fcd34d',
 ];
 const DESKTOP_PARTICLE_COUNT = 42;
 const MOBILE_PARTICLE_COUNT = 24;
@@ -27,50 +26,47 @@ const FOOTER_LINES = [
   'One row. Many feelings.',
 ];
 
-interface Particle {
-  id: number;
+interface ConfettiParticle {
   x: number;
-  top: string;
-  driftX: number;
+  y: number;
+  vx: number;
+  vy: number;
   color: string;
-  w: number;
-  h: number;
-  rotate: number;
-  endRotate: number;
+  width: number;
+  height: number;
+  rotation: number;
+  rotationSpeed: number;
+  age: number;
+  ttl: number;
   delay: number;
-  duration: number;
-  reducedMotion: boolean;
 }
 
-type ParticleStyle = CSSProperties & Record<`--${string}`, string>;
-
-function makeParticles(): Particle[] {
-  const prefersReducedMotion = typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+function makeParticles(width: number, height: number, prefersReducedMotion: boolean): ConfettiParticle[] {
+  const isMobile = width < 768;
   const particleCount = prefersReducedMotion
     ? REDUCED_MOTION_PARTICLE_COUNT
     : isMobile
       ? MOBILE_PARTICLE_COUNT
       : DESKTOP_PARTICLE_COUNT;
 
-  return Array.from({ length: particleCount }, (_, i) => {
-    const rotate = Math.random() * 360;
-    const spin = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 300 + 120);
+  return Array.from({ length: particleCount }, () => {
+    const initialY = prefersReducedMotion
+      ? height * (0.18 + Math.random() * 0.64)
+      : -16 - Math.random() * 96;
 
     return {
-      id: i,
-      x: Math.random() * 100,
-      top: prefersReducedMotion ? `${18 + Math.random() * 64}%` : '-12px',
-      driftX: prefersReducedMotion ? 0 : (Math.random() - 0.5) * (isMobile ? 96 : 150),
+      x: width * Math.random(),
+      y: initialY,
+      vx: prefersReducedMotion ? 0 : (Math.random() - 0.5) * (isMobile ? 44 : 70),
+      vy: prefersReducedMotion ? 0 : 180 + Math.random() * 130,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      w: Math.random() * 6 + 4,
-      h: Math.random() > 0.45 ? Math.random() * 6 + 4 : Math.random() * 12 + 6,
-      rotate,
-      endRotate: prefersReducedMotion ? rotate : rotate + spin,
-      delay: prefersReducedMotion ? Math.random() * 0.12 : Math.random() * 0.28,
-      duration: prefersReducedMotion ? Math.random() * 0.45 + 1.1 : Math.random() * 1.3 + 2.5,
-      reducedMotion: prefersReducedMotion,
+      width: Math.random() * 6 + 4,
+      height: Math.random() > 0.45 ? Math.random() * 6 + 4 : Math.random() * 12 + 6,
+      rotation: Math.random() * Math.PI * 2,
+      rotationSpeed: prefersReducedMotion ? 0 : (Math.random() > 0.5 ? 1 : -1) * (2.4 + Math.random() * 4),
+      age: 0,
+      ttl: prefersReducedMotion ? 1200 + Math.random() * 450 : 2500 + Math.random() * 1300,
+      delay: prefersReducedMotion ? Math.random() * 120 : Math.random() * 280,
     };
   });
 }
@@ -82,13 +78,103 @@ interface Props {
 // Mounted fresh for every celebration (parent keys each instance with a unique ID).
 // Particles are generated at mount time so every trigger gets a new set.
 export function CelebrationOverlay({ onDone }: Props) {
-  const [particles] = useState<Particle[]>(makeParticles);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [footerLine] = useState(() => FOOTER_LINES[Math.floor(Math.random() * FOOTER_LINES.length)]);
 
   useEffect(() => {
     const t = setTimeout(onDone, OVERLAY_DURATION_MS);
     return () => clearTimeout(t);
   }, [onDone]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let animationFrame = 0;
+    let lastTime = performance.now();
+    let particles: ConfettiParticle[] = [];
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    const resize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(width * dpr));
+      canvas.height = Math.max(1, Math.floor(height * dpr));
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      particles = makeParticles(width, height, prefersReducedMotion);
+    };
+
+    const drawParticle = (particle: ConfettiParticle, alpha: number) => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.translate(particle.x, particle.y);
+      ctx.rotate(particle.rotation);
+      ctx.fillStyle = particle.color;
+      ctx.fillRect(
+        -particle.width / 2,
+        -particle.height / 2,
+        particle.width,
+        particle.height,
+      );
+      ctx.restore();
+    };
+
+    const animate = (time: number) => {
+      const dt = Math.min((time - lastTime) / 1000, 0.033);
+      lastTime = time;
+
+      ctx.clearRect(0, 0, width, height);
+
+      let hasLiveParticles = false;
+      particles.forEach((particle) => {
+        particle.age += dt * 1000;
+        if (particle.age < particle.delay) {
+          hasLiveParticles = true;
+          return;
+        }
+
+        const liveAge = particle.age - particle.delay;
+        const progress = liveAge / particle.ttl;
+        if (progress > 1) return;
+
+        hasLiveParticles = true;
+        const alpha = progress < 0.08
+          ? progress / 0.08
+          : progress > 0.82
+            ? (1 - progress) / 0.18
+            : 1;
+
+        if (!prefersReducedMotion) {
+          particle.x += particle.vx * dt;
+          particle.y += particle.vy * dt;
+          particle.rotation += particle.rotationSpeed * dt;
+          particle.vy += 18 * dt;
+        }
+
+        drawParticle(particle, alpha);
+      });
+
+      if (hasLiveParticles) {
+        animationFrame = window.requestAnimationFrame(animate);
+      }
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    animationFrame = window.requestAnimationFrame(animate);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
 
   return createPortal(
     <motion.div
@@ -98,16 +184,14 @@ export function CelebrationOverlay({ onDone }: Props) {
       aria-label="Congratulations"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      onClick={onDone}
+      onPointerDown={onDone}
       style={{ zIndex: 99999, cursor: 'default', overflow: 'hidden' }}
     >
       <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center">
         <motion.div
           initial={{ scale: 0.6, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.8, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 340, damping: 22, delay: 0.08 }}
           className="relative border border-red-600/70 bg-black/95 px-10 py-7 text-center shadow-[0_0_40px_rgba(0,0,0,0.65)]"
         >
@@ -143,26 +227,7 @@ export function CelebrationOverlay({ onDone }: Props) {
         </motion.div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-40">
-        {particles.map(p => (
-            <div
-              key={p.id}
-              className={`absolute rounded-[1px] ${p.reducedMotion ? 'maradmin-celebration-particle-reduced' : 'maradmin-celebration-particle'}`}
-              style={{
-                left: `${p.x}%`,
-                top: p.top,
-                width: p.w,
-                height: p.h,
-                backgroundColor: p.color,
-                '--drift-x': `${p.driftX}px`,
-                '--start-rotation': `${p.rotate}deg`,
-                '--end-rotation': `${p.endRotate}deg`,
-                '--duration': `${p.duration}s`,
-                '--delay': `${p.delay}s`,
-              } as ParticleStyle}
-            />
-        ))}
-      </div>
+      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-40" aria-hidden="true" />
     </motion.div>,
     document.body,
   );
