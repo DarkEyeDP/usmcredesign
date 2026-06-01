@@ -1,4 +1,4 @@
-import { ChevronsLeftRight } from 'lucide-react';
+import { ChevronsLeftRight, Search, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
 import type { DetectedTable } from '../maradminUtils';
 
@@ -20,6 +20,8 @@ function getColumnWidth(header: string): number {
   return 160;
 }
 
+const SEARCH_THRESHOLD = 15;
+
 export function TableBlock({ table }: { table: DetectedTable }) {
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -28,6 +30,12 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     canScrollRight: false,
     hasOverflow: false,
   });
+  const [query, setQuery] = useState('');
+  const showSearch = table.rows.length >= SEARCH_THRESHOLD;
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleRows = normalizedQuery
+    ? table.rows.filter(row => row.some(cell => cell.toLowerCase().includes(normalizedQuery)))
+    : table.rows;
   const columnCount = Math.max(
     table.headers.length,
     ...table.rows.map((row) => row.length),
@@ -96,6 +104,33 @@ export function TableBlock({ table }: { table: DetectedTable }) {
           {table.title}
         </div>
       )}
+      {showSearch && (
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Filter by name, IMOS, MCC…"
+              className="w-full border border-white/12 bg-black py-2 pl-9 pr-8 font-mono text-[13px] text-white placeholder-gray-600 focus:border-red-500/50 focus:outline-none"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 transition-colors cursor-pointer"
+                aria-label="Clear filter"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          <span className="flex-shrink-0 font-mono text-[11px] text-gray-600 tabular-nums">
+            {normalizedQuery ? `${visibleRows.length} / ${table.rows.length}` : `${table.rows.length} rows`}
+          </span>
+        </div>
+      )}
       <div className="maradmin-table-shell relative border border-white/10 bg-black/40">
         {table.headers.length > 0 && (
           <div className="maradmin-table-sticky-header pointer-events-none sticky top-0 z-20 overflow-hidden border-b border-white/12 bg-[#080808]/95 backdrop-blur-sm">
@@ -133,23 +168,31 @@ export function TableBlock({ table }: { table: DetectedTable }) {
           <table className="maradmin-data-table min-w-full table-fixed border-separate border-spacing-0 text-[13px] font-mono" style={tableStyle}>
             {renderColGroup()}
             <tbody>
-              {table.rows.map((row, ri) => (
-                <tr key={ri} className="border-b border-white/6 hover:bg-white/[0.02] transition-colors">
-                  {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
-                    const trimmed = cell.trim();
-                    const isExplicitDash = trimmed === '-';
-                    const isEmptyValue   = trimmed === '';
-                    return (
-                      <td
-                        key={ci}
-                        className={`px-4 py-2 break-words ${ci === 0 ? 'whitespace-normal text-gray-200 font-bold' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
-                      >
-                        {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
-                      </td>
-                    );
-                  })}
+              {visibleRows.length === 0 ? (
+                <tr>
+                  <td colSpan={columnCount} className="px-4 py-6 text-center font-mono text-[13px] text-gray-600">
+                    No matches for &ldquo;{query}&rdquo;
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                visibleRows.map((row, ri) => (
+                  <tr key={ri} className="border-b border-white/6 hover:bg-white/[0.02] transition-colors">
+                    {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
+                      const trimmed = cell.trim();
+                      const isExplicitDash = trimmed === '-';
+                      const isEmptyValue   = trimmed === '';
+                      return (
+                        <td
+                          key={ci}
+                          className={`px-4 py-2 break-words ${ci === 0 ? 'whitespace-normal text-gray-200 font-bold' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
+                        >
+                          {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
