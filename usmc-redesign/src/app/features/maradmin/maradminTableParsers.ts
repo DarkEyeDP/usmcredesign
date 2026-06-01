@@ -1270,7 +1270,7 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
   const closedStr = closedIdx >= 0 ? afterHeader.slice(closedIdx).trim() : '';
 
   const tokens = dataStr.split(/\s+/).filter(Boolean);
-  const dateOrNa = /^(\d{8}|NA)$/i;
+  const dateOrNa = /^(\d{6,8}|NA)$/i;
   const isAlloc  = /^\d{1,3}$/;
   const isImos   = /^\d{4}$/;
 

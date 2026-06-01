@@ -1,5 +1,7 @@
-import { ChevronsLeftRight, Search, X } from 'lucide-react';
+import { ChevronsLeftRight, PartyPopper, Search, X } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
+import { CelebrationOverlay } from './CelebrationOverlay';
 import type { DetectedTable } from '../maradminUtils';
 
 function getColumnWidth(header: string): number {
@@ -21,16 +23,51 @@ function getColumnWidth(header: string): number {
 }
 
 const SEARCH_THRESHOLD = 15;
+const ROW_ACTION_LINGER_MS = 1600;
+
+function getCelebrationLabel(row?: string[]): string | undefined {
+  return row?.map(cell => cell.trim()).find(Boolean);
+}
 
 export function TableBlock({ table }: { table: DetectedTable }) {
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const rowActionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrollHints, setScrollHints] = useState({
     canScrollLeft: false,
     canScrollRight: false,
     hasOverflow: false,
   });
+  const [activeCelebrateRow, setActiveCelebrateRow] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  // Each celebration gets a unique key so CelebrationOverlay remounts fresh every time,
+  // giving it a new particle set and resetting Framer Motion animation state.
+  const [celebration, setCelebration] = useState<{ id: string; label?: string } | null>(null);
+  const startCelebration = useCallback((label?: string) => {
+    setCelebration({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      label,
+    });
+  }, []);
+  const dismissCelebration = useCallback(() => {
+    setCelebration(null);
+  }, []);
+  const clearRowActionTimer = useCallback(() => {
+    if (!rowActionTimerRef.current) return;
+    clearTimeout(rowActionTimerRef.current);
+    rowActionTimerRef.current = null;
+  }, []);
+  const showRowAction = useCallback((rowKey: string) => {
+    clearRowActionTimer();
+    setActiveCelebrateRow(rowKey);
+  }, [clearRowActionTimer]);
+  const scheduleRowActionDismiss = useCallback(() => {
+    clearRowActionTimer();
+    rowActionTimerRef.current = setTimeout(() => {
+      setActiveCelebrateRow(null);
+      rowActionTimerRef.current = null;
+    }, ROW_ACTION_LINGER_MS);
+  }, [clearRowActionTimer]);
   const showSearch = table.rows.length >= SEARCH_THRESHOLD;
   const normalizedQuery = query.trim().toLowerCase();
   const visibleRows = normalizedQuery
@@ -98,8 +135,17 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     return () => resizeObserver.disconnect();
   }, [table, tableWidth, updateScrollHints]);
 
+  useEffect(() => {
+    return clearRowActionTimer;
+  }, [clearRowActionTimer]);
+
   return (
     <div className="space-y-2">
+      <AnimatePresence>
+        {celebration && (
+          <CelebrationOverlay key={celebration.id} label={celebration.label} onDone={dismissCelebration} />
+        )}
+      </AnimatePresence>
       {table.title && (
         <div className="text-[11px] font-bold tracking-[0.18em] text-red-500">
           {table.title}
@@ -109,6 +155,15 @@ export function TableBlock({ table }: { table: DetectedTable }) {
         <div className="maradmin-table-sticky-header sticky top-0 z-20 bg-[#080808]/95 backdrop-blur-sm">
           {showSearch && (
             <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2">
+              <button
+                type="button"
+                onClick={() => startCelebration(getCelebrationLabel(visibleRows[0]))}
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center border border-yellow-500/25 bg-black text-yellow-500 transition-colors hover:border-yellow-500/60 hover:bg-yellow-500/10 md:hidden"
+                aria-label="Celebrate"
+                title="Celebrate"
+              >
+                <PartyPopper className="h-3.5 w-3.5" />
+              </button>
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                 <input
@@ -178,23 +233,55 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                   </td>
                 </tr>
               ) : (
-                visibleRows.map((row, ri) => (
-                  <tr key={ri} className="border-b border-white/6 hover:bg-white/[0.02] transition-colors">
-                    {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
-                      const trimmed = cell.trim();
-                      const isExplicitDash = trimmed === '-';
-                      const isEmptyValue   = trimmed === '';
-                      return (
-                        <td
-                          key={ci}
-                          className={`px-4 py-2 break-words ${ci === 0 ? 'whitespace-normal text-gray-200 font-bold' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
-                        >
-                          {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))
+                visibleRows.map((row, ri) => {
+                  const rowKey = `${ri}:${row.join('\u001f')}`;
+                  const rowActionVisible = activeCelebrateRow === rowKey;
+
+                  return (
+                    <tr
+                      key={rowKey}
+                      className="border-b border-white/6 transition-colors hover:bg-white/[0.02]"
+                      onMouseEnter={() => showRowAction(rowKey)}
+                      onMouseLeave={scheduleRowActionDismiss}
+                    >
+                      {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
+                        const trimmed = cell.trim();
+                        const isExplicitDash = trimmed === '-';
+                        const isEmptyValue   = trimmed === '';
+
+                        return (
+                          <td
+                            key={ci}
+                            className={`px-4 py-2 break-words ${ci === 0 ? 'relative whitespace-normal font-bold text-gray-200 md:pl-10' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
+                          >
+                            {ci === 0 && (
+                              <button
+                                type="button"
+	                                onClick={(event) => {
+	                                  event.stopPropagation();
+	                                  startCelebration(getCelebrationLabel(row));
+	                                }}
+                                onFocus={() => showRowAction(rowKey)}
+                                onBlur={scheduleRowActionDismiss}
+                                tabIndex={rowActionVisible ? 0 : -1}
+                                className={`absolute left-2 top-1/2 hidden h-6 w-6 -translate-y-1/2 items-center justify-center border bg-black/90 transition-all duration-200 md:flex ${
+                                  rowActionVisible
+                                    ? 'translate-x-0 border-yellow-500/45 text-yellow-500 opacity-100 shadow-[0_0_14px_rgba(245,158,11,0.18)]'
+                                    : 'pointer-events-none -translate-x-1 border-white/10 text-gray-700 opacity-0'
+                                }`}
+                                aria-label="Celebrate this row"
+                                title="Celebrate"
+                              >
+                                <PartyPopper className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                            {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

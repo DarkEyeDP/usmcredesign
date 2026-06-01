@@ -70,6 +70,23 @@
   }
 }
 
+@keyframes maradmin-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -8vh, 0) rotate(var(--start-rotation));
+  }
+  8% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift-x), 112vh, 0) rotate(calc(var(--start-rotation) + var(--spin)));
+  }
+}
+
 .tactical-glow {
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
@@ -84,6 +101,24 @@
 
 .pay-cell-pulse {
   animation: pay-cell-pulse 1.8s ease-in-out infinite;
+}
+
+.maradmin-celebration-particle {
+  animation-delay: var(--delay);
+  animation-duration: var(--duration);
+  animation-fill-mode: forwards;
+  animation-name: maradmin-confetti-fall;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.8, 1);
+  opacity: 0;
+  transform: translate3d(0, -8vh, 0) rotate(var(--start-rotation));
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maradmin-celebration-particle {
+    animation: none;
+    display: none;
+  }
 }
 
 .page-hero-title {
