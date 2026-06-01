@@ -1166,14 +1166,98 @@ function parseLDOSelecteeTable(text: string): ParsedTableFamily | null {
   };
 }
 
+// Parses SSgt/SNCO seniority number → projected promotion month table, e.g.:
+// Sen Num  Proj Month
+// 250      Aug 2026
+// 500      Sep 2026
+// (List Clear)  Jul 2027
+function parseSeniorityProjectedMonthTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bSen\s+Num\s+Proj\s+Month\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = headerMatch[2].trim();
+  const monthRe = /^(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i;
+  const yearRe = /^\d{4}$/;
+  const numRe = /^\d+$/;
+  const tokens = data.split(/\s+/).filter(Boolean);
+  const rows: string[][] = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    if (/^\(List$/i.test(tokens[i]) && /^Clear\)$/i.test(tokens[i + 1] ?? '')) {
+      if (monthRe.test(tokens[i + 2] ?? '') && yearRe.test(tokens[i + 3] ?? '')) {
+        rows.push(['(List Clear)', `${tokens[i + 2]} ${tokens[i + 3]}`]);
+        i += 4;
+      } else {
+        break;
+      }
+    } else if (/^\(List\s+Clear\)$/i.test(tokens[i])) {
+      if (monthRe.test(tokens[i + 1] ?? '') && yearRe.test(tokens[i + 2] ?? '')) {
+        rows.push(['(List Clear)', `${tokens[i + 1]} ${tokens[i + 2]}`]);
+        i += 3;
+      } else {
+        break;
+      }
+    } else if (numRe.test(tokens[i])) {
+      if (monthRe.test(tokens[i + 1] ?? '') && yearRe.test(tokens[i + 2] ?? '')) {
+        rows.push([tokens[i], `${tokens[i + 1]} ${tokens[i + 2]}`]);
+        i += 3;
+      } else {
+        break;
+      }
+    } else {
+      break;
+    }
+  }
+
+  if (rows.length < 3) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Sen Num', 'Proj Month'], rows }],
+  };
+}
+
+// Parses SNCO selectee lists with "NAME IMOS/ SRNO/MCC" header, e.g.:
+// (for proper order read left to right): NAME IMOS/ SRNO/MCC NAME IMOS/ SRNO/MCC
+// ABAKAR A 3381/ 2936/026 ABALOS JM 6132/ 1037/1JQ ...
+function parseNameImosSrnoMccTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bNAME\s+IMOS\/\s+SRNO\/MCC\s+(?:NAME\s+IMOS\/\s+SRNO\/MCC\s+)?(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].trim();
+  const data = headerMatch[2].trim();
+
+  // Pattern: LASTNAME [SUFFIX] INITIALS IMOS/ SRNO/MCC
+  // e.g.  ABAKAR A 3381/ 2936/026   or   ABBOTT IV RM 3529/ 291/1CM
+  const rowRe = /\b([A-Z]{2,}(?:\s+(?:II|III|IV|JR|SR))?)\s+([A-Z]{1,3})\s+(\d{4})\/\s+(\d{2,4})\/([A-Z0-9]{2,4})\b/g;
+  const rows: string[][] = [];
+
+  for (const match of data.matchAll(rowRe)) {
+    rows.push([match[1].trim(), match[2], match[3], `${match[4]}/${match[5]}`]);
+  }
+
+  if (rows.length < 3) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'Init', 'IMOS', 'SRNO/MCC'], rows }],
+  };
+}
+
 // Parses SNCO/enlisted promotion board zone/allocation tables, e.g.:
 // ABOVE ZONE  PROMOTION ZONE  BELOW ZONE
 // ALLOC IMOS  JR DOR AFADBD  JR DOR AFADBD  JR DOR AFADBD
 // 5 0111 20211101 NA 20220401 20071220 20220401 20080401 ...
 // THE FOLLOWING OCCFLD(S) ARE CLOSED: 0321, 0399 ...
 function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
-  const headerRe = /ABOVE\s+ZONE\s+PROMOTION\s+ZONE\s+BELOW\s+ZONE\s+ALLOC\s+IMOS\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD/i;
-  const headerMatch = text.match(headerRe);
+  // Supports both column orders: "IMOS ALLOC ..." and "ALLOC IMOS ..."
+  const imoFirstRe  = /ABOVE\s+ZONE\s+PROMOTION\s+ZONE\s+BELOW\s+ZONE\s+IMOS\s+ALLOC\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD/i;
+  const allocFirstRe = /ABOVE\s+ZONE\s+PROMOTION\s+ZONE\s+BELOW\s+ZONE\s+ALLOC\s+IMOS\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD\s+JR\s+DOR\s+AFADBD/i;
+
+  const imosFirst = imoFirstRe.test(text);
+  const headerMatch = text.match(imosFirst ? imoFirstRe : allocFirstRe);
   if (!headerMatch) return null;
 
   const matchStart = headerMatch.index ?? 0;
@@ -1193,13 +1277,17 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
   let i = 0;
 
   while (i + 7 < tokens.length) {
-    const alloc = tokens[i];
-    const imos  = tokens[i + 1];
-    const cols  = tokens.slice(i + 2, i + 8);
+    const first  = tokens[i];
+    const second = tokens[i + 1];
+    const cols   = tokens.slice(i + 2, i + 8);
 
-    if (!isAlloc.test(alloc) || !isImos.test(imos) || !cols.every(t => dateOrNa.test(t))) break;
+    const firstOk  = imosFirst ? isImos.test(first) : isAlloc.test(first);
+    const secondOk = imosFirst ? isAlloc.test(second) : isImos.test(second);
+    if (!firstOk || !secondOk || !cols.every(t => dateOrNa.test(t))) break;
 
-    rows.push([alloc, imos, ...cols]);
+    const imos  = imosFirst ? first : second;
+    const alloc = imosFirst ? second : first;
+    rows.push([imos, alloc, ...cols]);
     i += 8;
   }
 
@@ -1213,7 +1301,7 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
   return {
     body: [body, footerNote].filter(Boolean).join(' '),
     tables: [{
-      headers: ['ALLOC', 'IMOS', 'AZ JR DOR', 'AZ AFADBD', 'PZ JR DOR', 'PZ AFADBD', 'BZ JR DOR', 'BZ AFADBD'],
+      headers: ['IMOS', 'ALLOC', 'AZ JR DOR', 'AZ AFADBD', 'PZ JR DOR', 'PZ AFADBD', 'BZ JR DOR', 'BZ AFADBD'],
       rows,
     }],
   };
@@ -1277,6 +1365,8 @@ function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamil
 }
 
 const TABLE_FAMILY_PARSERS = [
+  parseSeniorityProjectedMonthTable,
+  parseNameImosSrnoMccTable,
   parseInlineEligibilityTable,
   parsePromotionBoardConveningTable,
   parseGeneralOfficerPromotionZoneTable,
