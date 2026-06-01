@@ -120,7 +120,7 @@ export default function App() {
             <Route path="*" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
           </Routes>
         </div>
-        {!isFullscreen && <div className="print-hide"><StatusBar /></div>}
+        {!isFullscreen && <div className="print-hide pb-[72px] md:pb-0"><StatusBar /></div>}
       </motion.div>
       {!isFullscreen && <MobileBottomNav isLoggedIn={isLoggedIn} />}
     </div>
