@@ -326,7 +326,7 @@ export function NewsPage() {
                     </span>
                   )}
                   {filter === f && (
-                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine" />
+                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-desktop" />
                   )}
                 </button>
               );
@@ -357,7 +357,7 @@ export function NewsPage() {
                   </span>
                 )}
                 {filter === f && (
-                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine" />
+                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-mobile" />
                 )}
               </button>
             );
