@@ -23,51 +23,25 @@ function getColumnWidth(header: string): number {
 }
 
 const SEARCH_THRESHOLD = 15;
-const ROW_ACTION_LINGER_MS = 1600;
-
-function getCelebrationLabel(row?: string[]): string | undefined {
-  return row?.map(cell => cell.trim()).find(Boolean);
-}
 
 export function TableBlock({ table }: { table: DetectedTable }) {
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const rowActionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scrollHints, setScrollHints] = useState({
     canScrollLeft: false,
     canScrollRight: false,
     hasOverflow: false,
   });
-  const [activeCelebrateRow, setActiveCelebrateRow] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   // Each celebration gets a unique key so CelebrationOverlay remounts fresh every time,
   // giving it a new particle set and resetting Framer Motion animation state.
-  const [celebration, setCelebration] = useState<{ id: string; label?: string } | null>(null);
-  const startCelebration = useCallback((label?: string) => {
-    setCelebration({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      label,
-    });
+  const [celebrationId, setCelebrationId] = useState<string | null>(null);
+  const startCelebration = useCallback(() => {
+    setCelebrationId(`${Date.now()}-${Math.random().toString(36).slice(2)}`);
   }, []);
   const dismissCelebration = useCallback(() => {
-    setCelebration(null);
+    setCelebrationId(null);
   }, []);
-  const clearRowActionTimer = useCallback(() => {
-    if (!rowActionTimerRef.current) return;
-    clearTimeout(rowActionTimerRef.current);
-    rowActionTimerRef.current = null;
-  }, []);
-  const showRowAction = useCallback((rowKey: string) => {
-    clearRowActionTimer();
-    setActiveCelebrateRow(rowKey);
-  }, [clearRowActionTimer]);
-  const scheduleRowActionDismiss = useCallback(() => {
-    clearRowActionTimer();
-    rowActionTimerRef.current = setTimeout(() => {
-      setActiveCelebrateRow(null);
-      rowActionTimerRef.current = null;
-    }, ROW_ACTION_LINGER_MS);
-  }, [clearRowActionTimer]);
   const showSearch = table.rows.length >= SEARCH_THRESHOLD;
   const normalizedQuery = query.trim().toLowerCase();
   const visibleRows = normalizedQuery
@@ -135,15 +109,11 @@ export function TableBlock({ table }: { table: DetectedTable }) {
     return () => resizeObserver.disconnect();
   }, [table, tableWidth, updateScrollHints]);
 
-  useEffect(() => {
-    return clearRowActionTimer;
-  }, [clearRowActionTimer]);
-
   return (
     <div className="space-y-2">
       <AnimatePresence>
-        {celebration && (
-          <CelebrationOverlay key={celebration.id} label={celebration.label} onDone={dismissCelebration} />
+        {celebrationId && (
+          <CelebrationOverlay key={celebrationId} onDone={dismissCelebration} />
         )}
       </AnimatePresence>
       {table.title && (
@@ -157,7 +127,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
             <div className="flex items-center gap-2 border-b border-white/8 px-3 py-2">
               <button
                 type="button"
-                onClick={() => startCelebration(getCelebrationLabel(visibleRows[0]))}
+                onClick={startCelebration}
                 className="flex h-8 w-8 flex-shrink-0 items-center justify-center border border-yellow-500/25 bg-black text-yellow-500 transition-colors hover:border-yellow-500/60 hover:bg-yellow-500/10 md:hidden"
                 aria-label="Celebrate"
                 title="Celebrate"
@@ -235,14 +205,11 @@ export function TableBlock({ table }: { table: DetectedTable }) {
               ) : (
                 visibleRows.map((row, ri) => {
                   const rowKey = `${ri}:${row.join('\u001f')}`;
-                  const rowActionVisible = activeCelebrateRow === rowKey;
 
                   return (
                     <tr
                       key={rowKey}
-                      className="border-b border-white/6 transition-colors hover:bg-white/[0.02]"
-                      onMouseEnter={() => showRowAction(rowKey)}
-                      onMouseLeave={scheduleRowActionDismiss}
+                      className="group border-b border-white/6 transition-colors hover:bg-white/[0.02]"
                     >
                       {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
                         const trimmed = cell.trim();
@@ -257,18 +224,11 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                             {ci === 0 && (
                               <button
                                 type="button"
-	                                onClick={(event) => {
-	                                  event.stopPropagation();
-	                                  startCelebration(getCelebrationLabel(row));
-	                                }}
-                                onFocus={() => showRowAction(rowKey)}
-                                onBlur={scheduleRowActionDismiss}
-                                tabIndex={rowActionVisible ? 0 : -1}
-                                className={`absolute left-2 top-1/2 hidden h-6 w-6 -translate-y-1/2 items-center justify-center border bg-black/90 transition-all duration-200 md:flex ${
-                                  rowActionVisible
-                                    ? 'translate-x-0 border-yellow-500/45 text-yellow-500 opacity-100 shadow-[0_0_14px_rgba(245,158,11,0.18)]'
-                                    : 'pointer-events-none -translate-x-1 border-white/10 text-gray-700 opacity-0'
-                                }`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  startCelebration();
+                                }}
+                                className="pointer-events-none absolute left-2 top-1/2 hidden h-6 w-6 -translate-x-1 -translate-y-1/2 items-center justify-center border border-white/10 bg-black/90 text-gray-700 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:border-yellow-500/45 group-hover:text-yellow-500 group-hover:opacity-100 group-hover:shadow-[0_0_14px_rgba(245,158,11,0.18)] group-focus-within:pointer-events-auto group-focus-within:translate-x-0 group-focus-within:border-yellow-500/45 group-focus-within:text-yellow-500 group-focus-within:opacity-100 md:flex"
                                 aria-label="Celebrate this row"
                                 title="Celebrate"
                               >

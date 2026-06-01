@@ -66,16 +66,14 @@ function makeParticles(): Particle[] {
 }
 
 interface Props {
-  label?: string;
   onDone: () => void;
 }
 
 // Mounted fresh for every celebration (parent keys each instance with a unique ID).
 // Particles are generated at mount time so every trigger gets a new set.
-export function CelebrationOverlay({ label, onDone }: Props) {
+export function CelebrationOverlay({ onDone }: Props) {
   const [particles] = useState<Particle[]>(makeParticles);
   const [footerLine] = useState(() => FOOTER_LINES[Math.floor(Math.random() * FOOTER_LINES.length)]);
-  const displayLabel = label?.trim();
 
   useEffect(() => {
     const t = setTimeout(onDone, OVERLAY_DURATION_MS);
@@ -114,11 +112,6 @@ export function CelebrationOverlay({ label, onDone }: Props) {
           <p className="font-mono text-3xl font-black tracking-tighter text-white">
             NICE WORK, MARINE
           </p>
-          {displayLabel && (
-            <p className="mx-auto mt-3 max-w-[min(72vw,28rem)] break-words font-mono text-[13px] font-bold leading-snug text-gray-300">
-              {displayLabel}
-            </p>
-          )}
           <p className="mt-2 font-mono text-[10px] font-bold tracking-[0.18em] text-gray-600">
             {footerLine}
           </p>
