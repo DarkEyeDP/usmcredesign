@@ -27,6 +27,8 @@ const SEARCH_THRESHOLD = 15;
 export function TableBlock({ table }: { table: DetectedTable }) {
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const rowActionButtonRef = useRef<HTMLButtonElement>(null);
+  const activeRowRef = useRef<HTMLTableRowElement | null>(null);
   const [scrollHints, setScrollHints] = useState({
     canScrollLeft: false,
     canScrollRight: false,
@@ -41,6 +43,30 @@ export function TableBlock({ table }: { table: DetectedTable }) {
   }, []);
   const dismissCelebration = useCallback(() => {
     setCelebrationId(null);
+  }, []);
+  const hideRowAction = useCallback(() => {
+    activeRowRef.current = null;
+    const button = rowActionButtonRef.current;
+    if (!button) return;
+
+    button.style.opacity = '0';
+    button.style.pointerEvents = 'none';
+  }, []);
+  const positionRowAction = useCallback((row: HTMLTableRowElement) => {
+    const scrollArea = scrollAreaRef.current;
+    const button = rowActionButtonRef.current;
+    if (!scrollArea || !button) return;
+
+    activeRowRef.current = row;
+
+    const rowRect = row.getBoundingClientRect();
+    const scrollRect = scrollArea.getBoundingClientRect();
+    const top = rowRect.top - scrollRect.top + scrollArea.scrollTop + rowRect.height / 2;
+
+    button.style.left = `${scrollArea.scrollLeft + 8}px`;
+    button.style.top = `${top}px`;
+    button.style.opacity = '1';
+    button.style.pointerEvents = 'auto';
   }, []);
   const showSearch = table.rows.length >= SEARCH_THRESHOLD;
   const normalizedQuery = query.trim().toLowerCase();
@@ -108,6 +134,41 @@ export function TableBlock({ table }: { table: DetectedTable }) {
 
     return () => resizeObserver.disconnect();
   }, [table, tableWidth, updateScrollHints]);
+
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+
+    const findRow = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null;
+      return target.closest<HTMLTableRowElement>('tr[data-celebrate-row="true"]');
+    };
+
+    const handlePointerOver = (event: PointerEvent) => {
+      const row = findRow(event.target);
+      if (!row || row === activeRowRef.current) return;
+      positionRowAction(row);
+    };
+
+    const handlePointerLeave = () => hideRowAction();
+    const handleScroll = () => {
+      if (activeRowRef.current) positionRowAction(activeRowRef.current);
+    };
+
+    scrollArea.addEventListener('pointerover', handlePointerOver);
+    scrollArea.addEventListener('pointerleave', handlePointerLeave);
+    scrollArea.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      scrollArea.removeEventListener('pointerover', handlePointerOver);
+      scrollArea.removeEventListener('pointerleave', handlePointerLeave);
+      scrollArea.removeEventListener('scroll', handleScroll);
+    };
+  }, [hideRowAction, positionRowAction]);
+
+  useEffect(() => {
+    hideRowAction();
+  }, [table, normalizedQuery, hideRowAction]);
 
   return (
     <div className="space-y-2">
@@ -192,7 +253,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
             <ChevronsLeftRight className="h-3.5 w-3.5" aria-hidden="true" />
           </div>
         )}
-        <div ref={scrollAreaRef} className="maradmin-table-scroll overflow-x-auto" onScroll={syncStickyHeader}>
+        <div ref={scrollAreaRef} className="maradmin-table-scroll relative overflow-x-auto" onScroll={syncStickyHeader}>
           <table className="maradmin-data-table min-w-full table-fixed border-separate border-spacing-0 text-[13px] font-mono" style={tableStyle}>
             {renderColGroup()}
             <tbody>
@@ -209,7 +270,8 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                   return (
                     <tr
                       key={rowKey}
-                      className="group border-b border-white/6 transition-colors hover:bg-white/[0.02]"
+                      data-celebrate-row="true"
+                      className="border-b border-white/6 transition-colors hover:bg-white/[0.02]"
                     >
                       {Array.from({ length: columnCount }, (_, ci) => row[ci] ?? '').map((cell, ci) => {
                         const trimmed = cell.trim();
@@ -221,20 +283,6 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                             key={ci}
                             className={`px-4 py-2 break-words ${ci === 0 ? 'relative whitespace-normal font-bold text-gray-200 md:pl-10' : `tabular-nums ${isExplicitDash ? 'text-gray-500 italic' : isEmptyValue ? 'text-gray-600' : 'text-gray-400'}`}`}
                           >
-                            {ci === 0 && (
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  startCelebration();
-                                }}
-                                className="pointer-events-none absolute left-2 top-1/2 hidden h-6 w-6 -translate-x-1 -translate-y-1/2 items-center justify-center border border-white/10 bg-black/90 text-gray-700 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:border-yellow-500/45 group-hover:text-yellow-500 group-hover:opacity-100 group-hover:shadow-[0_0_14px_rgba(245,158,11,0.18)] group-focus-within:pointer-events-auto group-focus-within:translate-x-0 group-focus-within:border-yellow-500/45 group-focus-within:text-yellow-500 group-focus-within:opacity-100 md:flex"
-                                aria-label="Celebrate this row"
-                                title="Celebrate"
-                              >
-                                <PartyPopper className="h-3.5 w-3.5" />
-                              </button>
-                            )}
                             {ci === 0 ? cell : isExplicitDash || isEmptyValue ? '—' : cell}
                           </td>
                         );
@@ -245,6 +293,17 @@ export function TableBlock({ table }: { table: DetectedTable }) {
               )}
             </tbody>
           </table>
+          <button
+            ref={rowActionButtonRef}
+            type="button"
+            tabIndex={-1}
+            onClick={startCelebration}
+            className="pointer-events-none absolute left-2 top-0 z-50 hidden h-6 w-6 -translate-y-1/2 items-center justify-center border border-yellow-500/45 bg-black/90 text-yellow-500 opacity-0 shadow-[0_0_14px_rgba(245,158,11,0.18)] transition-opacity duration-100 md:flex"
+            aria-label="Celebrate this row"
+            title="Celebrate"
+          >
+            <PartyPopper className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </div>
