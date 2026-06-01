@@ -1312,6 +1312,38 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
 // RS availability for FY28 ... (Read in seven columns):
 // Recruiting Station  1-28  2-28  3-28  4-28  5-28  6-28
 // ALBANY, NY          3     4     3     3     4     3
+// Parses university/vacancy billet tables, e.g.:
+// University/Vacancy                 MCC   Location
+// UNIVERSITY OF WASHINGTON           H95   Seattle, WA
+// MARINE CORPS RECRUIT DEPOT, PI     040   Parris Island, SC
+// Institution names are ALL CAPS; city/state is mixed-case — used to split the two.
+function parseUniversityVacancyTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bUniversity\/Vacancy\s+MCC\s+Location\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1]
+    .replace(/\(read in (?:three|3) columns?\):?\s*$/i, '')
+    .replace(/[:\s]+$/, '')
+    .trim();
+  const data = headerMatch[2].trim();
+
+  // Institution names are all-caps (may include commas, e.g. "DEPOT, PI").
+  // MCC is 2–4 alphanumeric chars. Location is mixed-case "City[, City], ST".
+  const rowRe = /([A-Z][A-Z,./\s]+?)\s+([A-Z0-9]{2,4})\s+((?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),\s+[A-Z]{2})/g;
+  const rows: string[][] = [];
+
+  for (const match of data.matchAll(rowRe)) {
+    rows.push([match[1].trim(), match[2], match[3].trim()]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['University / Vacancy', 'MCC', 'Location'], rows }],
+  };
+}
+
 function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bRecruiting\s+Station\s+((?:\d+-\d+\s+){2,}\d+-\d+)\s+/i);
   if (!headerMatch) return null;
@@ -1386,6 +1418,7 @@ const TABLE_FAMILY_PARSERS = [
   parseInlineRankNameMCCTable,
   parseAviationBoardResultsTable,
   parseIAPSelectionPanelResultsTable,
+  parseUniversityVacancyTable,
   parseRecruitingStationAvailabilityTable,
   parseCommandMCCTentativeReportDateTable,
   parseMCCUnitDescriptionNoteTable,
