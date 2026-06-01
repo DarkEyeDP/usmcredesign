@@ -16,6 +16,7 @@ const COLORS = [
 ];
 const DESKTOP_PARTICLE_COUNT = 42;
 const MOBILE_PARTICLE_COUNT = 24;
+const REDUCED_MOTION_PARTICLE_COUNT = 14;
 const OVERLAY_DURATION_MS = 4800;
 const FOOTER_LINES = [
   'Rah responsibly.',
@@ -29,14 +30,16 @@ const FOOTER_LINES = [
 interface Particle {
   id: number;
   x: number;
+  top: string;
   driftX: number;
   color: string;
   w: number;
   h: number;
   rotate: number;
-  spin: number;
+  endRotate: number;
   delay: number;
   duration: number;
+  reducedMotion: boolean;
 }
 
 type ParticleStyle = CSSProperties & Record<`--${string}`, string>;
@@ -46,23 +49,30 @@ function makeParticles(): Particle[] {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const particleCount = prefersReducedMotion
-    ? 0
+    ? REDUCED_MOTION_PARTICLE_COUNT
     : isMobile
       ? MOBILE_PARTICLE_COUNT
       : DESKTOP_PARTICLE_COUNT;
 
-  return Array.from({ length: particleCount }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    driftX: (Math.random() - 0.5) * (isMobile ? 96 : 150),
-    color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    w: Math.random() * 6 + 4,
-    h: Math.random() > 0.45 ? Math.random() * 6 + 4 : Math.random() * 12 + 6,
-    rotate: Math.random() * 360,
-    spin: (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 300 + 120),
-    delay: Math.random() * 0.28,
-    duration: Math.random() * 1.3 + 2.5,
-  }));
+  return Array.from({ length: particleCount }, (_, i) => {
+    const rotate = Math.random() * 360;
+    const spin = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 300 + 120);
+
+    return {
+      id: i,
+      x: Math.random() * 100,
+      top: prefersReducedMotion ? `${18 + Math.random() * 64}%` : '-12px',
+      driftX: prefersReducedMotion ? 0 : (Math.random() - 0.5) * (isMobile ? 96 : 150),
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      w: Math.random() * 6 + 4,
+      h: Math.random() > 0.45 ? Math.random() * 6 + 4 : Math.random() * 12 + 6,
+      rotate,
+      endRotate: prefersReducedMotion ? rotate : rotate + spin,
+      delay: prefersReducedMotion ? Math.random() * 0.12 : Math.random() * 0.28,
+      duration: prefersReducedMotion ? Math.random() * 0.45 + 1.1 : Math.random() * 1.3 + 2.5,
+      reducedMotion: prefersReducedMotion,
+    };
+  });
 }
 
 interface Props {
@@ -135,22 +145,22 @@ export function CelebrationOverlay({ onDone }: Props) {
 
       <div className="pointer-events-none absolute inset-0 z-40">
         {particles.map(p => (
-          <div
-            key={p.id}
-            className="maradmin-celebration-particle absolute rounded-[1px]"
-            style={{
-              left: `${p.x}%`,
-              top: -12,
-              width: p.w,
-              height: p.h,
-              backgroundColor: p.color,
-              '--drift-x': `${p.driftX}px`,
-              '--start-rotation': `${p.rotate}deg`,
-              '--spin': `${p.spin}deg`,
-              '--duration': `${p.duration}s`,
-              '--delay': `${p.delay}s`,
-            } as ParticleStyle}
-          />
+            <div
+              key={p.id}
+              className={`absolute rounded-[1px] ${p.reducedMotion ? 'maradmin-celebration-particle-reduced' : 'maradmin-celebration-particle'}`}
+              style={{
+                left: `${p.x}%`,
+                top: p.top,
+                width: p.w,
+                height: p.h,
+                backgroundColor: p.color,
+                '--drift-x': `${p.driftX}px`,
+                '--start-rotation': `${p.rotate}deg`,
+                '--end-rotation': `${p.endRotate}deg`,
+                '--duration': `${p.duration}s`,
+                '--delay': `${p.delay}s`,
+              } as ParticleStyle}
+            />
         ))}
       </div>
     </motion.div>,

@@ -83,7 +83,24 @@
   }
   100% {
     opacity: 0;
-    transform: translate3d(var(--drift-x), 112vh, 0) rotate(calc(var(--start-rotation) + var(--spin)));
+    transform: translate3d(var(--drift-x), 112vh, 0) rotate(var(--end-rotation));
+  }
+}
+
+@keyframes maradmin-confetti-reduced {
+  0% {
+    opacity: 0;
+    transform: scale(0.82) rotate(var(--start-rotation));
+  }
+  16% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) rotate(var(--end-rotation));
   }
 }
 
@@ -111,14 +128,19 @@
   animation-timing-function: cubic-bezier(0.2, 0, 0.8, 1);
   opacity: 0;
   transform: translate3d(0, -8vh, 0) rotate(var(--start-rotation));
+  forced-color-adjust: none;
   will-change: transform, opacity;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .maradmin-celebration-particle {
-    animation: none;
-    display: none;
-  }
+.maradmin-celebration-particle-reduced {
+  animation-delay: var(--delay);
+  animation-duration: var(--duration);
+  animation-fill-mode: forwards;
+  animation-name: maradmin-confetti-reduced;
+  animation-timing-function: ease-out;
+  forced-color-adjust: none;
+  opacity: 0;
+  transform: scale(0.82) rotate(var(--start-rotation));
 }
 
 .page-hero-title {
