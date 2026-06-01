@@ -53,6 +53,15 @@ export default defineConfig(({ command, mode }) => {
   build: {
     rollupOptions: {
       output: {
+        assetFileNames: (assetInfo) => {
+          const filename = assetInfo.names?.[0] ?? assetInfo.name ?? ''
+
+          if (filename.endsWith('.css')) {
+            return 'assets/[name][extname]'
+          }
+
+          return 'assets/[name]-[hash][extname]'
+        },
         manualChunks: {
           'pdf-libs': ['jspdf'],
         },
