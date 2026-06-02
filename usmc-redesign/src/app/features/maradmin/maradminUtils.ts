@@ -79,7 +79,7 @@ export async function fetchRSSFeed(): Promise<RSSMessage[]> {
     const month       = `${LONG_MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 
     return {
-      id: String(i),
+      id: number || link || String(i),
       number,
       subject: title,
       date: displayDate,
@@ -202,7 +202,7 @@ export function parseArchivePageRows(
     const link = hrefByText.get(number) ?? hrefByText.get(subject) ?? '';
 
     messages.push({
-      id: `archive-${page}-${messages.length}`,
+      id: number || `archive-${page}-${messages.length}`,
       number,
       subject,
       date: displayDate,

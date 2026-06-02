@@ -17,6 +17,15 @@ const DESKTOP_PARTICLE_COUNT = 42;
 const MOBILE_PARTICLE_COUNT = 24;
 const REDUCED_MOTION_PARTICLE_COUNT = 14;
 const OVERLAY_DURATION_MS = 4800;
+const STATUS_LINES = [
+  'ADMIN VICTORY LOGGED',
+  'ROW SECURED',
+  'ORDER FOUND',
+  'MISSION CHECK',
+  'MOTIVATION UP',
+  'RAH RECEIVED',
+  'GOOD INITIATIVE',
+];
 const FOOTER_LINES = [
   'Rah responsibly.',
   'No page 11 entry generated.',
@@ -39,6 +48,10 @@ interface ConfettiParticle {
   age: number;
   ttl: number;
   delay: number;
+}
+
+function pickRandom(lines: string[]): string {
+  return lines[Math.floor(Math.random() * lines.length)];
 }
 
 function makeParticles(width: number, height: number, prefersReducedMotion: boolean): ConfettiParticle[] {
@@ -79,7 +92,8 @@ interface Props {
 // Particles are generated at mount time so every trigger gets a new set.
 export function CelebrationOverlay({ onDone }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [footerLine] = useState(() => FOOTER_LINES[Math.floor(Math.random() * FOOTER_LINES.length)]);
+  const [statusLine] = useState(() => pickRandom(STATUS_LINES));
+  const [footerLine] = useState(() => pickRandom(FOOTER_LINES));
 
   useEffect(() => {
     const t = setTimeout(onDone, OVERLAY_DURATION_MS);
@@ -201,7 +215,7 @@ export function CelebrationOverlay({ onDone }: Props) {
           <span className="absolute bottom-1.5 right-1.5 h-2.5 w-2.5 border-b border-r border-red-600/60" />
 
           <p className="mb-2 font-mono text-[10px] font-bold tracking-[0.35em] text-red-500">
-            ADMIN VICTORY LOGGED
+            {statusLine}
           </p>
           <p className="font-mono text-3xl font-black tracking-tighter text-white">
             NICE WORK, MARINE

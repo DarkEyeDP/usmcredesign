@@ -86,6 +86,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [activeTab, setActiveTab]           = useState('ALL MESSAGES');
   const [heldUnreadMessageId, setHeldUnreadMessageId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery]       = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [navDirection, setNavDirection]     = useState<1 | -1>(1);
   const [filterOpen, setFilterOpen]         = useState(false);
   const [bulkActionsOpen, setBulkActionsOpen] = useState(false);
@@ -142,6 +143,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     }
     setSearchIndexVersion(v => v + 1);
   }, []);
+
+  // Debounce search query to avoid thrashing MiniSearch on every keystroke.
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebouncedQuery(searchQuery), 150);
+    return () => window.clearTimeout(id);
+  }, [searchQuery]);
 
   // Detect mobile device on mount.
   useEffect(() => {
@@ -741,16 +748,16 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   const activeFilterCount = selectedYears.size + selectedTags.size + selectedAudiences.size;
   const exactMatchNumber = useMemo(
-    () => extractExactMARADMINNumberQuery(searchQuery),
-    [searchQuery],
+    () => extractExactMARADMINNumberQuery(debouncedQuery),
+    [debouncedQuery],
   );
 
   const currentMessageFilters = useMemo<MessageFilterState>(() => ({
     years: selectedYears,
     tags: selectedTags,
     audiences: selectedAudiences,
-    query: searchQuery,
-  }), [searchQuery, selectedAudiences, selectedTags, selectedYears]);
+    query: debouncedQuery,
+  }), [debouncedQuery, selectedAudiences, selectedTags, selectedYears]);
 
   const filterMessagesForTab = useCallback((tab: string, filters: MessageFilterState = currentMessageFilters) => {
     const q = filters.query.trim();
@@ -760,9 +767,10 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       const results = searchIndexRef.current.search(q);
       const scoreById = new Map(results.map(r => [r.id as string, r.score]));
       // Also catch exact number matches (e.g. "214/26") that tokenization may miss.
-      const byNumber = new Set(
-        messages.filter(m => m.number.includes(q)).map(m => m.id),
-      );
+      const qNorm = normalizeMARADMINNumber(q);
+      const byNumber = q.length >= 3 ? new Set(
+        messages.filter(m => normalizeMARADMINNumber(m.number).includes(qNorm)).map(m => m.id),
+      ) : new Set<string>();
       base = messages
         .filter(m => scoreById.has(m.id) || byNumber.has(m.id))
         .sort((a, b) => (scoreById.get(b.id) ?? 0) - (scoreById.get(a.id) ?? 0));
