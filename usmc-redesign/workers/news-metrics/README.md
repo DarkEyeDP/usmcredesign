@@ -42,7 +42,7 @@ npm run metrics:deploy
 Set the frontend build variable to the deployed Worker URL:
 
 ```txt
-VITE_NEWS_METRICS_URL=https://news-metrics.YOUR_WORKERS_SUBDOMAIN.workers.dev
+VITE_NEWS_METRICS_URL=https://news-metrics.darkeyegraphics.workers.dev
 ```
 
 If the production domain changes, update `ALLOWED_ORIGINS` in `wrangler.toml` or set it as a Worker variable in Cloudflare.

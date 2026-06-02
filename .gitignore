@@ -19,6 +19,7 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+!usmc-redesign/.env.production
 *.local
 
 # ─── Dependencies ────────────────────────────────────────────────
