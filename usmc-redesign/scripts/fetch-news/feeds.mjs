@@ -42,12 +42,12 @@ export const FEEDS = [
   //   url: 'https://www.marinecorpstimes.com/rss/news/',
   //   source: 'news',
   // },
-  // {
-  //   id: 'military-times',
-  //   name: 'Military Times',
-  //   url: 'https://www.militarytimes.com/rss/news/',
-  //   source: 'news',
-  // },
+  {
+    id: 'military-times',
+    name: 'Military Times',
+    url: 'https://www.militarytimes.com/arc/outboundfeeds/rss/category/news/?outputType=xml',
+    source: 'news',
+  },
   // {
   //   id: 'stars-and-stripes',
   //   name: 'Stars and Stripes',

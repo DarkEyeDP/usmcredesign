@@ -288,6 +288,17 @@ function cleanReaderLine(line: string): string {
     .trim();
 }
 
+function isMarkdownImageBlock(line: string): boolean {
+  return /^!\[[^\]]*\]\([^)]+\)/.test(line.trim());
+}
+
+function isLikelyImageCaption(text: string): boolean {
+  return (
+    text.length < 240 &&
+    /\([^)]*(?:\/|Photo|AP|Getty|Marine Corps|Army|Navy|Air Force|Coast Guard|Defense Department|DoD|Reuters|U\.S\.)[^)]*\)\.?$/i.test(text)
+  );
+}
+
 function shouldSkipReaderLine(line: string): boolean {
   if (!line || line.length < 3) return true;
   return (
@@ -406,8 +417,9 @@ export function parseNewsArticleDetailMarkdown(
     }
   }
 
-  const FOOTER_SENTINEL = /^(Related Stories|Subscribe to|Department of (War|Defense)|Home News Spotlights|Privacy & Security|Legal & Administrative|Hosted by|Veterans Crisis Line)/i;
+  const FOOTER_SENTINEL = /^(Related Stories|Subscribe to|Department of (War|Defense)|Home News Spotlights|Privacy & Security|Legal & Administrative|Hosted by|Veterans Crisis Line|Share:?|In Other News|About\s+(?:the\b|[A-Z]))/i;
   let hitFooter = false;
+  let previousSkippedImage = startIdx > 0 && isMarkdownImageBlock(rawBlocks[startIdx - 1].trim());
   const body = rawBlocks.slice(startIdx).flatMap(rawBlock => {
     if (hitFooter) return [];
     const trimmed = rawBlock.trim();
@@ -416,7 +428,14 @@ export function parseNewsArticleDetailMarkdown(
     const isHeading = /^#{1,6}\s+/.test(trimmed);
     const text = cleanReaderLine(trimmed.replace(/^>\s*/, ''));
     if (FOOTER_SENTINEL.test(trimmed) || FOOTER_SENTINEL.test(text)) { hitFooter = true; return []; }
-    if (shouldSkipReaderLine(trimmed) || shouldSkipReaderLine(text) || text.length < 10) return [];
+    if (previousSkippedImage && isLikelyImageCaption(text)) {
+      previousSkippedImage = false;
+      return [];
+    }
+    const skipLine = shouldSkipReaderLine(trimmed) || shouldSkipReaderLine(text) || text.length < 10;
+    previousSkippedImage = skipLine && isMarkdownImageBlock(trimmed);
+    if (skipLine) return [];
+    previousSkippedImage = false;
 
     return [{
       type: isQuote ? 'quote' as const : isHeading ? 'heading' as const : 'paragraph' as const,

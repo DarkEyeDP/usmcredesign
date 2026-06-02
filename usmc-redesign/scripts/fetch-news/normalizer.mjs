@@ -14,7 +14,10 @@
  * @returns {string | null}
  */
 function extractCategory(title, rawCategory) {
-  if (rawCategory) return rawCategory.toUpperCase();
+  if (rawCategory) {
+    const category = rawCategory.replace(/^[/\s]+/, '').trim();
+    return category ? category.toUpperCase() : null;
+  }
   // "Balikatan 2026: Joint Forces..." → "BALIKATAN 2026"
   const colonIdx = title.indexOf(':');
   if (colonIdx > 0 && colonIdx < 45) return title.substring(0, colonIdx).toUpperCase();

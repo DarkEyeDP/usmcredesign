@@ -99,6 +99,19 @@ function cleanLine(line) {
     .trim();
 }
 
+/** @param {string} line */
+function isMarkdownImageBlock(line) {
+  return /^!\[[^\]]*\]\([^)]+\)/.test(line.trim());
+}
+
+/** @param {string} text */
+function isLikelyImageCaption(text) {
+  return (
+    text.length < 240 &&
+    /\([^)]*(?:\/|Photo|AP|Getty|Marine Corps|Army|Navy|Air Force|Coast Guard|Defense Department|DoD|Reuters|U\.S\.)[^)]*\)\.?$/i.test(text)
+  );
+}
+
 /** @param {string} text */
 function isFooterBlock(text) {
   return (
@@ -179,9 +192,10 @@ export function parseMarkdown(markdown, itemTitle) {
   }
 
   // Once a footer sentinel is hit, cut off all further content.
-  const FOOTER_SENTINEL = /^(Related Stories|Subscribe to|Department of (War|Defense)|Home News Spotlights|Privacy & Security|Legal & Administrative|Hosted by|Veterans Crisis Line)/i;
+  const FOOTER_SENTINEL = /^(Related Stories|Subscribe to|Department of (War|Defense)|Home News Spotlights|Privacy & Security|Legal & Administrative|Hosted by|Veterans Crisis Line|Share:?|In Other News|About\s+(?:the\b|[A-Z]))/i;
 
   let hitFooter = false;
+  let previousSkippedImage = startIdx > 0 && isMarkdownImageBlock(rawBlocks[startIdx - 1].trim());
   const body = rawBlocks.slice(startIdx).flatMap(rawBlock => {
     if (hitFooter) return [];
     const trimmed = rawBlock.trim();
@@ -190,7 +204,14 @@ export function parseMarkdown(markdown, itemTitle) {
     const isHeading = /^#{1,6}\s+/.test(trimmed);
     const text = cleanLine(trimmed.replace(/^>\s*/, ''));
     if (FOOTER_SENTINEL.test(trimmed) || FOOTER_SENTINEL.test(text)) { hitFooter = true; return []; }
-    if (shouldSkipLine(trimmed) || shouldSkipLine(text) || text.length < 4) return [];
+    if (previousSkippedImage && isLikelyImageCaption(text)) {
+      previousSkippedImage = false;
+      return [];
+    }
+    const skipLine = shouldSkipLine(trimmed) || shouldSkipLine(text) || text.length < 4;
+    previousSkippedImage = skipLine && isMarkdownImageBlock(trimmed);
+    if (skipLine) return [];
+    previousSkippedImage = false;
 
     return [{
       type: isQuote ? 'quote' : isHeading ? 'heading' : 'paragraph',

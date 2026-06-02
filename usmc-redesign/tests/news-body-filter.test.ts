@@ -236,4 +236,36 @@ NewsMay 27, 2026 ### Sword 26 Exercise`);
   assert.ok(!body.some(b => b.text.includes('Sword 26')), 'footer content should be cut off');
 });
 
+test('script parseMarkdown filters Military Times image captions and related footer', () => {
+  const md = jinaDoc('Parris Island drill instructor found deceased in Florida hotel', `# Parris Island drill instructor found deceased in Florida hotel
+
+By [J.D.Simkins](https://www.militarytimes.com/author/jon-simkins)
+
+Jun 2, 2026, 06:21 PM
+
+![Image 3](https://www.militarytimes.com/resizer/photo.jpg)
+
+A Marine drill instructor pictured at a function at Camp Williams, Utah. (Sgt. Daniel Wetzel/Marine Corps)
+
+A drill instructor assigned to Marine Corps Recruit Depot-Parris Island was found deceased in a hotel room in Starke, Florida, on May 30, the service confirmed.
+
+About [J.D.Simkins](https://www.militarytimes.com/author/jon-simkins)
+
+J.D. Simkins is Editor-in-Chief of Military Times and Defense News.
+
+###### [In Other News](https://www.militarytimes.com/)
+
+###### [Related headline](https://www.militarytimes.com/news/)`);
+
+  const fromScript = parseMarkdown(md, 'Parris Island drill instructor found deceased in Florida hotel');
+  const fromRss = parseNewsArticleDetailMarkdown(md, ITEM);
+
+  for (const parsed of [fromScript, fromRss]) {
+    assert.ok(!parsed.body.some(b => b.text.includes('pictured at a function')), 'image caption should be filtered');
+    assert.ok(!parsed.body.some(b => b.text.includes('Editor-in-Chief')), 'author bio should be cut off');
+    assert.ok(!parsed.body.some(b => b.text.includes('Related headline')), 'related content should be cut off');
+    assert.ok(parsed.body.some(b => b.text.includes('was found deceased')), 'real article paragraph should remain');
+  }
+});
+
 markTestFilePass();

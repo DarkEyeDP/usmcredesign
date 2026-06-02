@@ -154,6 +154,16 @@ test('normalizeItem uses explicit category over title extraction', () => {
   assert.equal(item.category, 'OPERATIONS');
 });
 
+test('normalizeItem strips leading slash from feed category labels', () => {
+  const raw = {
+    title: 'Some title',
+    link: 'https://www.militarytimes.com/news/story/', guid: 'https://www.militarytimes.com/news/story/',
+    description: '', pubDate: null, category: '/ Your Military', author: null, imageUrl: null,
+  };
+  const item = normalizeItem(raw, { id: 'military-times', source: 'news' }, 0);
+  assert.equal(item.category, 'YOUR MILITARY');
+});
+
 test('normalizeItem falls back to current date for invalid pubDate', () => {
   const raw = {
     title: 'Test', link: 'https://www.marines.mil/', guid: 'https://www.marines.mil/',

@@ -1,0 +1,63 @@
+{
+  "fetchedAt": "2026-06-02T19:15:28.230Z",
+  "title": "Marine ACV crews to face ‘thinking adversaries’ in new VR simulator",
+  "pubDate": "2026-05-29T15:45:10.000Z",
+  "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/DA2HBIWXDNA6PMO2XTABDK53TQ.jpg",
+  "description": "A crew gunnery training prototype for the new amphibious combat vehicle will simulate an all-out fight with an unpredictable adversary.",
+  "wordCount": 690,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "The U.S. Marine Corps has inked a $5.1 million contract with the virtual reality company XR Training (XRT) to develop a crew gunnery training prototype for the new amphibious combat vehicle that will simulate an all-out fight with an unpredictable adversary."
+    },
+    {
+      "type": "paragraph",
+      "text": "The other transactional agreement, or OTA, contract award — used to fast-track prototyping and development — is the fourth such award for the company, which has assumed a significant role in the overhaul of Marine Corps amphibious vehicle training."
+    },
+    {
+      "type": "paragraph",
+      "text": "While ACV is a more complex vehicle than its predecessor and fielded in multiple variants, the more rigorous approach to training is also driven by a deadly 2020 mishap involving aging assault amphibious vehicles. Investigations found that training shortfalls stretching back months had contributed to the deaths of nine troops off the California coast."
+    },
+    {
+      "type": "paragraph",
+      "text": "In 2024, XRT completed the deployment of 81 driver training simulators to the Corps within an 18-month span. Last year, it announced it had landed a contract to develop the prototype for a “next-generation maintenance training suite” for ACB upkeep and repair."
+    },
+    {
+      "type": "paragraph",
+      "text": "This latest contract zeroes in on gunnery operations for the ACV, allowing the gunner, the vehicle commander and the driver to train together the way they would in both the standard personnel variant of the vehicle and the ACV-30 fighting variant, mounted with a Kongsberg 30mm remote turret and armed with an Mk44 Bushmaster II chain gun. The personnel variant is armed with an M2A1 .50-caliber machine gun or Mk19 4mm automatic grenade launcher."
+    },
+    {
+      "type": "paragraph",
+      "text": "The crew members “sit in a row in the ACV … we have those replicated in the same space, and those three chairs are slaved together,” Neil Levin, CEO of XRT, told Military Times in an interview about the training prototype. “They have their own monitors. And then the gunner, we [3D] printed the [Common Remotely Operated Weapon Station] joystick. We’ve got the monitor and the position there for that as well. And they’re each in their positions as they would look inside of the vehicle.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The crew members wear helmets with VR headsets that pop down into place the way night-vision goggles do, he said. To create the most accurate seat movements in the trainer and build realism, he said, engineers created a digital twin of the ocean that delivers a lifelike pounding to the crews."
+    },
+    {
+      "type": "paragraph",
+      "text": "“You had all the instructors from the ACV come in, and they were the ones that helped us tune the engine, how hard it hits you for each kind of wave, and what the behavior is,” he said. “And so you have this physics. You see that wave coming, and that wave hits you, and it can really, really rock you the same way it does in the real ocean."
+    },
+    {
+      "type": "paragraph",
+      "text": "“We built out the New River outside of Camp Lejeune (N.C.) as well, where we’ve got, you know, sand bars that just show up, Levin continued. ”There’s even crab pots that show up because they literally are in the New River. So this is part of, I think, the realism that we bring to what we’re doing.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "For the gunnery training prototype in particular, Levin said, the company is focusing on land-based scenarios and adversaries and working to build out a broad range of behaviors and terrains."
+    },
+    {
+      "type": "paragraph",
+      "text": "“The initial scenarios are dry land, but, but there are a couple scenarios that could include water based activities and things like that, ocean or river,” he said. “You’re not just in a scripted, ‘This is the thing you have to do.’ The AI is creating a more believable tactical behavior under changing conditions.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Part of the development process involves regular limited user evaluations involving actual ACV crew members who critique the realism and training experience."
+    },
+    {
+      "type": "paragraph",
+      "text": "“We think that by adding the AI to the opposition forces, it will make [the crews] not just fixed to dealing with a model that shows up on the range,” Levin said. “We’ve done thousands upon thousands of runs already to prepare them for faults and other behaviors, other things that can happen. And so we’re actually trying to prepare them as best as we can in a safe environment.”"
+    }
+  ],
+  "links": []
+}
