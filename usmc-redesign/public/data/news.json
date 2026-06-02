@@ -1,8 +1,38 @@
 {
-  "generatedAt": "2026-06-02T19:15:30.435Z",
-  "feedCount": 4,
-  "itemCount": 172,
+  "generatedAt": "2026-06-02T22:15:27.577Z",
+  "feedCount": 5,
+  "itemCount": 189,
   "items": [
+    {
+      "id": "https://www.militarytimes.com/news/pentagon-congress/2026/06/02/rubio-faces-lawmakers-as-iran-ceasefire-hangs-in-the-balance/",
+      "title": "Rubio faces lawmakers as Iran ceasefire hangs in the balance",
+      "link": "https://www.militarytimes.com/news/pentagon-congress/2026/06/02/rubio-faces-lawmakers-as-iran-ceasefire-hangs-in-the-balance/",
+      "description": "The U.S. has been \"highly successful\" in achieving its military objectives in Iran, but the country continues to field a robust drone arsenal, Rubio said.",
+      "pubDate": "2026-06-02T21:25:27.000Z",
+      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/XQAV6BYCSNBYFLFKKDKBRKP7EA.JPG",
+      "author": "Tanya Noury",
+      "category": "PENTAGON & CONGRESS",
+      "source": "news",
+      "feedId": "military-times",
+      "attachments": [],
+      "_slug": "https-wwwmilitarytimescom-news-pentagon-congress-2026-06-02-rubio-faces-lawmakers-as-iran-ceasef-rubio-faces-lawmakers-as-iran-ceasefire-hangs-in-the-balance",
+      "wordCount": 605
+    },
+    {
+      "id": "https://www.militarytimes.com/news/your-military/2026/06/02/hackers-compromised-a-senior-space-force-officials-instagram-posting-anti-american-content/",
+      "title": "Hackers compromised a senior Space Force official’s Instagram, posting anti-American content",
+      "link": "https://www.militarytimes.com/news/your-military/2026/06/02/hackers-compromised-a-senior-space-force-officials-instagram-posting-anti-american-content/",
+      "description": "Chief Master Sergeant of the Space Force John Bentivegna’s Instagram was controlled by hackers who posted stories and images on Sunday.",
+      "pubDate": "2026-06-02T20:30:50.000Z",
+      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/OP4QC2OHBNG5FNXVBTBO5CHVEM.jpg",
+      "author": "Cristina Stassis",
+      "category": "YOUR MILITARY",
+      "source": "news",
+      "feedId": "military-times",
+      "attachments": [],
+      "_slug": "https-wwwmilitarytimescom-news-your-military-2026-06-02-hackers-compromised-a-senior-space-force-hackers-compromised-a-senior-space-force-official-s-instagram-posting-anti-american-content",
+      "wordCount": 719
+    },
     {
       "id": "https://www.militarytimes.com/news/your-military/2026/06/02/parris-island-drill-instructor-found-deceased-in-florida-hotel/",
       "title": "Parris Island drill instructor found deceased in Florida hotel",
@@ -452,36 +482,6 @@
       "attachments": [],
       "_slug": "https-wwwmilitarytimescom-news-your-military-2026-05-29-us-navy-to-explore-powering-shore-instal-us-navy-to-explore-powering-shore-installations-with-aircraft-carriers",
       "wordCount": 436
-    },
-    {
-      "id": "https://www.militarytimes.com/news/your-air-force/2026/05/29/vance-advises-air-force-academy-graduates-to-not-concede-decision-making-to-ai/",
-      "title": "Vance advises Air Force Academy graduates to not concede decision making to AI",
-      "link": "https://www.militarytimes.com/news/your-air-force/2026/05/29/vance-advises-air-force-academy-graduates-to-not-concede-decision-making-to-ai/",
-      "description": "Vice President JD Vance warned Air Force cadets to not \"submit\" to AI as it continues to change warfare.",
-      "pubDate": "2026-05-29T17:04:07.000Z",
-      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/ITWO3VAFE5CERBB7NSVHGMKQUY.jpg",
-      "author": "Cristina Stassis",
-      "category": "YOUR MILITARY",
-      "source": "news",
-      "feedId": "military-times",
-      "attachments": [],
-      "_slug": "https-wwwmilitarytimescom-news-your-air-force-2026-05-29-vance-advises-air-force-academy-graduat-vance-advises-air-force-academy-graduates-to-not-concede-decision-making-to-ai",
-      "wordCount": 464
-    },
-    {
-      "id": "https://www.militarytimes.com/news/your-marine-corps/2026/05/29/marine-acv-crews-to-face-thinking-adversaries-in-new-vr-simulator/",
-      "title": "Marine ACV crews to face ‘thinking adversaries’ in new VR simulator",
-      "link": "https://www.militarytimes.com/news/your-marine-corps/2026/05/29/marine-acv-crews-to-face-thinking-adversaries-in-new-vr-simulator/",
-      "description": "A crew gunnery training prototype for the new amphibious combat vehicle will simulate an all-out fight with an unpredictable adversary.",
-      "pubDate": "2026-05-29T15:45:10.000Z",
-      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/DA2HBIWXDNA6PMO2XTABDK53TQ.jpg",
-      "author": "Hope Hodge Seck",
-      "category": "YOUR MILITARY",
-      "source": "news",
-      "feedId": "military-times",
-      "attachments": [],
-      "_slug": "https-wwwmilitarytimescom-news-your-marine-corps-2026-05-29-marine-acv-crews-to-face-thinking-ad-marine-acv-crews-to-face-thinking-adversaries-in-new-vr-simulator",
-      "wordCount": 690
     },
     {
       "id": "https://www.war.gov/News/News-Stories/Article/Article/4502292/war-department-signs-97b-technology-deal-with-dell-for-microsoft-services/",
@@ -1300,6 +1300,21 @@
       "wordCount": 476
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4476440/civilian-expertise-military-speed-how-individual-readiness-fuels-force-headquar/",
+      "title": "Civilian Expertise, Military Speed: How Individual Readiness Fuels Force Headquarters Group's Rapid Cyber Deployments",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4476440/civilian-expertise-military-speed-how-individual-readiness-fuels-force-headquar/",
+      "description": "When the Marine Corps Cyberspace Operations Group needed an immediate surge of capability, they turned to Force Headquarters Group, Marine Forces Reserve. On March 26, 2026, the response from 6th Communication Battalion was fast: orders were drafted and approved within 36 hours, and a team of Reserve component defensive cyberspace operations Marines arrived on station ready to work. Initial support was extended to provide 60 days of surge capability. The speed of that response came down to preparation. In addition to technical expertise, the Marines who showed up were medically and administratively ready before the opportunity arose, and that readiness enabled their rapid employment.<br/> <img src='https://media.defense.gov/2026/May/04/2003923494/115/75/0/260326-M-FT251-3066.JPG' alt='6th Communications Battalion Conducts Annual Training' /> <br />",
+      "pubDate": "2026-05-04T13:00:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/May/04/2003923494/600/400/0/260326-M-FT251-3066.JPG",
+      "author": "Master Sgt. Latasha Esperon",
+      "category": "CIVILIAN EXPERTISE, MILITARY SPEED",
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4476440-civilian-expertise-military-speed-how-individual-readiness-fuels-force-headquarters-groups-rapid",
+      "wordCount": 520
+    },
+    {
       "id": "https://www.marines.mil/News/News-Display/Article/4475290/vmfa-251-pioneers-new-f-35-communications-tactics-at-wti/",
       "title": "VMFA-251 pioneers new F-35 communications tactics at WTI",
       "link": "https://www.marines.mil/News/News-Display/Article/4475290/vmfa-251-pioneers-new-f-35-communications-tactics-at-wti/",
@@ -1390,6 +1405,21 @@
       "wordCount": 496
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4460604/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
+      "title": "A medal, a memory, a Marine: The last flight of Maj. Everette McPherson",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4460604/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
+      "description": "Nearly six decades after his aircraft went down over the South China Sea, Maj. Everett McPherson’s<br/> <img src='https://media.defense.gov/2026/Mar/27/2003903814/115/75/0/260319-M-AV282-1431.JPG' alt='Allan McPherson, brother of the late Maj. Everette McPherson, holds a certificate during a posthumous Distinguished Flying Cross ceremony honoring the heroic actions of this brother at Marine Support Facility New Orleans, March 18, 2026. The Distinguished Flying Cross is awarded to those who have displayed single acts of heroism or extraordinary achievement while participating in aerial flight. Maj. McPherson, a fighter jet pilot, posthumously received the award for sacrificing his life during the Vietnam War in an attempt to save the life of his co-pilot. (U.S. Marine Corps photo by Lance Cpl. Claire Cheney)' /> <br />",
+      "pubDate": "2026-04-15T16:18:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/27/2003903831/600/400/0/260319-M-AV282-1269.JPG",
+      "author": "Lance Cpl. Claire Cheney",
+      "category": "A MEDAL, A MEMORY, A MARINE",
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4460604-a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson",
+      "wordCount": 607
+    },
+    {
       "id": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
       "title": "A medal, a memory, a Marine: The last flight of Maj. Everette McPherson",
       "link": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
@@ -1418,6 +1448,21 @@
       "attachments": [],
       "_slug": "4460140-department-of-the-navy-creates-portfolio-aqcuisition-executive-marine-corps-to-accelerate-modern",
       "wordCount": 812
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4455258/continuing-excellence/",
+      "title": "Continuing Excellence",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4455258/continuing-excellence/",
+      "description": "Gunnery Sgt. Bobby G. Philips Jr., a Marine in the Reserve previously honored for his civilian heroism, was meritoriously promoted to the rank of gunnery sergeant in a ceremony on April 2, 2026. The event was held at the Beirut Memorial, in front of the Eagle, Globe, and Anchor statue. In January 2024, he was awarded the Columbia-Richland Fire Department Medal of Honor for his life-saving actions during a three-alarm apartment fire on May 26, 2023. While serving as a fire captain, Philips and his team at Rescue 1 responded to the major fire. After rescuing a woman and her dog, he was instrumental in saving two fellow firefighters who were trapped when the building collapsed.<br/> <img src='https://media.defense.gov/2026/Apr/06/2003906832/115/75/0/260402-M-XH673-1026.JPG' alt='Gunnery Sgt. Philips Meritorious Promotion' /> <br />",
+      "pubDate": "2026-04-09T14:22:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Apr/06/2003906832/600/400/0/260402-M-XH673-1026.JPG",
+      "author": "Staff Sgt. Ethan LeBlanc",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4455258-continuing-excellence",
+      "wordCount": 730
     },
     {
       "id": "https://www.marines.mil/News/News-Display/Article/4456060/blount-island-command-team-supports-first-ever-mpf-offload-in-mindanao/",
@@ -1510,6 +1555,21 @@
       "wordCount": 634
     },
     {
+      "id": "https://www.marines.mil/News/News-Display/Article/4447364/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
+      "title": "Closing the Sensor-to-Shooter Gap, One Dynamis Serial at a Time",
+      "link": "https://www.marines.mil/News/News-Display/Article/4447364/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
+      "description": "In an increasingly complex global landscape, the speed of decision-making on the battlefield is not just an advantage, it is the ultimate arbiter of victory.<br/> <img src='https://media.defense.gov/2026/Mar/27/2003903882/115/75/0/260318-N-GB257-1003.JPG' alt='N. Charleston, SC (March 18, 2026) Naval Information Warfare Center (NIWC) Atlantic hosted the Systems of Systems Naval Integration Experiment (SOSNIE) for its 7th year. The two-week experiment stress-tested more than 40 state-of-the-art communications technologies used for a variety of essential military capabilities and included the use of manned and unmanned autonomous systems on land, sea and in the air. More than 150 Sailors, Marines, soldiers, Department of Navy civilians, and industry partners participated in the experiment, which took place in both a field environment at NIWC Atlantic’s Small Autonomous Unmanned Systems Research (SAUSR) Range and off the shore of Sullivan’s Island, South Carolina. (U.S. Navy photo by Joe Bullinger/Released)' /> <br />",
+      "pubDate": "2026-03-27T15:27:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/27/2003903882/600/400/0/260318-N-GB257-1003.JPG",
+      "author": "Courtesy Story",
+      "category": null,
+      "source": "news",
+      "feedId": "marines-news",
+      "attachments": [],
+      "_slug": "4447364-closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time",
+      "wordCount": 1295
+    },
+    {
       "id": "https://www.marines.mil/News/News-Display/Article/4445978/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
       "title": "Closing the Sensor-to-Shooter Gap, One Dynamis Serial at a Time",
       "link": "https://www.marines.mil/News/News-Display/Article/4445978/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
@@ -1525,19 +1585,19 @@
       "wordCount": 1320
     },
     {
-      "id": "https://www.marines.mil/News/News-Display/Article/4447364/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
-      "title": "Closing the Sensor-to-Shooter Gap, One Dynamis Serial at a Time",
-      "link": "https://www.marines.mil/News/News-Display/Article/4447364/closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time/",
-      "description": "In an increasingly complex global landscape, the speed of decision-making on the battlefield is not just an advantage, it is the ultimate arbiter of victory.<br/> <img src='https://media.defense.gov/2026/Mar/27/2003903882/115/75/0/260318-N-GB257-1003.JPG' alt='N. Charleston, SC (March 18, 2026) Naval Information Warfare Center (NIWC) Atlantic hosted the Systems of Systems Naval Integration Experiment (SOSNIE) for its 7th year. The two-week experiment stress-tested more than 40 state-of-the-art communications technologies used for a variety of essential military capabilities and included the use of manned and unmanned autonomous systems on land, sea and in the air. More than 150 Sailors, Marines, soldiers, Department of Navy civilians, and industry partners participated in the experiment, which took place in both a field environment at NIWC Atlantic’s Small Autonomous Unmanned Systems Research (SAUSR) Range and off the shore of Sullivan’s Island, South Carolina. (U.S. Navy photo by Joe Bullinger/Released)' /> <br />",
-      "pubDate": "2026-03-27T15:27:00.000Z",
-      "imageUrl": "https://media.defense.gov/2026/Mar/27/2003903882/600/400/0/260318-N-GB257-1003.JPG",
-      "author": "Courtesy Story",
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4444786/a-reserve-marine-finds-innovative-solutions-to-environmental-challenges-during/",
+      "title": "A Reserve Marine Finds Innovative Solutions to Environmental Challenges during Arctic Edge 2026",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4444786/a-reserve-marine-finds-innovative-solutions-to-environmental-challenges-during/",
+      "description": "At minus 45 degrees Fahrenheit, even fuel begins to freeze. During Arctic Edge 2026, the extreme cold caused the JP-8 fuel inside several Medium Tactical Vehicle Replacement vehicles to thicken into a jelly-like consistency, threatening to halt operations in the motor pool. For U.S. Marine Corps Cpl. Christopher Duran, an automotive maintenance technician with Combat Logistics Regiment 453, the problem became a test of ingenuity. Drawing on his experience as a heavy-duty diesel mechanic, Duran developed creative solutions that helped keep Marine Corps vehicles running in Alaska’s unforgiving Arctic conditions.<br/> <img src='https://media.defense.gov/2026/Mar/26/2003903299/115/75/0/260308-M-UQ888-1001.JPG' alt='A Reserve Marine Finds Innovative Solutions to Environmental Challenges during Arctic Edge 2026' /> <br />",
+      "pubDate": "2026-03-26T13:31:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/26/2003903299/600/400/0/260308-M-UQ888-1001.JPG",
+      "author": "2nd Lt. Aaron Xing",
       "category": null,
       "source": "news",
-      "feedId": "marines-news",
+      "feedId": "marforres-news",
       "attachments": [],
-      "_slug": "4447364-closing-the-sensor-to-shooter-gap-one-dynamis-serial-at-a-time",
-      "wordCount": 1295
+      "_slug": "4444786-a-reserve-marine-finds-innovative-solutions-to-environmental-challenges-during-arctic-edge-2026",
+      "wordCount": 659
     },
     {
       "id": "https://www.marines.mil/News/News-Display/Article/4443725/one-year-of-12th-lct-us-marines-execute-a-combined-arms-live-fire-exercise-in-t/",
@@ -1568,6 +1628,21 @@
       "attachments": [],
       "_slug": "4445887-marcorsyscom-provides-new-equipment-training",
       "wordCount": 507
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4442081/individual-ready-reserve-marines-gather-for-a-mega-muster-in-arlington-virginia/",
+      "title": "Individual Ready Reserve Marines gather for a Mega-muster in Arlington, Virginia",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4442081/individual-ready-reserve-marines-gather-for-a-mega-muster-in-arlington-virginia/",
+      "description": "Marines from across the District of Columbia, Maryland and Virginia moved between medical screening stations, administrative tables and informational briefings as they checked in for an Individual Ready Reserve mega-muster in Arlington, Virginia, March 5 –10, 2026. Staff from the Marine Corps Individual Reserve Support Activity guided Marines through readiness updates and available resources throughout the event. U.S. Marines assigned to the Individual Ready Reserve gathered for the multi-day muster to update records, receive information on benefits and opportunities within the Marine Corps Reserve and ensure they remain ready to serve if called upon during a national emergency. The Marine Corps remains the only branch of the U.S. military that conducts large, multi-regional mega-musters for members of the IRR.<br/> <img src='https://media.defense.gov/2026/Mar/11/2003897755/115/75/0/260307-M-DI173-5899.JPG' alt='Individual Ready Reserve Muster in D.C.' /> <br />",
+      "pubDate": "2026-03-24T13:14:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/11/2003897755/600/400/0/260307-M-DI173-5899.JPG",
+      "author": "Cpl. Orion Stpierre",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4442081-individual-ready-reserve-marines-gather-for-a-mega-muster-in-arlington-virginia",
+      "wordCount": 511
     },
     {
       "id": "https://www.marines.mil/News/News-Display/Article/4439675/13th-meu-forms-complete-marine-air-ground-task-force/",
@@ -1658,6 +1733,21 @@
       "attachments": [],
       "_slug": "4434255-lance-cpl-schule-designs-3d-printed-antenna-mast-saves-fleet-marine-force-thousands",
       "wordCount": 1468
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4430270/marine-forces-reserve-musician-selected-as-the-2025-marine-musician-of-the-year/",
+      "title": "Marine Forces Reserve Musician Selected as the 2025 Marine Musician of the Year",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4430270/marine-forces-reserve-musician-selected-as-the-2025-marine-musician-of-the-year/",
+      "description": "U.S. Marine Corps Sgt. Justin A. Napier, a trombone instrumentalist with the Marine Forces Reserve Band, was recognized and awarded as the 2025 Marine Corps Musician of the Year.<br/> <img src='https://media.defense.gov/2026/Mar/10/2003897273/115/75/0/260310-M-M0302-0003.PNG' alt='Marine Forces Reserve Musician Selected as the 2025 Marine Musician of the Year' /> <br />",
+      "pubDate": "2026-03-10T19:33:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/10/2003897273/600/400/0/260310-M-M0302-0003.PNG",
+      "author": "Lance Cpl. Jazmin Sierra",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4430270-marine-forces-reserve-musician-selected-as-the-2025-marine-musician-of-the-year",
+      "wordCount": 486
     },
     {
       "id": "https://www.marines.mil/News/News-Display/Article/4421583/exercise-panamanian-partnership-26/",
@@ -1852,6 +1942,21 @@
       "wordCount": 2167
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4389335/clb-23-winter-field-exercise/",
+      "title": "CLB-23 Winter Field Exercise",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4389335/clb-23-winter-field-exercise/",
+      "description": "U.S. Marines with Combat Logistics Battalion 23, 4th Marine Logistics Group conducted a Winter Field Exercise at Fort Hunter Liggett, California, from Jan. 9 to Jan. 11, focusing on small-unit tactics, fieldcraft and sustainment operations in austere conditions. The exercise began with the insertion of Marines via a U.S. Army CH-47F Chinook helicopter assigned to Bravo Company, 1st Battalion, 126th Aviation Regiment (General Support Aviation Battalion), from Stockton, Calif. The air assault insertion allowed Marines to rapidly move personnel and equipment into the training area, replicating expeditionary operations that require mobility and coordination with joint aviation assets.<br/> <img src='https://media.defense.gov/2026/Jan/22/2003858809/115/75/0/260110-M-AD648-1091.JPG' alt='U.S. Marines conduct a communications class during a Cold Weather Field Exercise at Fort Hunter-Liggett, Calif. on Jan. 10th, 2026. The Marines are a part of Combat Logistics Battalion 23, 4th Marine Logistics Group. CLB-23 conducted a hike to transfer from one training area to another, designed to enhance and test readiness and lethality in the Marine Corps Reserve. (U.S Marine Corps photo by Sgt. Eduardo Delatorre)' /> <br />",
+      "pubDate": "2026-01-26T15:31:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Jan/22/2003858809/600/400/0/260110-M-AD648-1091.JPG",
+      "author": "Sgt. Eduardo Delatorre",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4389335-clb-23-winter-field-exercise",
+      "wordCount": 311
+    },
+    {
       "id": "https://www.marines.mil/News/News-Display/Article/4389316/2nd-marine-logistics-group-innovating-the-future-of-mobile-satellite-communicat/",
       "title": "2nd Marine Logistics Group; Innovating the Future of Mobile Satellite Communications",
       "link": "https://www.marines.mil/News/News-Display/Article/4389316/2nd-marine-logistics-group-innovating-the-future-of-mobile-satellite-communicat/",
@@ -1912,6 +2017,21 @@
       "wordCount": 725
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4380377/us-marine-corps-reservists-showcase-teamwork-while-competing-for-the-major-gene/",
+      "title": "U.S. Marine Corps reservists showcase teamwork while competing for the Major General William Pendleton Thompson Hill Food Service Award",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4380377/us-marine-corps-reservists-showcase-teamwork-while-competing-for-the-major-gene/",
+      "description": "U.S. Marine Corps food service specialists with Marine Wing Support Squadron (MWSS) 472 conducted field kitchen operations while competing for the Major General William Pendleton Thompson Hill Food Service Award.<br/> <img src='https://media.defense.gov/2026/Jan/15/2003856871/115/75/0/260112-M-IP132-1341.JPG' alt='U.S. Marine Corps Brig. Gen. Patrick Tiernan serves steaks to Marines during a food service competition at Marine Wing Support Squadron (MWSS) 472, Wyoming, Pennsylvania, Jan. 11, 2026. Tiernan is the commanding general of 4th Marine Aircraft Wing. Marines participated in an inspection for the Maj. Gen. William Pendleton Thompson Hill Awards to demonstrate their quality of food preparation, sanitation, and customer service. (U.S. Marine Corps photo by Lance Cpl. Priscilla Flores)' /> <br />",
+      "pubDate": "2026-01-15T15:16:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Jan/15/2003856871/600/400/0/260112-M-IP132-1341.JPG",
+      "author": "Lance Cpl. Priscilla Flores",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4380377-us-marine-corps-reservists-showcase-teamwork-while-competing-for-the-major-general-william-pendl",
+      "wordCount": 369
+    },
+    {
       "id": "https://www.marines.mil/News/News-Display/Article/4380742/tripoli-expeditionary-strike-group-operates-in-7th-fleet/",
       "title": "Tripoli Expeditionary Strike Group operates in 7th Fleet",
       "link": "https://www.marines.mil/News/News-Display/Article/4380742/tripoli-expeditionary-strike-group-operates-in-7th-fleet/",
@@ -1940,6 +2060,66 @@
       "attachments": [],
       "_slug": "4374460-ready-engaged-lethal-i-marine-expeditionary-force-year-in-review",
       "wordCount": 1506
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4370031/from-master-sergeant-to-first-sergeant-master-sgt-joseph-b-stoker-paves-the-way/",
+      "title": "From Master Sergeant to First Sergeant: Master Sgt. Joseph B. Stoker Paves the Way for Future Leadership in the Marine Corps",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4370031/from-master-sergeant-to-first-sergeant-master-sgt-joseph-b-stoker-paves-the-way/",
+      "description": "A new program offering a unique career transition for Marine Corps enlisted leaders has attracted<br/> <img src='https://media.defense.gov/2026/Jan/02/2003850266/115/75/0/251230-M-M0302-0002.PNG' alt='From Master Sergeant to First Sergeant: Master Sgt. Joseph B. Stoker Paves the Way for Future Leadership in the Marine Corps' /> <br />",
+      "pubDate": "2026-01-02T16:14:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Jan/02/2003850260/600/400/0/250709-M-QP496-1021.JPG",
+      "author": "Staff Sgt. Ethan LeBlanc",
+      "category": "FROM MASTER SERGEANT TO FIRST SERGEANT",
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4370031-from-master-sergeant-to-first-sergeant-master-sgt-joseph-b-stoker-paves-the-way-for-future-leade",
+      "wordCount": 902
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4380369/virtual-flag-coalition-enhances-global-partnerships-interoperability-and-readin/",
+      "title": "Virtual Flag: Coalition enhances global partnerships, interoperability, and readiness",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4380369/virtual-flag-coalition-enhances-global-partnerships-interoperability-and-readin/",
+      "description": "The Virtual Flag: Coalition 26-1 exercise, hosted annually by the 705th Combat Training Squadron, also known as the Distributed Mission Operations Center, at Kirtland Air Force Base, New Mexico, serves as a cornerstone of U.S. and allied forces' readiness, interoperability, and mission command capabilities. This high-stakes, multinational exercise integrates air, space, and cyber assets from multiple partner nations to simulate real-world combat scenarios, test tactics, techniques, and procedures, and strengthen global warfighting efforts.<br/> <img src='https://media.defense.gov/2025/Dec/29/2003856889/115/75/0/251029-F-AR394-1014.PNG' alt='uniformed RCAF members standing' /> <br />",
+      "pubDate": "2025-12-30T04:47:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Dec/29/2003856888/600/400/0/251029-F-AR394-1019.PNG",
+      "author": "Deb Henley, 505th Command and Congrol Wing Public Affairs",
+      "category": "VIRTUAL FLAG",
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4380369-virtual-flag-coalition-enhances-global-partnerships-interoperability-and-readiness",
+      "wordCount": 403
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4367870/reserve-marines-prepare-for-upcoming-deployment/",
+      "title": "Reserve Marines Prepare for Upcoming Deployment",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4367870/reserve-marines-prepare-for-upcoming-deployment/",
+      "description": "Marines assigned to 1st Battalion, 25th Marine Regiment conducted a Yellow Ribbon event here in preparation for their first deployment as a battalion in six years. The event informs Marines and their families about available vital resources to ease the challenges before, during and after deployments, fostering resilience.<br/> <img src='https://media.defense.gov/2025/Dec/19/2003847352/115/75/0/251213-M-IP132-1015.JPG' alt='U.S. Marine Corps Col. James Fleming briefs Marines during the Yellow Ribbon Event at Fort Devens, Massachusetts, Dec. 13, 2025. Flemming is the commanding officer of the 25th Marine Regiment. The event provided resources, workshops and community-building opportunities to strengthen the resilience and readiness of military members and families before, during and after deployment. (U.S. Marine Corps photo by Lance Cpl. Priscilla Flores)' /> <br />",
+      "pubDate": "2025-12-29T15:39:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Dec/19/2003847352/600/400/0/251213-M-IP132-1015.JPG",
+      "author": "1st Lt. Quiarra Barros",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4367870-reserve-marines-prepare-for-upcoming-deployment",
+      "wordCount": 468
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4366074/a-reserve-marine-perseveres-through-adversity-with-support-from-his-fellow-mari/",
+      "title": "A Reserve Marine Perseveres Through Adversity with Support from His fellow Marines",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4366074/a-reserve-marine-perseveres-through-adversity-with-support-from-his-fellow-mari/",
+      "description": "For U.S. Marine Corps Cpl. Nathaniel Hill, a rifleman with Charlie Company, 1st Battalion, 25th<br/> <img src='https://media.defense.gov/2025/Dec/22/2003848138/115/75/0/251214-M-IP132-1013.JPG' alt='Reserve Marines with 25th Marine Regiment receive gear at Fort Devens' /> <br />",
+      "pubDate": "2025-12-22T14:11:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Dec/22/2003848142/600/400/0/251214-M-IP132-3039.JPG",
+      "author": "Lance Cpl. Priscilla Flores",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4366074-a-reserve-marine-perseveres-through-adversity-with-support-from-his-fellow-marines",
+      "wordCount": 476
     },
     {
       "id": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4365631/usmc-honors-the-life-of-general-michael-j-williams-28th-assistant-commandant-of/",
@@ -1993,6 +2173,21 @@
       "wordCount": 301
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4358696/marines-conduct-a-tactical-air-control-party-exercise/",
+      "title": "Marines Conduct a Tactical Air Control Party Exercise",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4358696/marines-conduct-a-tactical-air-control-party-exercise/",
+      "description": "Reserve Marine units from across the country assembled at Camp Shelby, Mississippi, for a Tactical Air Control Party exercise focused on joint terminal attack controller (JTAC) and joint fires observer (JFO) training and qualification sustainment. The event enhanced joint fires proficiency while allowing Marines to complete their annual certification requirements and refine their air support coordination skills.<br/> <img src='https://media.defense.gov/2025/Dec/10/2003840489/115/75/0/251202-M-KI947-1996.JPG' alt='U.S. Marines with 3rd Naval Gunfire Liaison Company, Force Headquarters Group, Marine Forces Reserve, coordinate close air support during a tactical air-control party (TACP) exercise at Rattlesnake Range, Hattiesburg, Mississippi, Dec. 2, 2025. TACP exercises prepare prospective joint terminal attack controllers and joint fires observers for formal schools. (U.S. Marine Corps photo by Lance Cpl. Payton Goodrich)' /> <br />",
+      "pubDate": "2025-12-12T16:26:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Dec/10/2003840511/600/400/0/251202-M-KI947-1466.JPG",
+      "author": "Lance Cpl. Payton Goodrich",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4358696-marines-conduct-a-tactical-air-control-party-exercise",
+      "wordCount": 523
+    },
+    {
       "id": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4355696/death-of-general-michael-j-williams-28th-assistant-commandant-of-the-marine-cor/",
       "title": "Death of General Michael J. Williams, 28th Assistant Commandant of the Marine Corps",
       "link": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4355696/death-of-general-michael-j-williams-28th-assistant-commandant-of-the-marine-cor/",
@@ -2006,6 +2201,21 @@
       "attachments": [],
       "_slug": "4355696-death-of-general-michael-j-williams-28th-assistant-commandant-of-the-marine-corps",
       "wordCount": 323
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4338498/marforres-marforsouth-celebrate-250th-marine-corps-birthday-with-largest-ball-i/",
+      "title": "MARFORRES, MARFORSOUTH Celebrate 250th Marine Corps Birthday with Largest Ball in the Corps",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4338498/marforres-marforsouth-celebrate-250th-marine-corps-birthday-with-largest-ball-i/",
+      "description": "Marines, Sailors and distinguished guests gathered beneath the lights of the Caesars Superdome on Nov. 1, 2025, to celebrate the 250th anniversary of the United States Marine Corps during the annual U.S. Marine Corps Forces Reserve and U.S. Marine Corps Forces, South Birthday Ball, the largest Marine Corps Ball across the service.<br/> <img src='https://media.defense.gov/2025/Nov/20/2003827182/115/75/0/251101-M-VH127-1475.JPG' alt='Marine Forces Reserve and Marine Forces South Celebrate the 250th Marine Corps Birthday' /> <br />",
+      "pubDate": "2025-11-20T15:33:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Nov/20/2003827182/600/400/0/251101-M-VH127-1475.JPG",
+      "author": "Staff Sgt. Ethan LeBlanc",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4338498-marforres-marforsouth-celebrate-250th-marine-corps-birthday-with-largest-ball-in-the-corps",
+      "wordCount": 613
     },
     {
       "id": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4328600/above-below-and-beyond-the-department-of-the-navy-honors-250-years-of-the-us-na/",
@@ -2098,6 +2308,36 @@
       "wordCount": 476
     },
     {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4296564/miu-partner-organizations-exercise-advanced-manufacturing-techniques-at-trident/",
+      "title": "MIU, Partner Organizations Exercise Advanced Manufacturing Techniques at Trident Warrior 25",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4296564/miu-partner-organizations-exercise-advanced-manufacturing-techniques-at-trident/",
+      "description": "U.S. Marines from the Marine Innovation Unit (MIU) participated in Exercise Trident Warrior 25 at Naval Air Station North Island, California, from 28 July to 8 August, 2025, executing the Distributed Advanced Manufacturing concept with the Consortium for Advanced Manufacturing Research and Education (CAMRE) at the Naval Postgraduate School (NPS) and FLEETWERX for addressing contested logistics challenges in expeditionary environments. While operating in remote, austere or deployed environments, units may not have access to traditional sources of supply, necessitating the development of new methods for providing logistical support.<br/>",
+      "pubDate": "2025-09-08T13:47:30.000Z",
+      "imageUrl": null,
+      "author": "Maj. Thomas Kleiber",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4296564-miu-partner-organizations-exercise-advanced-manufacturing-techniques-at-trident-warrior-25",
+      "wordCount": 803
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4284990/ttecg-supports-c-uasew-training/",
+      "title": "TTECG supports C-UAS/EW Training",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4284990/ttecg-supports-c-uasew-training/",
+      "description": "Tactical Training and Exercise Control Group supported Counter-Unmanned Aerial Systems and Electronic Warfare Training during Service Level Training Exercise 4-25, held at Marine Corps Air Ground Combat Center, located in Twentynine Palms, California. SLTE 4-25 for Marine Air Ground Task Forces, sustains and involves live-fire and maneuver multi-domain combined arms tactics, techniques, and procedures, as well as electronic warfare training. This training simulates combat conditions and improves the decision-making cycle and threat capabilities in order to generate MAGTF combat readiness and lethality.<br/> <img src='https://media.defense.gov/2025/Aug/25/2003787681/115/75/0/250825-M-M0321-0001.PNG' alt='TTECG supports C-UAS/EW Training' /> <br />",
+      "pubDate": "2025-08-25T16:25:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Aug/25/2003787681/600/400/0/250825-M-M0321-0001.PNG",
+      "author": "Lance Cpl. Parker Peichel",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4284990-ttecg-supports-c-uas-ew-training",
+      "wordCount": 609
+    },
+    {
       "id": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4282345/marines-pilot-artificial-intelligence-fellowship-at-nps/",
       "title": "Marines Pilot Artificial Intelligence Fellowship at NPS",
       "link": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4282345/marines-pilot-artificial-intelligence-fellowship-at-nps/",
@@ -2141,6 +2381,21 @@
       "attachments": [],
       "_slug": "4260265-us-marines-mobilize-without-delay-shift-from-exercise-to-crisis-response",
       "wordCount": 210
+    },
+    {
+      "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4241387/vmft-402-showcases-f-5-capabilities-in-atlantic-alliance-2025-at-joint-base-cap/",
+      "title": "VMFT-402 Showcases F-5 Capabilities in Atlantic Alliance 2025 at Joint Base Cape Cod",
+      "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4241387/vmft-402-showcases-f-5-capabilities-in-atlantic-alliance-2025-at-joint-base-cap/",
+      "description": "Here, VMFT-402 employed the Northrop F-5 Tiger, a tactical fighter aircraft recently obtained from the Swiss Air Force. The transfer of this aircraft greatly improves the Marine Corps’ adversary training capabilities, enabling VMFT-402 to provide realistic, agile, and challenging opposition forces during naval and amphibious training exercises.<br/> <img src='https://media.defense.gov/2025/Jul/07/2003748837/115/75/0/250702-M-JH066-1606.JPG' alt='In Flight and Fuel: Marine Pilots fly an F-5 in Joint Base Cape Cod' /> <br />",
+      "pubDate": "2025-07-11T14:16:00.000Z",
+      "imageUrl": "https://media.defense.gov/2025/Jul/07/2003748837/600/400/0/250702-M-JH066-1606.JPG",
+      "author": "Sgt. Emely Gonzalez",
+      "category": null,
+      "source": "news",
+      "feedId": "marforres-news",
+      "attachments": [],
+      "_slug": "4241387-vmft-402-showcases-f-5-capabilities-in-atlantic-alliance-2025-at-joint-base-cape-cod",
+      "wordCount": 349
     },
     {
       "id": "https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4165321/marines-to-highlight-service-priorities-future-challenges-at-modern-day-marine/",

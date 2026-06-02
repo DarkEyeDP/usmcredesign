@@ -44,6 +44,20 @@ export function test(name: string, fn: () => void) {
   }
 }
 
+export async function testAsync(name: string, fn: () => Promise<void>) {
+  const stats = getStats();
+  stats.testsTotal += 1;
+
+  try {
+    await fn();
+    stats.testsPassed += 1;
+    console.log(`PASS ${name}`);
+  } catch (error) {
+    console.error(`FAIL ${name}`);
+    throw error;
+  }
+}
+
 export function getTestStats(): TestStats {
   return getStats();
 }

@@ -24,6 +24,12 @@ export const FEEDS = [
     url: 'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?max=50&ContentType=2&Site=481',
     source: 'press-release',
   },
+  {
+    id: 'marforres-news',
+    name: 'MARFORRES — News',
+    url: 'https://www.marforres.marines.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=537&max=20',
+    source: 'news',
+  },
 
   // ── Official DoD ─────────────────────────────────────────────────────────
   {

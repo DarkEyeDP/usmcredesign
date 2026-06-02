@@ -5,6 +5,7 @@ const ARTICLE_ID_RE = /\/Article\/(\d+)(?:\/|$)/i;
 const FEED_LABELS: Record<string, string> = {
   'marines-news': 'MARINES.MIL',
   'marines-press': 'MARINES.MIL',
+  'marforres-news': 'MARFORRES',
   'defense-gov': 'DEFENSE.GOV',
   'marine-corps-times': 'MARINE CORPS TIMES',
   'military-times': 'MILITARY TIMES',

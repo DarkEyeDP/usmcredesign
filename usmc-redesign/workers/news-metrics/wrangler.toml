@@ -1,0 +1,13 @@
+name = "news-metrics"
+main = "src/index.js"
+compatibility_date = "2026-06-02"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,https://stay-marine.com,https://www.stay-marine.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "usmc-news-metrics"
+database_id = "0ebda084-d115-4d0f-9c9a-fadd31a30381"
+migrations_dir = "migrations"

@@ -8,6 +8,7 @@ import { useNewsItems } from './useNewsItems';
 import { fetchNewsArticleDetail } from './rssService';
 import { getBookmarkedIds, getBookmarkedItems, toggleBookmark } from './newsBookmarkStorage';
 import { getNewsArticlePath, getNewsArticleSlug, getSourceLabel, matchesNewsArticleSlug } from './newsArticleUtils';
+import { useNewsArticleMetrics } from './useNewsArticleMetrics';
 import type { NewsArticleDetail, NewsItem } from './types';
 
 const DETAIL_CACHE_KEY = 'usmc-news-article-detail-cache:v3';
@@ -51,6 +52,10 @@ function writeDetailCache(itemId: string, detail: NewsArticleDetail): void {
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
 }
 
 function SourceBadge({ source }: { source: NewsItem['source'] }) {
@@ -121,6 +126,7 @@ export function NewsArticlePage() {
   const [detail, setDetail] = useState<NewsArticleDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  const { metrics } = useNewsArticleMetrics(articleSlug);
 
   const allItems = useMemo(
     () => uniqueItems([...newsItems, ...pressReleases, ...savedItems]).sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime()),
@@ -315,6 +321,12 @@ export function NewsArticlePage() {
                     <>
                       <span className="text-white/20">|</span>
                       <span>{Math.max(1, Math.ceil(detail.wordCount / 238))} MIN READ</span>
+                    </>
+                  )}
+                  {metrics && metrics.reads > 0 && (
+                    <>
+                      <span className="text-white/20">|</span>
+                      <span>READ BY {formatCount(metrics.reads)}</span>
                     </>
                   )}
                 </div>

@@ -48,9 +48,20 @@ import { ContentDisplay } from './components/ContentDisplay';
 import { ContentSkeleton } from './components/ContentSkeleton';
 import { FetchFailed } from './components/FetchFailed';
 import { CreateViewModal } from './components/CreateViewModal';
+import { useContentMetrics } from '../metrics/useContentMetrics';
+import { buildMARADMINMetricKey } from '../metrics/contentMetricKeys';
 
 const tabs = ['ALL MESSAGES', 'UNREAD', 'SAVED'];
 const FEED_POLL_INTERVAL_MS = 3 * 60 * 1000;
+
+function formatCount(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}
+
+function getMARADMINMetricsKey(msg: RSSMessage | null): string | undefined {
+  if (!msg) return undefined;
+  return buildMARADMINMetricKey(msg.number || msg.id);
+}
 
 interface Props {
   isFullscreen?: boolean;
@@ -100,6 +111,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [shareOpen, setShareOpen]           = useState(false);
   const [shareGenerating, setShareGenerating] = useState(false);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const { metrics: selectedMetrics } = useContentMetrics(getMARADMINMetricsKey(selectedMsg), {
+    viewStoragePrefix: 'usmc-maradmin-viewed:',
+  });
   const shareRef = useRef<HTMLDivElement>(null);
   const [archiveNextPage, setArchiveNextPage] = useState(initialArchiveCursor.nextPage);
   const [archiveHasMore, setArchiveHasMore] = useState(initialArchiveCursor.hasMore);
@@ -1814,6 +1828,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     <span className="text-[12px] text-gray-500 font-mono md:truncate">
                       {selectedMsg.source}
                     </span>
+                    {selectedMetrics && selectedMetrics.views > 0 && (
+                      <>
+                        <span className="h-3.5 w-px self-center bg-white/18 rounded-full md:flex-shrink-0" aria-hidden="true" />
+                        <span className="text-[12px] text-gray-500 font-mono md:flex-shrink-0">
+                          VIEWED BY {formatCount(selectedMetrics.views)}
+                        </span>
+                      </>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

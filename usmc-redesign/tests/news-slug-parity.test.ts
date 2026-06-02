@@ -124,6 +124,11 @@ test('getSourceLabel returns MARINES.MIL for marines-press feedId', () => {
   assert.equal(getSourceLabel(item), 'MARINES.MIL');
 });
 
+test('getSourceLabel returns MARFORRES for marforres-news feedId', () => {
+  const item = makeItem({ feedId: 'marforres-news', link: 'https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/1/' });
+  assert.equal(getSourceLabel(item), 'MARFORRES');
+});
+
 test('getSourceLabel returns DEFENSE.GOV for defense-gov feedId', () => {
   const item = makeItem({ feedId: 'defense-gov', link: 'https://www.defense.gov/News/Article/1/' });
   assert.equal(getSourceLabel(item), 'DEFENSE.GOV');

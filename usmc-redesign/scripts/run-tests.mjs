@@ -16,6 +16,9 @@ const testFiles = [
   path.join(root, 'tests', 'news-rss-parser.test.ts'),
   path.join(root, 'tests', 'news-body-filter.test.ts'),
   path.join(root, 'tests', 'news-slug-parity.test.ts'),
+  // Metrics
+  path.join(root, 'tests', 'content-metric-keys.test.ts'),
+  path.join(root, 'tests', 'news-metrics-worker.test.ts'),
   // Routing
   path.join(root, 'tests', 'route-utils.test.ts'),
 ];
