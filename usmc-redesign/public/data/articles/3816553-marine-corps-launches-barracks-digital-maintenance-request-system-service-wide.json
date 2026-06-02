@@ -1,0 +1,71 @@
+{
+  "fetchedAt": "2026-06-02T01:40:09.671Z",
+  "title": "Marine Corps launches Barracks Digital Maintenance Request System Service-Wide",
+  "pubDate": "2024-06-25T16:13:00.000Z",
+  "imageUrl": null,
+  "description": "The Marine Corps launched and has fully implemented QSRMax, which is the service’s main effort to upgrade its maintenance request system from analog to digital.",
+  "wordCount": 289,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "The Marine Corps launched and has fully implemented QSRMax, which is the service’s main effort to upgrade its maintenance request system from analog to digital."
+    },
+    {
+      "type": "paragraph",
+      "text": "QSRMax simplifies the process for submitting maintenance requests by empowering Marines with a convenient means to submit barracks maintenance support requests directly to the USMCMax system through a QR code on their phone."
+    },
+    {
+      "type": "paragraph",
+      "text": "QSRMax empowers Marines to track their maintenance support requests as they progress through the system in real time. QSRMax allows users to submit maintenance requests directly to barracks and building managers, which then can be relayed to the base. This restructuring increases transparency and accountability while enhancing communication between Marines and maintenance personnel."
+    },
+    {
+      "type": "paragraph",
+      "text": "These maintenance requests also have strategic level visibility, which allows for holistic data analysis across the service. Here is how QSR Max works:"
+    },
+    {
+      "type": "paragraph",
+      "text": "1. Marine identifies a problem."
+    },
+    {
+      "type": "paragraph",
+      "text": "2. Marine scans QR code on QSRMax and creates an account if one is not already established."
+    },
+    {
+      "type": "paragraph",
+      "text": "3. Marine creates a facilities maintenance request within QSRMax, followed by the creation of a USMCmax service request if approved."
+    },
+    {
+      "type": "paragraph",
+      "text": "4. Request is received and addressed within the QSRMax portal by the designated barracks manager."
+    },
+    {
+      "type": "paragraph",
+      "text": "5. Barracks manager determines level of support needed to address the requirement and updates the request in the system."
+    },
+    {
+      "type": "paragraph",
+      "text": "6. If needed, the request goes to base via work order request."
+    },
+    {
+      "type": "paragraph",
+      "text": "7. Once the maintenance request is completed, the assigned agency reports it complete in the QSRMax system."
+    },
+    {
+      "type": "paragraph",
+      "text": "The introduction of QSRMax marks a new chapter in facilities maintenance within the Marine Corps, characterized by efficiency, transparency, and responsiveness."
+    },
+    {
+      "type": "paragraph",
+      "text": "The following link allows direct access to the QSRMax website:https://usmcmax.usmc.mil/qsrmax"
+    },
+    {
+      "type": "paragraph",
+      "text": "Learn more about Barracks 2030, the service's vision to improve quality of life in unaccompanied housing, by visitingwww.mcicom.marines.mil."
+    },
+    {
+      "type": "paragraph",
+      "text": "-30-"
+    }
+  ],
+  "links": []
+}

@@ -5,12 +5,18 @@ import { build } from 'esbuild';
 
 const root = process.cwd();
 const testFiles = [
+  // MARADMIN
   path.join(root, 'tests', 'maradmin-link-utils.test.ts'),
   path.join(root, 'tests', 'maradmin-header-poc.test.ts'),
   path.join(root, 'tests', 'maradmin-search.test.ts'),
   path.join(root, 'tests', 'maradmin-storage.test.ts'),
   path.join(root, 'tests', 'maradmin-table-parsers.test.ts'),
+  // News
   path.join(root, 'tests', 'news-article-utils.test.ts'),
+  path.join(root, 'tests', 'news-rss-parser.test.ts'),
+  path.join(root, 'tests', 'news-body-filter.test.ts'),
+  path.join(root, 'tests', 'news-slug-parity.test.ts'),
+  // Routing
   path.join(root, 'tests', 'route-utils.test.ts'),
 ];
 

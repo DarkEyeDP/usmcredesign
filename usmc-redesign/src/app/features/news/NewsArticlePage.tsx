@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router';
-import { ArrowLeft, Bookmark, CalendarDays, ChevronRight, ExternalLink, FileText, Newspaper, Radio } from 'lucide-react';
+import { Link, useLocation, useParams } from 'react-router';
+import { ArrowLeft, Bookmark, CalendarDays, ChevronLeft, ChevronRight, ExternalLink, FileText, Newspaper, Radio } from 'lucide-react';
 import { motion } from 'motion/react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import { useNewsItems } from './useNewsItems';
 import { fetchNewsArticleDetail } from './rssService';
 import { getBookmarkedIds, getBookmarkedItems, toggleBookmark } from './newsBookmarkStorage';
-import { getNewsArticlePath, matchesNewsArticleSlug } from './newsArticleUtils';
+import { getNewsArticlePath, getNewsArticleSlug, getSourceLabel, matchesNewsArticleSlug } from './newsArticleUtils';
 import type { NewsArticleDetail, NewsItem } from './types';
 
 const DETAIL_CACHE_KEY = 'usmc-news-article-detail-cache:v3';
@@ -113,6 +113,8 @@ function uniqueItems(items: NewsItem[]): NewsItem[] {
 
 export function NewsArticlePage() {
   const { articleSlug } = useParams();
+  const location = useLocation();
+  const fromFilter: string = (location.state as { filter?: string } | null)?.filter ?? 'all';
   const { newsItems, pressReleases, loading, refreshing, error } = useNewsItems();
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(() => getBookmarkedIds());
   const [savedItems, setSavedItems] = useState<NewsItem[]>(() => getBookmarkedItems());
@@ -129,6 +131,19 @@ export function NewsArticlePage() {
     () => allItems.find(candidate => matchesNewsArticleSlug(candidate, articleSlug)) ?? null,
     [allItems, articleSlug],
   );
+
+  // Compute the navigation list using the same filter that was active on the news page.
+  // Falls back to all items when navigating directly (no state).
+  const navList = useMemo(() => {
+    if (fromFilter === 'all') return allItems;
+    if (fromFilter === 'press-release') return allItems.filter(i => i.source === 'press-release');
+    if (fromFilter === 'saved') return savedItems;
+    return allItems.filter(i => getSourceLabel(i) === fromFilter);
+  }, [allItems, savedItems, fromFilter]);
+
+  const navIndex = navList.findIndex(i => i.id === item?.id);
+  const prevItem = navIndex > 0 ? navList[navIndex - 1] : null;
+  const nextItem = navIndex >= 0 && navIndex < navList.length - 1 ? navList[navIndex + 1] : null;
 
   const relatedItems = useMemo(
     () => allItems.filter(candidate => candidate.id !== item?.id).slice(0, 4),
@@ -148,6 +163,37 @@ export function NewsArticlePage() {
       setDetailError(null);
 
       try {
+        // Try the pre-fetched static body first — instant load, no external deps.
+        const slug = getNewsArticleSlug(item);
+        const staticRes = await fetch(`/data/articles/${slug}.json`).catch(() => null);
+        if (staticRes?.ok) {
+          const raw = await staticRes.json() as {
+            body: NewsArticleDetail['body'];
+            links: NewsArticleDetail['links'];
+            title: string | null;
+            pubDate: string | null;
+            imageUrl: string | null;
+            description: string | null;
+            wordCount?: number;
+          };
+          if (!cancelled) {
+            const detail: NewsArticleDetail = {
+              title: raw.title ?? item.title,
+              pubDate: raw.pubDate ? new Date(raw.pubDate) : item.pubDate,
+              body: raw.body ?? [],
+              links: raw.links ?? [],
+              imageUrl: raw.imageUrl ?? item.imageUrl,
+              description: raw.description ?? item.description,
+              wordCount: raw.wordCount,
+            };
+            setDetail(detail);
+            writeDetailCache(item.id, detail);
+            setDetailLoading(false);
+            return;
+          }
+        }
+
+        // Fall back to live fetch (Jina Reader → proxy).
         const nextDetail = await fetchNewsArticleDetail(item);
         if (cancelled) return;
         setDetail(nextDetail);
@@ -223,7 +269,7 @@ export function NewsArticlePage() {
       />
 
       <header className="relative overflow-hidden border-b border-white/12 pt-20">
-        <div className="absolute inset-0 bg-[#050508]" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(5,5,10,0.92) 50%, rgba(8,5,12,0.88) 100%)', backgroundColor: '#050508' }} />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -231,38 +277,50 @@ export function NewsArticlePage() {
             backgroundSize: '40px 40px',
           }}
         />
+        <div className="absolute bottom-0 right-0 top-0 w-0.5 bg-red-900/30" />
 
-        <div className="relative z-10 mx-auto max-w-6xl px-6 py-7 md:px-8 md:py-9">
-          <div className="mb-5 flex items-center gap-2 text-[12px] font-mono tracking-wider text-gray-600">
-            <Link to="/" className="hover:text-gray-400">HOME</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link to="/news" className="hover:text-gray-400">NEWS</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-red-500">ARTICLE</span>
+        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
+          <div className="flex flex-1 flex-col justify-center px-8 py-6">
+            <div className="mb-2 flex items-center gap-2 text-[12px] font-mono tracking-wider text-gray-600">
+              <Link to="/" className="hover:text-gray-400">HOME</Link>
+              <ChevronRight className="h-3 w-3" />
+              <Link to="/news" className="hover:text-gray-400">NEWS</Link>
+              <ChevronRight className="h-3 w-3" />
+              <span className="text-red-500">ARTICLE</span>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 230, damping: 16, mass: 0.85 }}
+              className="flex items-start gap-4"
+            >
+              <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+              <div className="min-w-0 max-w-5xl">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <SourceBadge source={item.source} />
+                  {item.category && (
+                    <span className="text-[11px] font-mono tracking-[0.25em] text-gray-500">{item.category}</span>
+                  )}
+                </div>
+                <h1 className="break-words text-3xl font-black leading-tight tracking-normal text-white md:text-5xl">
+                  {item.title}<span className="text-red-600">.</span>
+                </h1>
+                <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-mono tracking-wider text-gray-500">
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays className="h-3.5 w-3.5 text-red-500" /> {formatDate(publishedAt).toUpperCase()}
+                  </span>
+                  {item.author && <span>{item.author.toUpperCase()}</span>}
+                  {detail?.wordCount && detail.wordCount > 0 && (
+                    <>
+                      <span className="text-white/20">|</span>
+                      <span>{Math.max(1, Math.ceil(detail.wordCount / 238))} MIN READ</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 230, damping: 16, mass: 0.85 }}
-            className="max-w-4xl"
-          >
-            <div className="mb-4 flex flex-wrap items-center gap-3">
-              <SourceBadge source={item.source} />
-              {item.category && (
-                <span className="text-[11px] font-mono tracking-[0.25em] text-gray-500">{item.category}</span>
-              )}
-            </div>
-            <h1 className="break-words text-3xl font-black leading-tight tracking-normal text-white md:text-5xl">
-              {item.title}<span className="text-red-600">.</span>
-            </h1>
-            <div className="mt-5 flex flex-wrap items-center gap-4 text-[12px] font-mono tracking-wider text-gray-500">
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays className="h-3.5 w-3.5 text-red-500" /> {formatDate(publishedAt).toUpperCase()}
-              </span>
-              {item.author && <span>{item.author.toUpperCase()}</span>}
-            </div>
-          </motion.div>
         </div>
       </header>
 
@@ -294,7 +352,11 @@ export function NewsArticlePage() {
           <div className="space-y-5">
             {body.map((block, index) => {
               if (block.type === 'heading') {
-                return <h2 key={index} className="pt-3 text-xl font-black tracking-tight text-white">{block.text}</h2>;
+                return (
+                  <h2 key={index} className="mt-8 border-b border-white/10 pb-3 text-2xl font-black tracking-tight text-white first:mt-0 md:text-3xl">
+                    {block.text}
+                  </h2>
+                );
               }
               if (block.type === 'quote') {
                 return (
@@ -303,9 +365,45 @@ export function NewsArticlePage() {
                   </blockquote>
                 );
               }
-              return <p key={index} className="text-[15px] leading-8 text-gray-300">{block.text}</p>;
+              return <p key={index} className="text-base leading-8 text-gray-300">{block.text}</p>;
             })}
           </div>
+
+          {/* Prev / Next navigation */}
+          {(prevItem || nextItem) && (
+            <nav className="mt-10 border-t border-white/10 pt-8 grid grid-cols-2 gap-3">
+              {prevItem ? (
+                <Link
+                  to={getNewsArticlePath(prevItem)}
+                  state={{ filter: fromFilter }}
+                  className="group border border-white/12 bg-black p-4 hover:border-white/30 transition-colors"
+                >
+                  <div className="mb-2 flex items-center gap-1.5 text-[10px] font-mono tracking-[0.2em] text-gray-600">
+                    <ChevronLeft className="h-3 w-3" /> PREVIOUS
+                  </div>
+                  <div className="text-sm font-bold leading-snug text-gray-300 line-clamp-2 group-hover:text-red-400 transition-colors">
+                    {prevItem.title}
+                  </div>
+                  <div className="mt-2 text-[10px] font-mono text-gray-600">{formatDate(prevItem.pubDate)}</div>
+                </Link>
+              ) : <div />}
+              {nextItem ? (
+                <Link
+                  to={getNewsArticlePath(nextItem)}
+                  state={{ filter: fromFilter }}
+                  className="group border border-white/12 bg-black p-4 hover:border-white/30 transition-colors text-right"
+                >
+                  <div className="mb-2 flex items-center justify-end gap-1.5 text-[10px] font-mono tracking-[0.2em] text-gray-600">
+                    NEXT <ChevronRight className="h-3 w-3" />
+                  </div>
+                  <div className="text-sm font-bold leading-snug text-gray-300 line-clamp-2 group-hover:text-red-400 transition-colors">
+                    {nextItem.title}
+                  </div>
+                  <div className="mt-2 text-[10px] font-mono text-gray-600">{formatDate(nextItem.pubDate)}</div>
+                </Link>
+              ) : <div />}
+            </nav>
+          )}
         </article>
 
         <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
@@ -317,7 +415,7 @@ export function NewsArticlePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-red-500 transition-colors hover:text-red-400"
             >
-              MARINES.MIL <ExternalLink className="h-3.5 w-3.5" />
+              {getSourceLabel(item)} <ExternalLink className="h-3.5 w-3.5" />
             </a>
             <button
               type="button"

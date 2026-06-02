@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, type KeyboardEvent } from 'react';
-import { ChevronRight, ExternalLink, Newspaper, Radio, FileText, Bookmark } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef, type KeyboardEvent } from 'react';
+import { ChevronRight, ExternalLink, Newspaper, Radio, FileText, Bookmark, Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,9 +7,10 @@ import { useNewsItems } from './useNewsItems';
 import type { NewsItem, NewsAttachment } from './types';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import { getBookmarkedIds, getBookmarkedItems, toggleBookmark, updateBookmarkedItem } from './newsBookmarkStorage';
-import { getNewsArticlePath } from './newsArticleUtils';
+import { getNewsArticlePath, getSourceLabel } from './newsArticleUtils';
+import { useNewsSearch } from './useNewsSearch';
 
-type Filter = 'all' | 'news' | 'press-release' | 'saved';
+type Filter = string; // 'all' | 'press-release' | 'saved' | source-label (e.g. 'MARINES.MIL')
 
 function AttachmentList({ attachments, compact = false }: { attachments: NewsAttachment[]; compact?: boolean }) {
   if (attachments.length === 0) return null;
@@ -147,7 +148,17 @@ function FeaturedHero({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
         <p className="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
         <AttachmentList attachments={item.attachments} />
         <div className={`flex items-center gap-4 ${item.attachments.length > 0 ? 'mt-4' : ''}`}>
-          <span className="text-[11px] font-mono text-gray-600">{formatDate(item.pubDate)}</span>
+          <span className="flex items-center gap-1.5 text-[11px] font-mono text-gray-600">
+            <span>{formatDate(item.pubDate)}</span>
+            <span className="text-white/20">|</span>
+            <span>{getSourceLabel(item)}</span>
+            {item.wordCount && item.wordCount > 0 && (
+              <>
+                <span className="text-white/20">|</span>
+                <span>{Math.max(1, Math.ceil(item.wordCount / 238))} MIN READ</span>
+              </>
+            )}
+          </span>
           <span className="text-[11px] font-bold text-red-500 tracking-widest flex items-center gap-1 group-hover:text-red-400 transition-colors">
             READ ARTICLE <ChevronRight className="w-3 h-3" />
           </span>
@@ -190,17 +201,27 @@ function NewsCard({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
         <div className="absolute top-2 left-3">
           <SourceBadge source={item.source} filled />
         </div>
-        <button
-          type="button"
-          onClick={e => { e.preventDefault(); e.stopPropagation(); onBookmark(item); }}
-          aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark article'}
-          className={`absolute top-2 right-2 p-1 transition-colors ${isBookmarked ? 'text-red-500' : 'text-white/30 hover:text-white/60'}`}
-        >
-          <Bookmark className="w-3.5 h-3.5 fill-current" />
-        </button>
       </div>
       <div className="flex flex-col flex-1 p-4">
-        <div className="text-[10px] font-mono text-gray-600 mb-2">{formatDate(item.pubDate)}</div>
+        <div className="flex items-center gap-1.5 text-[10px] font-mono text-gray-600 mb-2">
+          <span>{formatDate(item.pubDate)}</span>
+          <span className="text-white/20">|</span>
+          <span>{getSourceLabel(item)}</span>
+          {item.wordCount && item.wordCount > 0 && (
+            <>
+              <span className="text-white/20">|</span>
+              <span>{Math.max(1, Math.ceil(item.wordCount / 238))} MIN</span>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={e => { e.preventDefault(); e.stopPropagation(); onBookmark(item); }}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark article'}
+            className={`ml-auto flex-shrink-0 transition-colors ${isBookmarked ? 'text-red-500' : 'text-white/25 hover:text-white/60'}`}
+          >
+            <Bookmark className="w-3 h-3 fill-current" />
+          </button>
+        </div>
         <h3 className="text-sm font-bold text-white tracking-wide leading-snug mb-2 group-hover:text-red-400 transition-colors line-clamp-3 flex-1">
           {item.title}
         </h3>
@@ -216,12 +237,21 @@ function NewsCard({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
   );
 }
 
-const FILTER_LABELS: Record<Filter, string> = {
-  all: 'ALL',
-  news: 'NEWS',
-  'press-release': 'PRESS RELEASES',
-  saved: 'SAVED',
-};
+function buildTabs(
+  allItems: NewsItem[],
+  savedItems: NewsItem[],
+  feedTabs: [string, number][],
+  loading: boolean,
+): { key: string; label: string; count: number }[] {
+  return [
+    { key: 'all', label: 'ALL', count: allItems.length },
+    // One tab per unique source label (groups marines-news + marines-press → MARINES.MIL)
+    ...feedTabs.map(([label, count]) => ({ key: label, label, count })),
+    // Type-based cross-source filter (useful as more feeds are added)
+    { key: 'press-release', label: 'PRESS RELEASES', count: allItems.filter(i => i.source === 'press-release').length },
+    { key: 'saved', label: 'SAVED', count: loading ? 0 : savedItems.length },
+  ];
+}
 
 export function NewsPage() {
   const navigate = useNavigate();
@@ -229,11 +259,27 @@ export function NewsPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(() => getBookmarkedIds());
   const [savedItems, setSavedItems] = useState<NewsItem[]>(() => getBookmarkedItems());
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const allItems = useMemo(
     () => [...newsItems, ...pressReleases].sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime()),
     [newsItems, pressReleases],
   );
+
+  const { results: searchResults, searching } = useNewsSearch(searchQuery, allItems);
+  const isSearching = searchQuery.trim().length > 0;
+
+  // Group items by source label — multiple feedIds with the same label (e.g. marines-news
+  // and marines-press both being "MARINES.MIL") collapse into one tab.
+  const feedTabs = useMemo(() => {
+    const counts = new Map<string, number>();
+    allItems.forEach(item => {
+      const label = getSourceLabel(item);
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    });
+    return Array.from(counts.entries()); // [label, count][]
+  }, [allItems]);
 
   // When the live feed loads, refresh the stored data for any bookmarked articles
   // so they stay up-to-date (new image, updated description, etc.)
@@ -252,12 +298,15 @@ export function NewsPage() {
   }
 
   function handleOpenArticle(item: NewsItem) {
-    navigate(getNewsArticlePath(item));
+    navigate(getNewsArticlePath(item), { state: { filter } });
   }
 
   const filtered = useMemo(() => {
     if (filter === 'all') return allItems;
-    return allItems.filter(i => i.source === filter);
+    if (filter === 'press-release') return allItems.filter(i => i.source === 'press-release');
+    if (filter === 'saved') return allItems;
+    // Source-label filter: matches whichever feedIds share that label
+    return allItems.filter(i => getSourceLabel(i) === filter);
   }, [allItems, filter]);
 
   const featured = filtered[0] ?? null;
@@ -267,7 +316,7 @@ export function NewsPage() {
     <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
         title="Marine Corps News"
-        description="Latest Marine Corps news, official press releases, and USMC announcements. Stay current on Marine Corps operations, policy changes, and command updates."
+        description="Latest Marine Corps news, official press releases, and defense updates from USMC and trusted military sources."
         path="/news"
       />
       {/* Page header */}
@@ -301,36 +350,31 @@ export function NewsPage() {
               </motion.h1>
             </div>
             <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed">
-              Official news and press releases from Headquarters Marine Corps.
+              Marine Corps news, official releases, and defense updates from trusted military sources.
             </p>
           </div>
 
           {/* Desktop tabs — flush at bottom so active underline sits on the hero border */}
           <div className="hidden md:flex items-center px-8 -mb-px overflow-x-auto">
-            {(Object.keys(FILTER_LABELS) as Filter[]).map(f => {
-              const count = f === 'all' ? allItems.length
-                : f === 'saved' ? savedItems.length
-                : allItems.filter(i => i.source === f).length;
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
-                    filter === f ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {FILTER_LABELS[f]}
-                  {!loading && (
-                    <span className={`ml-1.5 text-[11px] ${filter === f ? 'text-gray-400' : 'text-gray-600'}`}>
-                      ({count})
-                    </span>
-                  )}
-                  {filter === f && (
-                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-desktop" />
-                  )}
-                </button>
-              );
-            })}
+            {buildTabs(allItems, savedItems, feedTabs, loading).map(({ key, label, count }) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
+                  filter === key ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+                }`}
+              >
+                {label}
+                {!loading && (
+                  <span className={`ml-1.5 text-[11px] ${filter === key ? 'text-gray-400' : 'text-gray-600'}`}>
+                    ({count})
+                  </span>
+                )}
+                {filter === key && (
+                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-desktop" />
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -338,34 +382,56 @@ export function NewsPage() {
       {/* Mobile sticky tabs */}
       <div className="md:hidden sticky top-20 z-30 border-b border-white/12 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/85">
         <div className="flex items-center px-4 overflow-x-auto">
-          {(Object.keys(FILTER_LABELS) as Filter[]).map(f => {
-            const count = f === 'all' ? allItems.length
-              : f === 'saved' ? savedItems.length
-              : allItems.filter(i => i.source === f).length;
-            return (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`relative px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
-                  filter === f ? 'text-white' : 'text-gray-600 hover:text-gray-400'
-                }`}
-              >
-                {FILTER_LABELS[f]}
-                {!loading && (
-                  <span className={`ml-1.5 text-[11px] ${filter === f ? 'text-gray-400' : 'text-gray-600'}`}>
-                    ({count})
-                  </span>
-                )}
-                {filter === f && (
-                  <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-mobile" />
-                )}
-              </button>
-            );
-          })}
+          {buildTabs(allItems, savedItems, feedTabs, loading).map(({ key, label, count }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`relative px-4 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
+                filter === key ? 'text-white' : 'text-gray-600 hover:text-gray-400'
+              }`}
+            >
+              {label}
+              {!loading && (
+                <span className={`ml-1.5 text-[11px] ${filter === key ? 'text-gray-400' : 'text-gray-600'}`}>
+                  ({count})
+                </span>
+              )}
+              {filter === key && (
+                <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="newsTabLine-mobile" />
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8">
+
+        {/* Search bar — below tabs */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              role="searchbox"
+              aria-label="Search articles"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search articles…"
+              className="w-full border border-white/16 bg-black py-2.5 pl-9 pr-9 font-mono text-sm text-white placeholder:text-gray-700 focus:border-red-500/50 focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
 
         {error && (
           <div className="border border-red-500/30 bg-red-900/10 px-4 py-3 text-sm text-red-400 mb-6">
@@ -373,7 +439,31 @@ export function NewsPage() {
           </div>
         )}
 
-        {loading && allItems.length === 0 ? (
+        {/* Search results */}
+        {isSearching ? (
+          <>
+            <div className="mb-5 flex items-center gap-3">
+              <span className="text-[11px] font-mono tracking-[0.3em] text-gray-600">
+                {searching ? 'SEARCHING…' : `${searchResults.length} RESULT${searchResults.length !== 1 ? 'S' : ''} FOR "${searchQuery.toUpperCase()}"`}
+              </span>
+            </div>
+            {!searching && searchResults.length === 0 ? (
+              <div className="py-16 text-center text-sm text-gray-600">No articles matched your search.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {searchResults.map(item => (
+                  <NewsCard
+                    key={item.id}
+                    item={item}
+                    isBookmarked={bookmarkedIds.has(item.id)}
+                    onBookmark={handleBookmark}
+                    onOpen={handleOpenArticle}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : loading && allItems.length === 0 ? (
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row border border-white/8 animate-pulse" style={{ minHeight: '240px' }}>
               <div className="flex-1 p-8 space-y-3">

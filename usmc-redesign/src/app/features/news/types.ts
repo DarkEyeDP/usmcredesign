@@ -14,6 +14,8 @@ export interface NewsItem {
   author: string | null;
   category: string | null;
   source: 'news' | 'press-release';
+  feedId?: string;
+  wordCount?: number;
   attachments: NewsAttachment[];
 }
 
@@ -36,4 +38,5 @@ export interface NewsArticleDetail {
   links: NewsArticleLink[];
   imageUrl: string | null;
   description: string | null;
+  wordCount?: number;
 }

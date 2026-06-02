@@ -1,0 +1,115 @@
+{
+  "fetchedAt": "2026-06-02T01:30:24.362Z",
+  "title": "Closing the Sensor-to-Shooter Gap, One Dynamis Serial at a Time",
+  "pubDate": "2026-03-27T15:27:00.000Z",
+  "imageUrl": "https://media.defense.gov/2026/Mar/27/2003903882/600/400/0/260318-N-GB257-1003.JPG",
+  "description": "In an increasingly complex global landscape, the speed of decision-making on the battlefield is not just an advantage, it is the ultimate arbiter of victory.",
+  "wordCount": 1295,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "In an increasingly complex global landscape, the speed of decision-making on the battlefield is not just an advantage, it is the ultimate arbiter of victory. From March 3-20, Project Dynamis, the Marine Corps' engine for AI-enabled battle management, hosted its fifth iterative exercise concurrently across five sites coast-to-coast including Fort Carson, Colorado, and Charleston, South Carolina. \"Dynamis Serial 005\" previewed a future where a unified, multi-domain joint data mesh enables AI-enabled battle management command and control workflows."
+    },
+    {
+      "type": "paragraph",
+      "text": "Serial 005 was the latest chapter in a campaign of agile software development sprints that began in December 2025. The Marine Corps is systematically refining each iteration, collaborating with industry software engineers and joint partners in operationally relevant scenarios to develop a resilient digital orchestration layer that can close the sensor-to-shooter gap at machine speeds."
+    },
+    {
+      "type": "paragraph",
+      "text": "\"We are in a generation-defining moment for AI-powered workflows,\" said Col. Arlon Smith, the Director of Project Dynamis. \"We're moving faster, farther, and smarter. Project Dynamis is not analyzing this change—we’re driving it by rapidly iterating on advanced commercial technologies alongside our joint partners to deliver AI-powered decision advantage to our warfighters at the tactical edge.\""
+    },
+    {
+      "type": "heading",
+      "text": "Joint Fires Integration at Ivy Sting 5"
+    },
+    {
+      "type": "paragraph",
+      "text": "Dynamis Serial 005 began in Fort Carson with the Army 4th Infantry Division's Ivy Sting 5 exercise. Marines from I Marine Expeditionary Force (MEF), acting as a geographically dispersed unit, integrated with Soldiers during the execution of a series of operationally realistic missions that included real-world maneuver elements, live fire, and synthetic long-range precision fires."
+    },
+    {
+      "type": "paragraph",
+      "text": "The Marine Corps has previously demonstrated digital kill webs with the Army, but this one was different. Though it appeared on the surface as a simple artillery fire mission, the long-range fires demonstration proved to be much more dynamic. The Army’s 10th Special Forces Group, representing Special Operations Command partner forces, passed targeting data from a commercial network, across classification levels, through the 4th Infantry Division’s infrastructure to a Marine Corps weapons platform."
+    },
+    {
+      "type": "paragraph",
+      "text": "From 2 March until 20 March, Project Dynamis executed Serial 005 of the Dynamis Series which focused on a multi-theater “sandbox” assessment leveraging the Systems of Systems Naval Integration Experiment (SOSNIE) in Charleston, South Carolina and Ivy Sting V in Fort Carson, Colorado. This allowed Project Dynamis to evaluate solution performance, scalability, and extensibility across multiple FMF theater organizations that were executing manned and unmanned operations. Serial 005 also allowed for the demonstration of control of autonomous and unmanned systems. (U.S. Marine Corps Photo)"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Marines explained that they were able to reduce airspace deconfliction times by up to 80% by using the data mesh, and AI-workflows, to share High-Mobility Artillery Rocket System (HIMARS) munition flight path data digitally to all Marine Corps, Navy, and Army systems."
+    },
+    {
+      "type": "paragraph",
+      "text": "This seamless flow of information represents the holy grail for modern military initiatives like Project Dynamis, the Army’s Project Convergence, and the Navy’s Project Overmatch: leveraging any sensor from any service to engage a target with the best available weapon, regardless of location or network."
+    },
+    {
+      "type": "quote",
+      "text": "\"The Marines here at Fort Carson iterated on a digital infrastructure to enable seamless integration across a joint, integrated force. This gets us one step closer toward our mandate to leverage AI and machine-learning to establish a transparent, data-centric kill web.\"Lt. Col. Jeremy Graham, Project Dynamis’ overall Series lead"
+    },
+    {
+      "type": "heading",
+      "text": "The Four Pillars of Success"
+    },
+    {
+      "type": "paragraph",
+      "text": "The success of Serial 005 was built on four primary technological and conceptual pillars:"
+    },
+    {
+      "type": "paragraph",
+      "text": "1. A Resilient Mesh Network: The digital lifeblood of this exercise was a resilient mesh transport layer. This created a secure, self-healing network where data flowed freely between units, sensors, and systems across the Army, Marine Corps, and Special Forces. It ensured that connectivity was never a single point of failure."
+    },
+    {
+      "type": "paragraph",
+      "text": "2. The Maven Smart System: Adopted by the Marine Corps as an enterprise-wide solution in September 2025, the Maven Smart System served as the cornerstone for AI-enabled command and control. During Ivy Sting, it provided a common tactical picture that ingested and fused data from multiple sources, using its AI and machine learning capabilities to inform and accelerate fire missions. The Project Dynamis team iterated on solutions to interact with MSS data at lower echelons in contested environments with denied or degraded communications and limited bandwidth."
+    },
+    {
+      "type": "paragraph",
+      "text": "3. AI-Powered Decision Support: Beyond Maven, the Marines interacted with 4th Infantry Division command and control nodes that employed a suite of advanced decision-making software tools being orchestrated by the Army Next Generation Command and Control Program (NGC2). The Army is developing this new software stack to replace legacy programs of record with tools purpose-built for AI-powered agentic workflows."
+    },
+    {
+      "type": "paragraph",
+      "text": "4. True Machine-to-Machine Targeting: Perhaps the most significant leap was the demonstration of novel machine-to-machine targeting workflows. During the joint mission rehearsals, target data flowed from the initial sensor to the final shooter, passing through two domains and three distinct networks, with human oversight and human intervention, but less manual input than is typical. This dramatically increased the speed and accuracy of the kill chain, ensuring the right data was delivered to the right platform."
+    },
+    {
+      "type": "heading",
+      "text": "The Future is Now"
+    },
+    {
+      "type": "paragraph",
+      "text": "Overlapping with Ivy Sting, another Marine Corps team was setting up a command and control node in Charleston at the Systems of Systems Naval Integration Experiment (SoSNIE). Based out of Naval Information Warfare Center (NIWC) Atlantic, this team partnered with industry to refine the digital architecture that underpins emerging military capabilities and capturing and making sense of partner-forces data. SoSNIE also included Dynamis’ first deployment of a mission autonomy command and control capability as part of a sea denial mission thread."
+    },
+    {
+      "type": "paragraph",
+      "text": "This event used a mixture of data platforms, receiving data at the unclassified level and transmitting it at machine speeds to more secure, higher-classification systems. Whether cloud-based or on-premises, efficient cross-domain solutions—which allow integration from unclassified up to classified networks—is a critical effort on the modern battlefield."
+    },
+    {
+      "type": "paragraph",
+      "text": "“We can hope for the battlefield of our choosing,” said Col. Smith. “But the brutal lesson of history teaches us that we’ll meet the one that chooses us —so we must be prepared.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "From 2 March until 20 March, Project Dynamis executed Serial 005 of the Dynamis Series which focused on a multi-theater “sandbox” assessment leveraging the Systems of Systems Naval Integration Experiment (SOSNIE) in Charleston, South Carolina and Ivy Sting V in Fort Carson, Colorado. This allowed Project Dynamis to evaluate solution performance, scalability, and extensibility across multiple FMF theater organizations that were executing manned and unmanned operations. Serial 005 also allowed for the demonstration of control of autonomous and unmanned systems. (U.S. Marine Corps Photo)"
+    },
+    {
+      "type": "paragraph",
+      "text": "During the exercises, software engineers coded and recoded in real time, enabling immediate corrections to user interfaces, data formats, and digital visualizations. This iterative process of testing, debugging, and developing within realistic environments ensures that the tools are not only functional, but also rigorously stress-tested for the world's most demanding conditions, where every second counts."
+    },
+    {
+      "type": "paragraph",
+      "text": "“What we learned at SoSNIE is driving how we incorporate mission autonomy capabilities,” said Lt. Col. Ben Pimentel, the lead planner for the SoSNIE portion of Serial 005. “It also taught us how to architect information flow when operational conditions require on-premises solutions.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Both exercises highlight a key to Dynamis' success: deliberate, focused integration and a relentless pace of execution. By uniting top talent from both the military and industry, Project Dynamis is closing the technology gap—rigorously testing commercial innovations to ensure that advanced battle management command and control capabilities reach warfighters in months instead of years."
+    },
+    {
+      "type": "paragraph",
+      "text": "According to Smith, Project Dynamis Serial 005 was more than just an exercise—it proved that by seamlessly connecting dissimilar systems and forces across the Joint Force, the U.S. military can create a decisive advantage."
+    },
+    {
+      "type": "paragraph",
+      "text": "“The future of joint command and control isn’t coming soon,” said Col. Smith. “it’s being built today through collaboration, relentless iteration, and integration of commercial innovation.”"
+    }
+  ],
+  "links": []
+}

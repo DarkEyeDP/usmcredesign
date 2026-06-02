@@ -1,0 +1,75 @@
+{
+  "fetchedAt": "2026-06-02T01:38:02.516Z",
+  "title": "Project Dynamis Accelerates Development of Next Generation Battle Management Command and C",
+  "pubDate": "2026-02-09T14:04:00.000Z",
+  "imageUrl": null,
+  "description": "Project Dynamis, a bold Marine Corps plan to accelerate the delivery of AI-powered decision advantage to the tactical edge, has kicked off its \"Dynamis Series,\" a months-long campaign of iterative agile software development sprints referred to as \"Serials.\"",
+  "wordCount": 969,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "Project Dynamis, a bold Marine Corps plan to accelerate the delivery of AI-powered decision advantage to the tactical edge, has kicked off its \"Dynamis Series,\" a months-long campaign of iterative agile software development sprints referred to as \"Serials.\""
+    },
+    {
+      "type": "paragraph",
+      "text": "This series, developed in collaboration with the Department of the Navy's Project Overmatch and the Defense Innovation Unit, focuses on the rapid integration and iteration of mature, dual-use commercial solutions for battle management and command and control (C2). The goal is to utilize operationally realistic, joint warfighting environments to facilitate agile software development and rapidly scale an integrated, AI-powered joint C2 capability optimized for contested environments that connects sensors, systems, and data across multiple domains to enable a resilient joint mesh network."
+    },
+    {
+      "type": "paragraph",
+      "text": "Dynamis Serial 003 took place from January 26 to February 6 in conjunction with the Army’s Next Generation Command and Control (NGC2) Ivy Sting IV event led by the U.S. Army 4th Infantry Division at Fort Carson, Colorado. The Navy and Marine Corps Dynamis team integrated battle management C2 nodes from four locations across the Joint Force and connected decentralized networking capabilities for the first time."
+    },
+    {
+      "type": "paragraph",
+      "text": "“It was truly impressive to witness a Division-level warfighting formation collaborating side-by-side with world-class software engineers, rapidly iterating on next-generation battle management command and control capabilities at the speed of relevance,” said Col. Arlon Smith, the Director of Project Dynamis. “This is exactly the kind of cross-service, industry-partnered iteration that is required to rapidly accelerate warfighting innovation for the modern battlefield.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "In September of last year, the Assistant Commandant of the Marine Corps issued a memorandum directing the establishment of Project Dynamis. The goal of this initiative is to accelerate the Marine Corps’ adoption and scaling of advanced technologies for assured C2, AI-powered battlespace awareness, and countering Command, Control, Communications, Computers, Combat Systems, Intelligence, Surveillance, Reconnaissance, and Targeting (C5ISR-T). Since publishing the memo, the Marine Corps appointed a project director, established a governance charter, and formed a dedicated cross-functional team. Additionally, the newly-appointed Deputy Direct Report Program Manager (DRPM) for Project Dynamis inherits unique acquisition authorities, utilizing the existing DRPM authorities established by the Department of the Navy's Project Overmatch."
+    },
+    {
+      "type": "paragraph",
+      "text": "“Our acceleration objectives are to demonstrate an architecture with systems that allows Marines to sense, make sense, visualize, and share battlefield information, across domains and across joint partners, at every echelon,” said Col. Craig Clarkson, the commanding officer of Marine Corps Tactical Systems Support Activity (MCTSSA) and Marine Corps Deputy DRPM for Project Overmatch. “The operational environment grows more complex every day and technology is evolving rapidly. We are using Project Dynamis to demonstrate that the Marine Corps can innovate and keep pace by leveraging dual-use commercial and government solutions and iterate in real time with industry partners.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The iterative events began in December with Dynamis Serial 001, which demonstrated large-scale common data transport across more than a dozen globally-distributed nodes to support the sharing of timely targeting information."
+    },
+    {
+      "type": "paragraph",
+      "text": "In January, Dynamis Serial 002 built upon the first event, working with industry partners to provide a technical engineering baseline for integrating additional software and hardware capabilities, building on years of cutting-edge prototyping conducted at the Marine Corps Warfighting Lab and MCTSSA."
+    },
+    {
+      "type": "paragraph",
+      "text": "These experiments directly support a broader Service-level goal. Lieutenant Gen. Jerry Carter, the Deputy Commandant for Information and member of the “Dynamis Council” established to govern Project Dynamis, explained that the Marine Corps is separating software from hardware and partnering with best-in-class software engineers so that Marines can fight as a more lethal, data-centric force that weaponizes data, integrates AI, and leverages modern, secure networks."
+    },
+    {
+      "type": "paragraph",
+      "text": "He added that Dynamis is building solutions that are scalable and repeatable."
+    },
+    {
+      "type": "paragraph",
+      "text": "“There is no room for one-offs or quick fixes,” Lt. Gen. Carter emphasized. “We need to rapidly adopt mature commercial solutions and iterate on them quickly using warfighter feedback at the tactical edge. I’m laser-focused on delivering information advantage to our warfighters.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "An early outcome of the Dynamis effort is the Marine Air-Ground Task Force (MAGTF) C2 Prototype (MCP), built by MCTSSA in support of the Marine Corps Warfighting Lab. The MCP is a small form factor, high-compute hardware stack designed to operate anywhere, including degraded communication environments. It can be loaded with multiple virtual and containerized software applications that allow Marines to have an all-domain picture of surface, ground, and air assets so maneuver elements have situational awareness of the entire battlefield. While the MCP has already been deployed to designated Fleet Marine Force units, the MCP is being iterated on and improved throughout each Dynamis Serial."
+    },
+    {
+      "type": "paragraph",
+      "text": "“We’ve used Dynamis to adopt a spiral model to plan and manage risk, develop, and assess development cycles perpetually,” said Lt. Gen. Carter. Using that model, Dynamis is delivering wins in support of Project Overmatch and the Joint Force."
+    },
+    {
+      "type": "paragraph",
+      "text": "“One of the key tenets of Project Dynamis is to re-energize the way people across multiple organizations interact and collaborate, fundamentally strengthening partnerships among Marines, program offices, warfighting labs, and industry in an enduring way,” said Col. Jeffery Van Bourgondien, the Program Manager for MAGTF C2. “It’s more than a Cross Functional Team—it’s an incubator for new ideas that will inform how we look to improve our vision for the future of the combat development process, helping produce viable prototypes and inform requirements and programs of record.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Project Dynamis is already starting to deliver on that vision, having helped orchestrate the Marine Corps’ recent enterprise-level contract with Palantir for Maven Smart Systems to establish additional network options to operational units. With eight more Serials scheduled through 2026, including another combined exercise with the Army and Navy in March, the project continues to serve as a powerful engine for innovation."
+    },
+    {
+      "type": "paragraph",
+      "text": "“By building an inherently joint battle management C2 solution from the ground up, we’re laying the foundation for game-changing AI-powered decision advantage across the Joint Force,” said Col Smith."
+    }
+  ],
+  "links": []
+}

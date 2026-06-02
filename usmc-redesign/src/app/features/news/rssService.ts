@@ -1,39 +1,5 @@
-import type { NewsArticleBlock, NewsArticleDetail, NewsArticleLink, NewsItem, NewsAttachment } from './types';
+import type { NewsArticleBlock, NewsArticleDetail, NewsArticleLink, NewsItem } from './types';
 
-// Manually curated attachments keyed by article GUID/URL.
-// Add entries here whenever a document link is provided.
-const MANUAL_ATTACHMENTS: Record<string, NewsAttachment[]> = {
-  'https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4483464/department-of-the-navy-releases-fiscal-year-2027-shipbuilding-plan/': [
-    {
-      label: 'FY2027 Navy Shipbuilding Plan',
-      url: 'https://media.defense.gov/2026/May/11/2003928909/-1/-1/1/NAVY%20SHIPBUILDING%20PLAN%20MAY%202026.PDF',
-      type: 'pdf',
-    },
-  ],
-  'https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4402473/2026-marine-corps-aviation-plan/': [
-    {
-      label: '2026 Marine Corps Aviation Plan',
-      url: 'https://media.defense.gov/2026/Feb/10/2003873872/-1/-1/0/260210-USMC-2026-AVIATION-PLAN.PDF',
-      type: 'pdf',
-    },
-  ],
-  'https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4402085/marine-corps-passes-fy25-financial-audit/': [
-    {
-      label: 'FY2025 USMC Annual Financial Report',
-      url: 'https://media.defense.gov/2026/Feb/09/2003873501/-1/-1/0/260209_FY2025_USMC_AFR.PDF',
-      type: 'pdf',
-    },
-  ],
-  'https://www.marines.mil/News/Press-Releases/Press-Release-Display/Article/4358866/navair-releases-v-22-comprehensive-review-findings/': [
-    {
-      label: 'V-22 Comprehensive Review',
-      url: 'https://www.secnav.navy.mil/foia/readingroom/HotTopics/V-22%20Review/V-22%20Comprehensive%20Review%20(Distro%20A).pdf',
-      type: 'pdf',
-    },
-  ],
-};
-const NEWS_RSS = 'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?max=50&ContentType=1&Site=481';
-const PRESS_RELEASE_RSS = 'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?max=50&ContentType=2&Site=481';
 const JINA_READER_URL = 'https://r.jina.ai/';
 
 // Each entry is [proxyUrl, isJsonWrapper] — json wrappers return { contents: "..." }
@@ -101,90 +67,10 @@ async function fetchViaProxy(url: string, options: ProxyFetchOptions = {}): Prom
   }
 }
 
-function parseXmlText(xml: string): Document {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
-  if (doc.querySelector('parsererror') || doc.querySelectorAll('item').length === 0) {
-    throw new Error('XML parse error');
-  }
-  return doc;
-}
-
-function isUsableRssXml(xml: string): boolean {
-  try {
-    parseXmlText(xml);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function fetchXml(rssUrl: string): Promise<Document> {
-  const xml = await fetchViaProxy(rssUrl, { validate: isUsableRssXml });
-  return parseXmlText(xml);
-}
-
 function decodeHtml(html: string): string {
   const textarea = document.createElement('textarea');
   textarea.innerHTML = html;
   return textarea.value.replace(/\xa0/g, ' ');
-}
-
-function getEnclosureImage(item: Element): string | null {
-  const enc = item.querySelector('enclosure');
-  if (enc) {
-    const type = enc.getAttribute('type') ?? '';
-    if (type.startsWith('image/')) return enc.getAttribute('url');
-  }
-  return null;
-}
-
-function stripHtml(html: string): string {
-  return decodeHtml(html.replace(/<[^>]*>/g, ' '))
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-}
-
-function extractCategory(title: string, rawCategory: string | null): string | null {
-  if (rawCategory) return rawCategory.toUpperCase();
-  // "Balikatan 2026: Joint Forces..." → "BALIKATAN 2026"
-  const colonIdx = title.indexOf(':');
-  if (colonIdx > 0 && colonIdx < 45) return title.substring(0, colonIdx).toUpperCase();
-  return null;
-}
-
-function parseItems(doc: Document, source: 'news' | 'press-release'): NewsItem[] {
-  return Array.from(doc.querySelectorAll('item')).map((item, i) => {
-    const getText = (tag: string) => item.querySelector(tag)?.textContent?.trim() ?? '';
-
-    const title = stripHtml(getText('title'));
-    const link = getText('link') || getText('guid');
-    const description = stripHtml(getText('description'));
-    const pubDateStr = getText('pubDate');
-    const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
-    const rawCategory = getText('category') || null;
-    const author = (item.getElementsByTagName('dc:creator')[0]?.textContent?.trim()) || null;
-    const imageUrl = getEnclosureImage(item);
-    const id = getText('guid') || `${source}-${i}`;
-    const category = extractCategory(title, rawCategory);
-    const attachments = MANUAL_ATTACHMENTS[id] ?? MANUAL_ATTACHMENTS[link] ?? [];
-
-    return { id, title, link, description, pubDate, imageUrl, author, category, source, attachments };
-  });
-}
-
-export async function fetchNewsFeed(): Promise<NewsItem[]> {
-  const doc = await fetchXml(NEWS_RSS);
-  return parseItems(doc, 'news');
-}
-
-export async function fetchPressReleaseFeed(): Promise<NewsItem[]> {
-  const doc = await fetchXml(PRESS_RELEASE_RSS);
-  return parseItems(doc, 'press-release');
-}
-
-function getMeta(doc: Document, selector: string): string | null {
-  return doc.querySelector<HTMLMetaElement>(selector)?.content?.trim() || null;
 }
 
 function normalizeArticleLine(line: string): string {
@@ -352,6 +238,10 @@ function detailLooksUsable(detail: NewsArticleDetail, fallback?: Pick<NewsItem, 
   return !summary || bodyText.length > summary.length + 120;
 }
 
+function getMeta(doc: Document, selector: string): string | null {
+  return doc.querySelector<HTMLMetaElement>(selector)?.content?.trim() || null;
+}
+
 function chooseArticleCandidate(doc: Document, fallbackTitle: string | null): { el: Element; lines: string[] } {
   const dedicatedBody = parseDedicatedArticleBody(doc);
   if (dedicatedBody && dedicatedBody.lines.join(' ').length > 180) {
@@ -399,17 +289,63 @@ function cleanReaderLine(line: string): string {
 }
 
 function shouldSkipReaderLine(line: string): boolean {
+  if (!line || line.length < 3) return true;
   return (
-    !line ||
+    // Jina metadata
     /^Title:\s/i.test(line) ||
     /^URL Source:\s/i.test(line) ||
     /^Markdown Content:\s*$/i.test(line) ||
-    /^Download$/i.test(line) ||
-    /^Details$/i.test(line) ||
-    /^Share$/i.test(line) ||
-    /^Tags$/i.test(line) ||
+    // Generic article chrome
+    /^(Print|Download|Details|Share[:\s]?|Tags|More…?)$/i.test(line) ||
     /^Photo by\b/i.test(line) ||
-    /\bPhoto by\s+[^.]+$/i.test(line)
+    /\bPhoto by\s+[^.]+$/i.test(line) ||
+    // US government site banner
+    /^Skip to main content/i.test(line) ||
+    /^An official website of/i.test(line) ||
+    /^Here'?s how you know/i.test(line) ||
+    /^Official websites use/i.test(line) ||
+    /^A\.gov website/i.test(line) ||
+    /^Secure \.gov websites/i.test(line) ||
+    /^A lock/i.test(line) ||
+    // Image / media labels
+    /^Image \d+/i.test(line) ||
+    /^Download:Full Size/i.test(line) ||
+    /^Credit:/i.test(line) ||
+    /^VIRIN:/i.test(line) ||
+    // Social share chrome
+    /^Copy Link\)?$/i.test(line) ||
+    /^EmailFacebook/i.test(line) ||
+    /^(Email|LinkedIn|WhatsApp|AddToAny)$/i.test(line) ||
+    /^(Previous Next Slideshow|Thanks for sharing|Hosted by)/i.test(line) ||
+    // Lines that are only markdown links with no visible text
+    /^(\[([^\]]*)\]\([^)]+\)\s*)+$/.test(line) ||
+    // Unrendered template strings ({{variable}})
+    /\{\{[^}]+\}\}/.test(line) ||
+    // Slideshow / pagination UI
+    /^(Previous|Next)$/i.test(line) ||
+    /^\d+(\s+\d+)*$/.test(line) ||
+    /^\d+\s+of\s+\d+$/i.test(line) ||
+    // DoD interactive / image caption / topic labels
+    /^Spotlight:/i.test(line) ||
+    /^Experience:/i.test(line) ||
+    /^Training Time$/i.test(line) ||
+    /^Subscribe to\b/i.test(line) ||
+    /^(Related Stories|Load More|Helpful Links|Popular|Legal & Administrative)$/i.test(line) ||
+    /^Choose which .+ products you want/i.test(line) ||
+    // defense.gov / war.gov navigation menus (appear mid-page in Jina Reader output)
+    /^Press Products\b.+\b(Releases|Advisories)/i.test(line) ||
+    /^Newsroom\b.+\bNews Stories\b/i.test(line) ||
+    /^Multimedia\b.+\bPhoto Collections/i.test(line) ||
+    /^Interactive Experiences\b.*Visual Stories/i.test(line) ||
+    /^Topics\b.+\bDrone Dominance/i.test(line) ||
+    /^Leadership\b.+\bSecretary of (War|Defense)/i.test(line) ||
+    /^Components\b.+\b(Army|Marine Corps)\b.+\bNavy\b/i.test(line) ||
+    /^Resources\b.+\bExecutive Orders/i.test(line) ||
+    /^(Back )?Home\s+Place\s+Holder/i.test(line) ||
+    /^(Search\s+){1,2}Search$/i.test(line) ||
+    /^Enter Your Search Terms$/i.test(line) ||
+    /^Live Events\s+Today in DOW/i.test(line) ||
+    /^Resources\s+Careers\s+Help\s+Center/i.test(line)
   );
 }
 
@@ -417,26 +353,76 @@ export function parseNewsArticleDetailMarkdown(
   markdown: string,
   fallback?: Pick<NewsItem, 'title' | 'description' | 'pubDate' | 'imageUrl'>,
 ): NewsArticleDetail {
-  const title = markdown.match(/^Title:\s*(.+)$/im)?.[1]?.trim() || fallback?.title || 'Marine Corps News';
+  // Strip breadcrumb suffixes added by sites like defense.gov:
+  // "Article Title > Section > Site Name | Site" → "Article Title"
+  const rawTitle = markdown.match(/^Title:\s*(.+)$/im)?.[1]?.trim() ?? '';
+  const title = rawTitle.split(/\s*[>|]\s*/)[0].trim() || fallback?.title || 'Marine Corps News';
+
   const content = markdown.includes('Markdown Content:')
     ? markdown.split('Markdown Content:').slice(1).join('Markdown Content:')
     : markdown;
 
-  const body = content
-    .split(/\n{2,}/)
-    .flatMap(rawBlock => {
-      const trimmed = rawBlock.trim();
-      if (shouldSkipReaderLine(trimmed)) return [];
+  const rawBlocks = content.split(/\n{2,}/);
 
-      const isQuote = trimmed.startsWith('>');
-      const text = cleanReaderLine(trimmed.replace(/^>\s*/, ''));
-      if (shouldSkipReaderLine(text)) return [];
+  // Anchor to the article title to skip pre-article chrome (nav, banners, menus).
+  // Pages like defense.gov repeat the title twice — pick the one with a byline after it.
+  let startIdx = 0;
+  const itemTitle = fallback?.title ?? title;
+  const searchTitle = itemTitle.toLowerCase().replace(/[^a-z0-9 ]/g, '').slice(0, 50);
+  if (searchTitle.length > 20) {
+    const occurrences = rawBlocks.reduce<number[]>((acc, b, i) => {
+      const cleaned = cleanReaderLine(b).toLowerCase().replace(/[^a-z0-9 ]/g, '');
+      if (cleaned.slice(0, 70).includes(searchTitle.slice(0, 40))) acc.push(i);
+      return acc;
+    }, []);
 
-      return [{
-        type: isQuote ? 'quote' as const : 'paragraph' as const,
-        text,
-      }];
-    });
+    let titleIdx = -1;
+    for (const idx of occurrences) {
+      for (let j = idx + 1; j <= idx + 3 && j < rawBlocks.length; j++) {
+        const next = cleanReaderLine(rawBlocks[j].trim().replace(/^>\s*/, ''));
+        if (/\|\s*By\s+/i.test(next) || /^By\s+/i.test(next) || /\d{1,2}\s+[A-Za-z]{3}.*\|/i.test(next)) {
+          titleIdx = idx;
+          break;
+        }
+      }
+      if (titleIdx >= 0) break;
+    }
+    if (titleIdx < 0 && occurrences.length > 0) titleIdx = occurrences[0];
+
+    if (titleIdx >= 0) {
+      startIdx = titleIdx + 1;
+      while (startIdx < rawBlocks.length) {
+        const text = cleanReaderLine(rawBlocks[startIdx].trim().replace(/^>\s*/, ''));
+        const isDateOrByline =
+          /^\d{1,2}\s+[A-Za-z]{3}/.test(text) ||
+          /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d/i.test(text) ||
+          /\|\s*By\s+/i.test(text);
+        if (shouldSkipReaderLine(text) || isDateOrByline) {
+          startIdx++;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  const FOOTER_SENTINEL = /^(Related Stories|Subscribe to|Department of (War|Defense)|Home News Spotlights|Privacy & Security|Legal & Administrative|Hosted by|Veterans Crisis Line)/i;
+  let hitFooter = false;
+  const body = rawBlocks.slice(startIdx).flatMap(rawBlock => {
+    if (hitFooter) return [];
+    const trimmed = rawBlock.trim();
+
+    const isQuote = trimmed.startsWith('>');
+    const isHeading = /^#{1,6}\s+/.test(trimmed);
+    const text = cleanReaderLine(trimmed.replace(/^>\s*/, ''));
+    if (FOOTER_SENTINEL.test(trimmed) || FOOTER_SENTINEL.test(text)) { hitFooter = true; return []; }
+    if (shouldSkipReaderLine(trimmed) || shouldSkipReaderLine(text) || text.length < 10) return [];
+
+    return [{
+      type: isQuote ? 'quote' as const : isHeading ? 'heading' as const : 'paragraph' as const,
+      text,
+    }];
+  });
 
   return {
     title,
