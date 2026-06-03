@@ -371,11 +371,14 @@ function parsePromotionBoardConveningTable(text: string): ParsedTableFamily | nu
 
   const body = headerMatch[1].trim();
   const data = headerMatch[2].trim();
-  const rankPattern = '(?:Gen|LtGen|MajGen|BGen|Col|LtCol|Maj|Capt|CWO[2-5]|WO)';
-  const componentPattern = '(?:Active|Reserve|AR|SMCR|IRR)';
+  // A single grade token, optionally followed by an asterisk (e.g. "Capt*")
+  const singleRank = '(?:Gen|LtGen|MajGen|BGen|Col|LtCol|Maj|Capt|CWO[2-5]|WO)\\*?';
+  // "Selection To" may be one grade or a comma-separated pair like "Col, LtCol"
+  const rankPattern = `${singleRank}(?:,\\s*${singleRank})*`;
+  const componentPattern = '(?:Active|Reserve|USMCR|AR|SMCR|IRR)';
   const datePattern = `\\d{1,2}\\s+${SHORT_MONTH_RE}\\s+\\d{2}`;
   const rowRe = new RegExp(
-    `\\b(${rankPattern})\\s+(${componentPattern})\\s+(${datePattern})\\s+(${datePattern})(?=\\s+(?:${rankPattern})\\s+(?:${componentPattern})\\s+|$)`,
+    `\\b(${rankPattern})\\s+(${componentPattern})\\s+(${datePattern})\\s+(${datePattern})(?=\\s+${singleRank}\\s+(?:${componentPattern})\\s+|$)`,
     'gi',
   );
   const rows = [...data.matchAll(rowRe)].map(match => [
