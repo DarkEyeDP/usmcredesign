@@ -1317,6 +1317,40 @@ function parseSNCOBoardZoneTable(text: string): ParsedTableFamily | null {
 // UNIVERSITY OF WASHINGTON           H95   Seattle, WA
 // MARINE CORPS RECRUIT DEPOT, PI     040   Parris Island, SC
 // Institution names are ALL CAPS; city/state is mixed-case — used to split the two.
+// Parses officer NAME / RANK / MOS panel-result tables, e.g.:
+// NAME                    RANK   MOS
+// Westley, Nicholas S.    Maj    4402
+// Hudson, Christopher M.  Capt   0302
+// Names use "Last, First MI." format; rank is a standard grade token.
+function parseNameRankMOSTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bNAME\s+RANK\s+MOS\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1]
+    .replace(/\(read in (?:three|3) columns?\):?\s*$/i, '')
+    .replace(/[:\s]+$/, '')
+    .trim();
+  const data = headerMatch[2].trim();
+
+  const rankPattern = '(?:Gen|LtGen|MajGen|BGen|Col|LtCol|Maj|Capt|1stLt|2ndLt|CWO[2-5]|WO)';
+  const rowRe = new RegExp(
+    `([A-Za-z][A-Za-z'-]+,\\s+[A-Za-z][A-Za-z'.\\s-]+?)\\s+(${rankPattern})\\s+(\\d{4})`,
+    'g',
+  );
+
+  const rows: string[][] = [];
+  for (const match of data.matchAll(rowRe)) {
+    rows.push([match[1].trim(), match[2], match[3]]);
+  }
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'Rank', 'MOS'], rows }],
+  };
+}
+
 function parseUniversityVacancyTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bUniversity\/Vacancy\s+MCC\s+Location\s+(.+)$/is);
   if (!headerMatch) return null;
@@ -1418,6 +1452,7 @@ const TABLE_FAMILY_PARSERS = [
   parseInlineRankNameMCCTable,
   parseAviationBoardResultsTable,
   parseIAPSelectionPanelResultsTable,
+  parseNameRankMOSTable,
   parseUniversityVacancyTable,
   parseRecruitingStationAvailabilityTable,
   parseCommandMCCTentativeReportDateTable,
