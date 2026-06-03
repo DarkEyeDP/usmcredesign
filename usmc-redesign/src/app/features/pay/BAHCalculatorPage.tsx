@@ -364,18 +364,20 @@ export function BAHCalculatorPage() {
     return () => timers.forEach(clearTimeout);
   }, [selectedMha, currentMha, locationHistory]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const selectedLocation = locationByMha.get(selectedMha) ?? BAH_LOCATIONS[0];
-  const selectedRate = getRate(selectedLocation, payGrade, dependencyStatus);
-  const oppositeRate = getRate(selectedLocation, payGrade, dependencyStatus === 'with' ? 'without' : 'with');
-  const dependentDelta = getRate(selectedLocation, payGrade, 'with') - getRate(selectedLocation, payGrade, 'without');
+  const hasFutureLocation = query.trim().length > 0;
+  const displayMha = hasFutureLocation ? selectedMha : currentMha ?? selectedMha;
+  const displayLocation = locationByMha.get(displayMha) ?? BAH_LOCATIONS[0];
+  const displayRate = getRate(displayLocation, payGrade, dependencyStatus);
+  const oppositeRate = getRate(displayLocation, payGrade, dependencyStatus === 'with' ? 'without' : 'with');
+  const dependentDelta = getRate(displayLocation, payGrade, 'with') - getRate(displayLocation, payGrade, 'without');
   const searchResults = useMemo(() => getSearchResults(query), [query]);
   const compareSearchResults = useMemo(() => getSearchResults(compareSearch), [compareSearch]);
   const currentSearchResults = useMemo(() => getSearchResults(currentSearch), [currentSearch]);
   const currentLocation = currentMha ? locationByMha.get(currentMha) : null;
   const currentRate = currentLocation ? getRate(currentLocation, payGrade, dependencyStatus) : null;
-  const locationDelta = currentRate !== null ? selectedRate - currentRate : null;
+  const locationDelta = hasFutureLocation && currentRate !== null ? displayRate - currentRate : null;
 
-  const compareRows = [...new Set([selectedMha, ...compareMhas, ...marineComparisonMhas])]
+  const compareRows = [...new Set([displayMha, ...compareMhas, ...marineComparisonMhas])]
     .map((mha) => locationByMha.get(mha))
     .filter((location): location is BahLocation => Boolean(location))
     .map((location) => ({
@@ -399,12 +401,12 @@ export function BAHCalculatorPage() {
           lat,
           lng,
           rate: getRate(location, payGrade, dependencyStatus),
-          isSelected: mha === selectedMha,
+          isSelected: mha === displayMha,
           isCurrentLocation: mha === currentMha,
         };
       })
       .filter((m): m is MapMarker => m !== null);
-  }, [selectedMha, currentMha, locationHistory, dynamicCoords, payGrade, dependencyStatus]);
+  }, [displayMha, selectedMha, currentMha, locationHistory, dynamicCoords, payGrade, dependencyStatus]);
 
   const mapMinRate = Math.min(...mapMarkers.map((m) => m.rate));
   const mapMaxRate = Math.max(...mapMarkers.map((m) => m.rate));
@@ -415,7 +417,7 @@ export function BAHCalculatorPage() {
   }
 
   function handleLookup() {
-    const nextMha = applyLookup(query, selectedLocation.m);
+    const nextMha = applyLookup(query, selectedMha);
     setSelectedMha(nextMha);
     pushHistory(nextMha);
     setCompareMhas((current) => [nextMha, ...current.filter((mha) => mha !== nextMha)].slice(0, 6));
@@ -744,7 +746,7 @@ export function BAHCalculatorPage() {
                 <div className="flex h-6 w-6 items-center justify-center border border-white/35 text-sm font-bold text-red-500">2</div>
                 <span className="text-sm font-bold tracking-widest text-gray-400">COMPLETE BAH BREAKDOWN</span>
               </div>
-              <span className="text-[11px] font-bold tracking-widest text-red-500">{selectedLocation.m}</span>
+              <span className="text-[11px] font-bold tracking-widest text-red-500">{displayLocation.m}</span>
             </div>
 
             {/* Top row: rate + donut */}
@@ -753,18 +755,18 @@ export function BAHCalculatorPage() {
               <div className="relative flex flex-col justify-center overflow-hidden p-6 lg:border-r lg:border-white/10">
                 {/* State shape watermark */}
                 {(() => {
-                  const code = stateCodeFromMha(selectedMha);
+                  const code = stateCodeFromMha(displayMha);
                   const shape = code ? STATE_SHAPES[code] : null;
                   if (!code || !shape) {
                     return null;
                   }
 
                   const { width, height } = getViewBoxSize(shape.viewBox);
-                  const selectedCoords = MHA_COORDINATES[selectedMha] ?? dynamicCoords[selectedMha];
+                  const selectedCoords = MHA_COORDINATES[displayMha] ?? dynamicCoords[displayMha];
                   const projectedMarker = selectedCoords
                     ? projectMercatorPoint(selectedCoords[0], selectedCoords[1], shape.projection)
                     : null;
-                  const [xPct, yPct] = getStateMarkerPosition(selectedMha, code);
+                  const [xPct, yPct] = getStateMarkerPosition(displayMha, code);
                   const markerX = projectedMarker?.x ?? (xPct / 100) * width;
                   const markerY = projectedMarker?.y ?? (yPct / 100) * height;
 
@@ -809,14 +811,14 @@ export function BAHCalculatorPage() {
                 })()}
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={`${selectedRate}-${payGrade}-${dependencyStatus}`}
+                    key={`${displayRate}-${payGrade}-${dependencyStatus}`}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="mb-2 flex items-end gap-2"
                   >
-                    <span className="text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter text-green-400">{formatCurrency(selectedRate)}</span>
+                    <span className="text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter text-green-400">{formatCurrency(displayRate)}</span>
                     <span className="pb-2 text-lg font-bold text-green-500">/mo</span>
                   </motion.div>
                 </AnimatePresence>
@@ -825,7 +827,7 @@ export function BAHCalculatorPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-400">
                   <MapPin className="h-4 w-4 text-red-500" />
-                  {getLocationLabel(selectedLocation)}
+                  {getLocationLabel(displayLocation)}
                 </div>
               </div>
 
@@ -845,13 +847,13 @@ export function BAHCalculatorPage() {
                   ))}
                 </div>
                 <div className="p-6">
-                  <DonutChart rate={selectedRate} mode={breakdownMode} />
+                  <DonutChart rate={displayRate} mode={breakdownMode} />
                 </div>
               </div>
             </div>
 
             {/* PCS BAH change — full width, only when active */}
-            {locationDelta !== null && currentLocation && currentLocation.m !== selectedLocation.m && (
+            {locationDelta !== null && currentLocation && currentLocation.m !== displayLocation.m && (
               <div className="border-b border-white/10 px-6 py-5">
                 <div className="mb-3 text-[10px] font-bold tracking-widest text-blue-400/70">PCS BAH CHANGE</div>
                 <div className="flex flex-wrap items-center gap-6">
@@ -863,8 +865,8 @@ export function BAHCalculatorPage() {
                   <ArrowRight className="h-4 w-4 flex-shrink-0 text-gray-600" />
                   <div className="min-w-0">
                     <div className="text-[10px] tracking-widest text-gray-600">FUTURE</div>
-                    <div className="text-xl font-black text-green-400">{formatCurrency(selectedRate)}</div>
-                    <div className="truncate text-[10px] text-gray-700">{selectedLocation.n}</div>
+                    <div className="text-xl font-black text-green-400">{formatCurrency(displayRate)}</div>
+                    <div className="truncate text-[10px] text-gray-700">{displayLocation.n}</div>
                   </div>
                   <div className="flex-shrink-0 border-l border-white/10 pl-6">
                     <div className="text-[10px] tracking-widest text-gray-600">DIFFERENCE</div>
@@ -894,7 +896,7 @@ export function BAHCalculatorPage() {
                 <div className="flex items-start gap-2 border border-white/8 bg-white/[0.02] p-3">
                   <Info className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-gray-600" />
                   <p className="text-[11px] leading-relaxed text-gray-600">
-                    Estimates based on average costs in the {selectedLocation.z || selectedLocation.n} area. Actual spending varies by household.
+                    Estimates based on average costs in the {displayLocation.z || displayLocation.n} area. Actual spending varies by household.
                   </p>
                 </div>
               </div>
@@ -957,7 +959,7 @@ export function BAHCalculatorPage() {
                         const loc = locationByMha.get(mha);
                         if (!loc) return null;
                         const rate = getRate(loc, payGrade, dependencyStatus);
-                        const isActive = mha === selectedMha;
+                        const isActive = mha === displayMha;
                         return (
                           <button
                             key={mha}
@@ -992,7 +994,7 @@ export function BAHCalculatorPage() {
                       const loc = locationByMha.get(mha);
                       if (!loc) return null;
                       const rate = getRate(loc, payGrade, dependencyStatus);
-                      const isActive = mha === selectedMha;
+                      const isActive = mha === displayMha;
                       return (
                         <button
                           key={mha}
@@ -1079,8 +1081,8 @@ export function BAHCalculatorPage() {
                   </thead>
                   <tbody>
                     {compareRows.map(({ location, rate }) => {
-                      const delta = rate - selectedRate;
-                      const isSelected = location.m === selectedLocation.m;
+                      const delta = rate - displayRate;
+                      const isSelected = location.m === displayLocation.m;
                       return (
                         <tr
                           key={location.m}
@@ -1121,7 +1123,7 @@ export function BAHCalculatorPage() {
               <div>
                 <span className="text-sm font-bold tracking-widest text-gray-400">ALL PAY GRADES</span>
                 <span className="ml-3 text-[11px] tracking-widest text-gray-600">
-                  BAH AT {selectedLocation.n.toUpperCase()}
+                  BAH AT {displayLocation.n.toUpperCase()}
                 </span>
               </div>
             </div>
@@ -1163,8 +1165,8 @@ export function BAHCalculatorPage() {
                   <tbody>
                     {GRADE_GROUPS[gradeTab].map((grade) => {
                       const index = BAH_PAY_GRADES.indexOf(grade);
-                      const withRate = selectedLocation.w[index];
-                      const withoutRate = selectedLocation.wo[index];
+                      const withRate = displayLocation.w[index];
+                      const withoutRate = displayLocation.wo[index];
                       const isYou = grade === payGrade;
                       return (
                         <tr

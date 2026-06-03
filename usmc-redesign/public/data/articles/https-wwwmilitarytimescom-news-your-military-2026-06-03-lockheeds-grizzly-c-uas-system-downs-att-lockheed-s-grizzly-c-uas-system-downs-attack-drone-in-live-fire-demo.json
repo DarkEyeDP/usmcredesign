@@ -1,0 +1,59 @@
+{
+  "fetchedAt": "2026-06-03T16:32:43.046Z",
+  "title": "Lockheed’s GRIZZLY C-UAS system downs attack drone in live-fire demo",
+  "pubDate": "2026-06-03T15:34:13.000Z",
+  "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/3G3XMBKCRVGRTKV2ENBLOXMZ5Q.jpg",
+  "description": "The live-fire demonstration paired the radars, Sanctum software and launcher to destroy the target at Yuma Proving Ground, Arizona.",
+  "wordCount": 480,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "The launcher is designed to fire both the Hellfire and JAGM and borrows design elements from Lockheed’s M299 launcher. (Lockheed Martin)"
+    },
+    {
+      "type": "paragraph",
+      "text": "Lockheed Martin has downed a Group 3 one-way attack drone for the first time using a Joint Air-to-Ground Missile, fired from its GRIZZLY containerized launcher. The test integrated the company’s Sanctum counter-unmanned aerial system battle manager with Fortem R-40 radars for detection, tracking and engagement."
+    },
+    {
+      "type": "paragraph",
+      "text": "Announced June 3, the live-fire demonstration paired the radars, Sanctum software and launcher to destroy the target at Yuma Proving Ground, Arizona, according to the company. Lockheed said it integrated the system and completed live-fire testing in under 45 days."
+    },
+    {
+      "type": "paragraph",
+      "text": "The Fortem R-40 comes from a counter-drone partnership Lockheed strengthened in April, when it invested $25 million into the Utah-based firm to incorporate its radars and interceptors more tightly into the Sanctum system."
+    },
+    {
+      "type": "paragraph",
+      "text": "The test builds on GRIZZLY’s first live-fire in March, when Lockheed fired a Hellfire missile from the same container system during a vertical-launch test at Yakima Training Center, Washington, six months after the program began."
+    },
+    {
+      "type": "paragraph",
+      "text": "The launcher is designed to fire both the Hellfire and JAGM and borrows design elements from Lockheed’s M299 launcher. Where March proved the launcher, the June test added the JAGM and a full detect-track-engage kill chain against a live Group 3 drone target, a class the Defense Department defines as drones weighing up to 1,320 pounds and flying below 18,000 feet at under 250 knots."
+    },
+    {
+      "type": "paragraph",
+      "text": "“Built on existing prototype architecture, GRIZZLY enables users to employ the ready-to-fire Sanctum C-UAS system without extensive infrastructure and logistical footprints. By integrating advanced sensor, battle management and missile technologies, Lockheed Martin delivers a decisive C-UAS capability that aligns with our customers’ needs for agile and distributed lethality,” the company said."
+    },
+    {
+      "type": "paragraph",
+      "text": "The GRIZZLY holds up to eight missiles in a 10-foot shipping container, offers toolless reloading and can operate from ground sites or ships. Wireless links among the radars, battle manager and launcher allow for quick setup. Lockheed billed the system as a low-cost way to shield forward bases, key assets and vessels."
+    },
+    {
+      "type": "paragraph",
+      "text": "The maritime pitch tracks with Navy interest in containerized weapons that can ride on unmanned surface vessels to add firepower at sea, a demand signal Lockheed cited when it first showed the launcher in March."
+    },
+    {
+      "type": "paragraph",
+      "text": "“The ability to integrate GRIZZLY’s proven launch architecture with Sanctum’s battle manager on an accelerated timeline demonstrates how Lockheed Martin is applying battlefield innovation and cross-program collaboration to rapidly deliver layered defense capabilities to the warfighter,” said Randy Crites, vice president and general manager of Lockheed Martin Advanced Programs."
+    },
+    {
+      "type": "paragraph",
+      "text": "“This test demonstrates a rapid, low-cost and modular point-defense solution that can be deployed on land or maritime platforms within days,” added Paul Lemmo, vice president and general manager of Lockheed Martin Sensors, Effectors and Mission Systems."
+    },
+    {
+      "type": "paragraph",
+      "text": "The demonstration comes as the Pentagon and allies push for better layered protection against growing drone threats."
+    }
+  ],
+  "links": []
+}
