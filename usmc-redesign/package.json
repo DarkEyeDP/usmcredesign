@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build && cp dist/index.html dist/404.html",
     "dev": "vite",
+    "start": "concurrently -n app,metrics -c cyan,yellow \"vite\" \"npm run metrics:dev\"",
     "fetch-news": "node scripts/fetch-news/index.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "metrics:dev": "npx wrangler dev --config workers/news-metrics/wrangler.toml --local --port 8787",
@@ -71,6 +72,7 @@
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
+    "concurrently": "^10.0.3",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
