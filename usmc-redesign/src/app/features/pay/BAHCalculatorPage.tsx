@@ -308,7 +308,7 @@ export function BAHCalculatorPage() {
   const [isCompareFocused, setIsCompareFocused] = useState(false);
   const [dynamicCoords, setDynamicCoords] = useState<Record<string, [number, number]>>({});
   const [locationHistory, setLocationHistory] = useState<string[]>(() => readStoredBahLookup().locationHistory);
-  const [mapPanelTab, setMapPanelTab] = useState<'history' | 'installations'>('history');
+  const [mapPanelTab, setMapPanelTab] = useState<'history' | 'installations'>('installations');
   const [gradeTab, setGradeTab] = useState<GradeTab>(() => gradeTabForPayGrade(readStoredBahLookup().payGrade));
   const [currentMha, setCurrentMha] = useState<string | null>(() => readStoredBahLookup().currentMha);
   const [currentSearch, setCurrentSearch] = useState(() => readStoredBahLookup().currentSearch);

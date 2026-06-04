@@ -1,8 +1,23 @@
 {
-  "generatedAt": "2026-06-04T00:00:00.846Z",
+  "generatedAt": "2026-06-04T06:13:07.803Z",
   "feedCount": 5,
   "itemCount": 191,
   "items": [
+    {
+      "id": "https://www.militarytimes.com/news/your-military/2026/06/04/army-identifies-soldier-who-died-in-training-accident-in-iraq/",
+      "title": "Army identifies soldier who died in training accident in Iraq",
+      "link": "https://www.militarytimes.com/news/your-military/2026/06/04/army-identifies-soldier-who-died-in-training-accident-in-iraq/",
+      "description": "U.S. Army Sgt. Devin A. Seibel, 26, died on May 31 at Erbil Air Base. British Lance Corporal James Freeman was also killed in the incident.",
+      "pubDate": "2026-06-04T01:36:20.000Z",
+      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/YNGIYWAFIJF5JEI7EFCCHV6FY4.jpg",
+      "author": "J.D. Simkins",
+      "category": "YOUR MILITARY",
+      "source": "news",
+      "feedId": "military-times",
+      "attachments": [],
+      "_slug": "https-wwwmilitarytimescom-news-your-military-2026-06-04-army-identifies-soldier-who-died-in-trai-army-identifies-soldier-who-died-in-training-accident-in-iraq",
+      "wordCount": 156
+    },
     {
       "id": "https://www.militarytimes.com/news/your-navy/2026/06/03/grab-and-go-food-stations-will-be-open-all-day-by-end-of-2026/",
       "title": "Grab-and-go food stations will be open all day by end of 2026",
@@ -452,21 +467,6 @@
       "attachments": [],
       "_slug": "https-wwwmilitarytimescom-news-pentagon-congress-2026-06-01-pentagon-chief-sounds-alarm-over-chi-pentagon-chief-sounds-alarm-over-china-s-buildup-urges-allies-to-boost-defense-spending",
       "wordCount": 811
-    },
-    {
-      "id": "https://www.militarytimes.com/news/your-military/2026/06/01/us-court-blocks-pentagon-from-removing-transgender-troops-for-now/",
-      "title": "US court blocks Pentagon from removing transgender troops, for now",
-      "link": "https://www.militarytimes.com/news/your-military/2026/06/01/us-court-blocks-pentagon-from-removing-transgender-troops-for-now/",
-      "description": "The court ruled that the Trump administration could, for now, bar transgender people from enlisting, but blocked the discharge of current service members.",
-      "pubDate": "2026-06-01T21:39:15.000Z",
-      "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/EOMSFMDMGZFTPACXCRYOBHJBGU.JPG",
-      "author": "Daniel Wiessner, Reuters",
-      "category": "YOUR MILITARY",
-      "source": "news",
-      "feedId": "military-times",
-      "attachments": [],
-      "_slug": "https-wwwmilitarytimescom-news-your-military-2026-06-01-us-court-blocks-pentagon-from-removing-t-us-court-blocks-pentagon-from-removing-transgender-troops-for-now",
-      "wordCount": 482
     },
     {
       "id": "https://www.war.gov/News/News-Stories/Article/Article/4505223/2026-mhs-conference-keynote-speaker-thanks-military-medicine-for-his-recovery/",
@@ -1435,21 +1435,6 @@
       "wordCount": 496
     },
     {
-      "id": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
-      "title": "A medal, a memory, a Marine: The last flight of Maj. Everette McPherson",
-      "link": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
-      "description": "Nearly six decades after his aircraft went down over the South China Sea, Maj. Everett McPherson’s courage in the skies has finally been recognized. In a ceremony filled with solemn reflection and pride, the Marine Corps posthumously awarded McPherson the Distinguished Flying Cross, one of the nation’s highest decorations for heroism in aerial flight.<br/> <img src='https://media.defense.gov/2026/Mar/27/2003914026/115/75/0/260319-M-AV282-1431.JPG' alt='Allan McPherson, brother of the late Maj. Everette McPherson, holds a certificate during a posthumous Distinguished Flying Cross ceremony honoring the heroic actions of this brother at Marine Support Facility New Orleans, March 18, 2026. The Distinguished Flying Cross is awarded to those who have displayed single acts of heroism or extraordinary achievement while participating in aerial flight. Maj. McPherson, a fighter jet pilot, posthumously received the award for sacrificing his life during the Vietnam War in an attempt to save the life of his co-pilot. (U.S. Marine Corps photo by Lance Cpl. Claire Cheney)' /> <br />",
-      "pubDate": "2026-04-15T16:18:00.000Z",
-      "imageUrl": "https://media.defense.gov/2026/Mar/27/2003914008/600/400/0/260319-M-AV282-1269.JPG",
-      "author": "Lance Cpl. Claire Cheney",
-      "category": "A MEDAL, A MEMORY, A MARINE",
-      "source": "news",
-      "feedId": "marines-news",
-      "attachments": [],
-      "_slug": "4462203-a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson",
-      "wordCount": 2464
-    },
-    {
       "id": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4460604/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
       "title": "A medal, a memory, a Marine: The last flight of Maj. Everette McPherson",
       "link": "https://www.marforres.marines.mil/Media-Room/Stories/Article/Article/4460604/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
@@ -1463,6 +1448,21 @@
       "attachments": [],
       "_slug": "4460604-a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson",
       "wordCount": 607
+    },
+    {
+      "id": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
+      "title": "A medal, a memory, a Marine: The last flight of Maj. Everette McPherson",
+      "link": "https://www.marines.mil/News/News-Display/Article/4462203/a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson/",
+      "description": "Nearly six decades after his aircraft went down over the South China Sea, Maj. Everett McPherson’s courage in the skies has finally been recognized. In a ceremony filled with solemn reflection and pride, the Marine Corps posthumously awarded McPherson the Distinguished Flying Cross, one of the nation’s highest decorations for heroism in aerial flight.<br/> <img src='https://media.defense.gov/2026/Mar/27/2003914026/115/75/0/260319-M-AV282-1431.JPG' alt='Allan McPherson, brother of the late Maj. Everette McPherson, holds a certificate during a posthumous Distinguished Flying Cross ceremony honoring the heroic actions of this brother at Marine Support Facility New Orleans, March 18, 2026. The Distinguished Flying Cross is awarded to those who have displayed single acts of heroism or extraordinary achievement while participating in aerial flight. Maj. McPherson, a fighter jet pilot, posthumously received the award for sacrificing his life during the Vietnam War in an attempt to save the life of his co-pilot. (U.S. Marine Corps photo by Lance Cpl. Claire Cheney)' /> <br />",
+      "pubDate": "2026-04-15T16:18:00.000Z",
+      "imageUrl": "https://media.defense.gov/2026/Mar/27/2003914008/600/400/0/260319-M-AV282-1269.JPG",
+      "author": "Lance Cpl. Claire Cheney",
+      "category": "A MEDAL, A MEMORY, A MARINE",
+      "source": "news",
+      "feedId": "marines-news",
+      "attachments": [],
+      "_slug": "4462203-a-medal-a-memory-a-marine-the-last-flight-of-maj-everette-mcpherson",
+      "wordCount": 2464
     },
     {
       "id": "https://www.marines.mil/News/News-Display/Article/4460140/department-of-the-navy-creates-portfolio-aqcuisition-executive-marine-corps-to/",
