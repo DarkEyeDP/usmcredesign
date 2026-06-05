@@ -1832,7 +1832,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       <>
                         <span className="h-3.5 w-px self-center bg-white/18 rounded-full md:flex-shrink-0" aria-hidden="true" />
                         <span className="text-[12px] text-gray-500 font-mono md:flex-shrink-0">
-                          VIEWED BY {formatCount(selectedMetrics.views)}
+                          VIEWS: {formatCount(selectedMetrics.views)}
                         </span>
                       </>
                     )}
