@@ -476,7 +476,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     if (activeTab === 'UNREAD' && routeMatch) {
       // Preserve the selected unread item in the sidebar after it is marked read.
       // It will be released when the user moves to another message or leaves the tab.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHeldUnreadMessageId(prev => {
         if (routeMatch.unread) return routeMatch.id;
         return prev === routeMatch.id ? prev : null;
@@ -517,7 +516,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         enrichedTags.some(t => !currentTags.includes(t))
       );
       if (cachedArticle.source || tagsNeedUpdate || numberNeedsUpdate) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMessages(prev => {
           const updated = prev.map(msg => {
             if (msg.id !== currentMessageId) return msg;
@@ -657,7 +655,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     }
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // When the user types a search query, load all available MARADMINs so search is comprehensive.
   useEffect(() => {

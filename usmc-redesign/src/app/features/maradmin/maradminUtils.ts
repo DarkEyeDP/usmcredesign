@@ -603,10 +603,6 @@ const TAG_RULES: Array<{ tag: string; re: RegExp }> = [
   { tag: 'PERSONNEL',    re: /\b(fitness report|fitrep|performance evaluation|billet|assigned to|personnel action)\b/i },
 ];
 
-function tagsFrom(subject: string): string[] {
-  return tagsFromContent(subject, '');
-}
-
 export function tagsFromContent(subject: string, body: string): string[] {
   const scores = new Map<string, number>();
 
