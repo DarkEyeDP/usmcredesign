@@ -38,281 +38,63 @@ export interface ContentSection {
 
 export type FetchMethod = 'direct' | 'proxy' | null;
 
-const RSS_URL =
-  'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=6&Site=481&max=50&category=14336';
-const ARCHIVE_URL = 'https://www.marines.mil/News/Messages/MARADMINS/';
-const PROXY_URL = 'https://api.allorigins.win/get?url=';
-const PROXY_URL_ALT = 'https://corsproxy.io/?url=';
-const RSS_FETCH_TIMEOUT_MS = 15000;
-const ARCHIVE_PAGE_SIZE = 25;
+const WORKER_BASE = (import.meta.env.VITE_NEWS_METRICS_URL as string | undefined)?.replace(/\/$/, '') ?? '';
 
-const SHORT_MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-const LONG_MON  = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+export const ALL_MARADMIN_TAGS = [
+  'ADMIN', 'AVIATION', 'AWARDS', 'BOARDS', 'CIVILIAN', 'EDUCATION', 'ENLISTED',
+  'FAMILY', 'FINANCE', 'INTELLIGENCE', 'LANGUAGE', 'LEADERSHIP', 'MEDICAL', 'MOS',
+  'OFFICERS', 'OPERATIONS', 'PERSONNEL', 'POLICY', 'PROMOTIONS', 'READINESS',
+  'RECRUITING', 'RESERVE', 'RETENTION', 'SAFETY', 'SEPARATION', 'SPECIAL DUTY',
+  'TECHNOLOGY', 'TRAINING', 'UNIFORMS',
+] as const;
 
-function isCancellationMARADMIN(title: string): boolean {
-  return /^cancellation of maradmin\b/i.test(title.trim());
+// ── Worker API ──────────────────────────────────────────────────────────────
+
+export async function syncMARADMINFeed(): Promise<{ added: number }> {
+  if (!WORKER_BASE) return { added: 0 };
+  const res = await fetch(`${WORKER_BASE}/maradmins/sync`, { method: 'POST' });
+  if (!res.ok) throw new Error(`Sync failed: ${res.status}`);
+  const data = await res.json() as { added?: number };
+  return { added: data.added ?? 0 };
 }
 
-// ── RSS Feed ────────────────────────────────────────────────────────────────
-
-export async function fetchRSSFeed(): Promise<RSSMessage[]> {
-  const res = await fetchTextWithTimeout(`${RSS_URL}&_=${Date.now()}`);
-  if (!res.ok) throw new Error(`RSS fetch failed: ${res.status}`);
-
-  const xml = await res.text();
-  const doc = new DOMParser().parseFromString(xml, 'text/xml');
-
-  return Array.from(doc.getElementsByTagName('item')).flatMap((item, i) => {
-    const title   = xmlText(item, 'title');
-
-    if (isCancellationMARADMIN(title)) return [];
-
-    const link    = xmlText(item, 'link') || xmlText(item, 'guid');
-    const pubDate = xmlText(item, 'pubDate');
-    const desc    = xmlText(item, 'description');
-
-    const number = (desc.match(/MARADMIN\s+(\d+\/\d+)/) ?? [])[1] ?? '';
-
-    const d   = new Date(pubDate);
-    const day = String(d.getUTCDate()).padStart(2, '0');
-    const displayDate = `${day} ${SHORT_MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-    const month       = `${LONG_MON[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-
-    return {
-      id: number || link || String(i),
-      number,
-      subject: title,
-      date: displayDate,
-      displayDate,
-      month,
-      source: 'HQMC',
-      link,
-      unread: true,
-      isNew: false,
-      saved: false,
-      archived: false,
-      tags: tagsFrom(title),
-    };
-  });
+export async function fetchMARADMINFeed(
+  offset: number,
+  limit = 50,
+): Promise<{ messages: RSSMessage[]; total: number }> {
+  if (!WORKER_BASE) return { messages: [], total: 0 };
+  const res = await fetch(`${WORKER_BASE}/maradmins?limit=${limit}&offset=${offset}`);
+  if (!res.ok) throw new Error(`Feed fetch failed: ${res.status}`);
+  const data = await res.json() as { messages: RSSMessage[]; total?: number };
+  return { messages: data.messages ?? [], total: data.total ?? 0 };
 }
 
-export interface ArchivePageResult {
-  messages: RSSMessage[];
-  nextPage: number;
-  hasMore: boolean;
-}
-
-export async function fetchMARADMINArchivePage(page: number): Promise<ArchivePageResult> {
-  const url = buildArchivePageURL(page);
-
-  try {
-    const res = await fetchTextWithTimeout(url);
-    if (res.ok) {
-      const html = await res.text();
-      const parsed = parseArchivePageHTML(html, page);
-      return {
-        ...parsed,
-        nextPage: page + 1,
-      };
-    }
-  } catch {
-    // Fall through to the proxy request.
-  }
-
-  const proxyRes = await fetchTextWithTimeout(`${PROXY_URL}${encodeURIComponent(url)}`);
-  if (!proxyRes.ok) throw new Error(`Archive fetch failed: ${proxyRes.status}`);
-
-  const { contents } = (await proxyRes.json()) as { contents?: string };
-  const parsed = parseArchivePageHTML(contents ?? '', page);
+export async function fetchMARADMINArticle(
+  number: string,
+): Promise<{ text: string; method: FetchMethod; source: string | null; cachedAt: number } | null> {
+  if (!WORKER_BASE || !number) return null;
+  const slug = encodeURIComponent(number.replace(/\//g, '-'));
+  const res = await fetch(`${WORKER_BASE}/maradmins/${slug}/content`);
+  if (!res.ok) return null;
+  const data = await res.json() as { text?: string; method?: string; source?: string | null; cachedAt?: number };
+  if (!data.text) return null;
+  // Strip marines.mil site footer before any further processing or caching.
+  const stripped = data.text
+    .replace(/\s*(?:\/+\s*)?Marine Corps\s+About The Corps\b[\s\S]*$/, '')
+    .replace(/\s*Hosted by WEB\.mil[\s\S]*$/, '')
+    .replace(/\s*\/{2,}\s*$/, '')
+    .trim();
+  // Run client-side table detection so parseMARADMINText receives marked-up text.
+  const marked = detectAndMarkTables(stripped);
+  const text = normalizeWhitespace(marked);
   return {
-    ...parsed,
-    nextPage: page + 1,
+    text,
+    method: (data.method as FetchMethod) ?? 'direct',
+    source: data.source ?? null,
+    cachedAt: data.cachedAt ?? Date.now(),
   };
 }
 
-export function parseArchivePageHTML(html: string, page: number): { messages: RSSMessage[]; hasMore: boolean } {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const messageAnchors = Array.from(
-    doc.querySelectorAll<HTMLAnchorElement>('a[href*="/News/Messages/Messages-Display/Article/"]'),
-  );
-  const hrefByText = new Map<string, string>();
-  messageAnchors.forEach(anchor => {
-    const href = anchor.getAttribute('href');
-    const text = flatLine(anchor.textContent ?? '');
-    if (!href || !text) return;
-    hrefByText.set(text, new URL(href, ARCHIVE_URL).toString());
-  });
-
-  const lines = (doc.body?.textContent ?? '')
-    .split('\n')
-    .map(line => flatLine(line))
-    .filter(Boolean);
-
-  const startIndex = lines.findIndex(line => line === 'Status');
-  const endIndex = lines.findIndex((line, index) => index > startIndex && line === 'Load More');
-  const sectionLines = lines.slice(startIndex >= 0 ? startIndex + 1 : 0, endIndex >= 0 ? endIndex : lines.length);
-  const messages = parseArchivePageRows(sectionLines, hrefByText, page);
-
-  const nextPagePattern = new RegExp(`(?:\\?|&)Page=${page + 1}(?:&|$)`, 'i');
-  const hasMore = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[href]')).some(anchor => {
-    const href = anchor.getAttribute('href') ?? '';
-    return nextPagePattern.test(href);
-  }) || messages.length >= ARCHIVE_PAGE_SIZE;
-
-  return { messages, hasMore };
-}
-
-export function parseArchivePageRows(
-  sectionLines: string[],
-  hrefByText: Map<string, string>,
-  page: number,
-): RSSMessage[] {
-  const messages: RSSMessage[] = [];
-  let i = 0;
-
-  while (i < sectionLines.length) {
-    const number = sectionLines[i];
-    if (!/^\d+\/\d+$/.test(number)) {
-      i += 1;
-      continue;
-    }
-
-    let j = i + 1;
-    const titleParts: string[] = [];
-    while (j < sectionLines.length && !isArchiveDateLine(sectionLines[j])) {
-      if (/^\d+\/\d+$/.test(sectionLines[j])) break;
-      titleParts.push(sectionLines[j]);
-      j += 1;
-    }
-
-    const dateLine = sectionLines[j];
-    const statusLine = sectionLines[j + 1];
-    if (!dateLine || !isArchiveDateLine(dateLine) || !statusLine || !isArchiveStatusLine(statusLine)) {
-      i += 1;
-      continue;
-    }
-
-    const subject = titleParts.join(' ').trim();
-
-    if (isCancellationMARADMIN(subject)) { i += 1; continue; }
-
-    const dateInfo = extractArchiveDate(dateLine);
-    const displayDate = dateInfo ? formatDisplayDate(dateInfo) : '';
-    const month = dateInfo ? `${LONG_MON[dateInfo.getUTCMonth()]} ${dateInfo.getUTCFullYear()}` : '';
-    const link = hrefByText.get(number) ?? hrefByText.get(subject) ?? '';
-
-    messages.push({
-      id: number || `archive-${page}-${messages.length}`,
-      number,
-      subject,
-      date: displayDate,
-      displayDate,
-      month,
-      source: 'HQMC',
-      link,
-      unread: true,
-      isNew: false,
-      saved: false,
-      archived: false,
-      tags: tagsFrom(subject),
-    });
-
-    i = j + 2;
-  }
-
-  return messages;
-}
-
-function xmlText(el: Element, tag: string): string {
-  return el.getElementsByTagName(tag)[0]?.textContent?.trim() ?? '';
-}
-
-// ── Article Content Fetch (direct → CORS proxy → null) ─────────────────────
-
-export async function fetchArticleContent(
-  url: string,
-): Promise<{ text: string; method: FetchMethod }> {
-  // Attempt 1: direct browser fetch (works if server allows CORS)
-  try {
-    const res = await fetch(url, { mode: 'cors' });
-    if (res.ok) {
-      const text = extractTextFromHTML(await res.text());
-      if (text) return { text, method: 'direct' };
-    }
-  } catch { /* CORS or network error — fall through */ }
-
-  // Attempt 2: allorigins.win CORS proxy
-  try {
-    const res = await fetch(`${PROXY_URL}${encodeURIComponent(url)}`);
-    if (res.ok) {
-      const { contents } = (await res.json()) as { contents?: string };
-      const text = extractTextFromHTML(contents ?? '');
-      if (text) return { text, method: 'proxy' };
-    }
-  } catch { /* proxy failed — fall through */ }
-
-  // Attempt 3: corsproxy.io fallback
-  try {
-    const res = await fetch(`${PROXY_URL_ALT}${encodeURIComponent(url)}`);
-    if (res.ok) {
-      const text = extractTextFromHTML(await res.text());
-      if (text) return { text, method: 'proxy' };
-    }
-  } catch { /* proxy failed — fall through */ }
-
-  return { text: '', method: null };
-}
-
-function buildArchivePageURL(page: number): string {
-  const url = new URL(ARCHIVE_URL);
-  url.searchParams.set('Page', String(page));
-  return url.toString();
-}
-
-async function fetchTextWithTimeout(url: string): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), RSS_FETCH_TIMEOUT_MS);
-
-  return fetch(url, {
-    cache: 'no-store',
-    signal: controller.signal,
-  }).finally(() => {
-    window.clearTimeout(timeoutId);
-  });
-}
-
-function extractArchiveDate(text: string): Date | null {
-  const numeric = text.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
-  if (numeric) {
-    const month = Number(numeric[1]) - 1;
-    const day = Number(numeric[2]);
-    const year = Number(numeric[3]);
-    return new Date(Date.UTC(year, month, day));
-  }
-
-  const named = text.match(/\b([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})\b/);
-  if (named) {
-    const month = new Date(`${named[1]} 1, 2000`).getMonth();
-    if (!Number.isNaN(month)) {
-      return new Date(Date.UTC(Number(named[3]), month, Number(named[2])));
-    }
-  }
-
-  return null;
-}
-
-function isArchiveDateLine(text: string): boolean {
-  return /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(text) || /^[A-Za-z]+\s+\d{1,2},\s*\d{4}$/.test(text);
-}
-
-function isArchiveStatusLine(text: string): boolean {
-  return /^(Active|Cancelled|Cancellation Notice)$/i.test(text);
-}
-
-function formatDisplayDate(date: Date): string {
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  return `${day} ${SHORT_MON[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
-}
 
 export function extractMARADMINSource(raw: string): string | null {
   const releaseMatch = flatLine(raw).match(/release authorized by\s+(.+?)(?:\/\/|$)/i);
@@ -334,61 +116,6 @@ export function extractMARADMINNumber(raw: string): string | null {
   return match?.[1] ?? null;
 }
 
-// DTG pattern: "R 291826Z APR 26" — the first line of every MARADMIN.
-// Starting from the DTG skips DNN page wrappers that label the message
-// field with their own index numbers (e.g. "1. Message. RMKS/1. Purpose...").
-const DTG_RE = /\bR \d{6}Z\b/;
-
-function extractTextFromHTML(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  doc.querySelectorAll('script,style,nav,header,footer').forEach(el => el.remove());
-
-  const MARADMIN_RE = /MARADMIN\s+\d+\/\d+/;
-
-  // Try progressively broader container selectors
-  const candidates: (Element | null)[] = [
-    ...Array.from(
-      doc.querySelectorAll('[class*="article"],[class*="Article"],[class*="content"],[class*="body"],[class*="message"],[class*="text"]'),
-    ),
-    doc.querySelector('main'),
-    doc.querySelector('#main'),
-    doc.body,
-  ];
-
-  for (const el of candidates) {
-    if (!el) continue;
-    const raw = htmlToPlainText(el);
-    const marked = detectAndMarkTables(raw);
-    const text = normalizeWhitespace(marked);
-    if (!MARADMIN_RE.test(text)) continue;
-
-    // Trim to the DTG line so page-level wrapper labels are excluded
-    const dtgIdx = text.search(DTG_RE);
-    return dtgIdx >= 0 ? text.slice(dtgIdx) : text;
-  }
-
-  return '';
-}
-
-// Convert an element's HTML to plain text, preserving block/br structure as newlines.
-// Using textContent alone loses <br> line breaks which the MARADMIN parser depends on.
-function htmlToPlainText(el: Element): string {
-  let html = el.innerHTML;
-  // Block-level closers and <br> → newline
-  html = html.replace(/<br\s*\/?>/gi, '\n');
-  // Table cells get a tab separator so column detection works on HTML tables too
-  html = html.replace(/<\/(td|th)>/gi, '\t');
-  html = html.replace(/<\/(p|div|li|tr|h[1-6]|pre|blockquote)>/gi, '\n');
-  // Strip remaining tags
-  html = html.replace(/<[^>]+>/g, '');
-  // Decode HTML entities via a throwaway element.
-  // Replace &nbsp; (\xa0) with regular space — marines.mil uses &nbsp; between
-  // paragraphs, and \xa0 is not matched by [ \t]+ in normalizeWhitespace or
-  // by the paragraph regex, causing all paragraph detection to silently fail.
-  const tmp = document.createElement('textarea');
-  tmp.innerHTML = html;
-  return tmp.value.replace(/\xa0/g, ' ');
-}
 
 function normalizeWhitespace(text: string): string {
   return text
@@ -696,7 +423,13 @@ function parseSubSections(lines: string[]): ContentSubSection[] {
 
 // ── MARADMIN Text Parser ────────────────────────────────────────────────────
 
-export function parseMARADMINText(raw: string): ContentSection[] {
+export function parseMARADMINText(rawInput: string): ContentSection[] {
+  // Strip marines.mil site-wide footer nav that trails every scraped page
+  const raw = rawInput
+    .replace(/\s*(?:\/+\s*)?Marine Corps\s+About The Corps\b[\s\S]*$/, '')
+    .replace(/\s*Hosted by WEB\.mil[\s\S]*$/, '')
+    .replace(/\s*\/{2,}\s*$/, '')
+    .trim();
   const upper = raw.toUpperCase();
 
   // Locate the message body — try common MARADMIN section markers in order
@@ -705,7 +438,10 @@ export function parseMARADMINText(raw: string): ContentSection[] {
     const idx = upper.indexOf(marker);
     if (idx >= 0) { bodyStart = idx + marker.length; break; }
   }
-  const body = bodyStart >= 0 ? raw.slice(bodyStart).trim() : raw;
+  const rawBody = bodyStart >= 0 ? raw.slice(bodyStart).trim() : raw;
+  // Strip from the final "//" — the end-of-message marker — and any website footer that follows.
+  const lastSlash = rawBody.lastIndexOf('//');
+  const body = lastSlash >= 0 ? rawBody.slice(0, lastSlash).trim() : rawBody;
 
   // Match numbered top-level paragraphs.
   // Real MARADMINs use TWO spaces after the period: "1.  Purpose." or "1.  This MARADMIN..."

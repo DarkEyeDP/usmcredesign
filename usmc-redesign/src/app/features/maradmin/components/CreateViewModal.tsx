@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { AUDIENCES } from '../maradminAudienceUtils';
 import type { CustomView } from '../maradminStorage';
+import { ALL_MARADMIN_TAGS } from '../maradminUtils';
 
 interface CreateViewModalProps {
-  availableTags: string[];
   initialValues?: CustomView;
   onSave: (view: Omit<CustomView, 'id'>) => void;
   onCancel: () => void;
 }
 
-export function CreateViewModal({ availableTags, initialValues, onSave, onCancel }: CreateViewModalProps) {
+export function CreateViewModal({ initialValues, onSave, onCancel }: CreateViewModalProps) {
   const isEditing = !!initialValues;
   const [name, setName] = useState(initialValues?.name ?? '');
   const [keywordInput, setKeywordInput] = useState('');
@@ -96,11 +96,10 @@ export function CreateViewModal({ availableTags, initialValues, onSave, onCancel
         </div>
 
         {/* Tags */}
-        {availableTags.length > 0 && (
-          <div>
+        <div>
             <div className="text-[10px] font-bold tracking-[0.2em] text-gray-600 mb-1">TAGS <span className="text-gray-700 font-normal normal-case tracking-normal">(optional)</span></div>
             <div className="flex flex-wrap gap-1.5">
-              {availableTags.map(tag => (
+              {ALL_MARADMIN_TAGS.map(tag => (
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
@@ -115,7 +114,6 @@ export function CreateViewModal({ availableTags, initialValues, onSave, onCancel
               ))}
             </div>
           </div>
-        )}
 
         {/* Audience */}
         <div>

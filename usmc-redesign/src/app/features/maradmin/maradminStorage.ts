@@ -1,10 +1,6 @@
 import type { FetchMethod, RSSMessage } from './maradminUtils';
 
 const STORAGE_KEY = 'maradmin:state:v1';
-const FEED_CACHE_MAX_AGE_MS = 15 * 60 * 1000;
-export const MAX_FEED_MESSAGES = 500;
-// Stop background archive loading above this threshold (~3.5 MB of MARADMIN state).
-export const ARCHIVE_STORAGE_LIMIT_BYTES = 3.5 * 1024 * 1024;
 const MAX_READ_NUMBERS = 2000;
 const MAX_NEW_NUMBERS = 500;
 const MAX_SAVED_NUMBERS = 500;
@@ -14,6 +10,7 @@ export interface MARADMINUserState {
   readNumbers: string[];
   newNumbers: string[];
   savedNumbers: string[];
+  readAllCount?: number; // totalCount at time of last "mark all read"
 }
 
 export interface CachedArticleEntry {
@@ -31,15 +28,7 @@ export interface CustomView {
   audiences: string[];
 }
 
-interface StoredFeedCache {
-  cachedAt: number;
-  messages: RSSMessage[];
-  nextArchivePage?: number;
-  archiveHasMore?: boolean;
-}
-
 interface StoredMARADMINState {
-  feedCache?: StoredFeedCache;
   articles?: Record<string, CachedArticleEntry>;
   userState?: MARADMINUserState;
   customViews?: CustomView[];
@@ -94,18 +83,7 @@ function normalizeUserState(userState: MARADMINUserState): MARADMINUserState {
     readNumbers: keepMostRecent(userState.readNumbers, MAX_READ_NUMBERS),
     newNumbers: keepMostRecent(userState.newNumbers, MAX_NEW_NUMBERS),
     savedNumbers: keepMostRecent(userState.savedNumbers, MAX_SAVED_NUMBERS),
-  };
-}
-
-export function limitStoredFeedMessages(messages: RSSMessage[]): RSSMessage[] {
-  return messages.slice(0, MAX_FEED_MESSAGES);
-}
-
-export function getCachedArchiveCursor(): { nextPage: number; hasMore: boolean } {
-  const feedCache = readState().feedCache;
-  return {
-    nextPage: feedCache?.nextArchivePage ?? 2,
-    hasMore: feedCache?.archiveHasMore ?? true,
+    ...(userState.readAllCount != null ? { readAllCount: userState.readAllCount } : {}),
   };
 }
 
@@ -128,13 +106,12 @@ export function getMARADMINUserState(): MARADMINUserState {
   const state = readState().userState;
   if (!state) return createDefaultUserState();
 
-  return {
-    ...normalizeUserState({
-      readNumbers: Array.isArray(state.readNumbers) ? state.readNumbers : [],
-      newNumbers: Array.isArray(state.newNumbers) ? state.newNumbers : [],
-      savedNumbers: Array.isArray(state.savedNumbers) ? state.savedNumbers : [],
-    }),
-  };
+  return normalizeUserState({
+    readNumbers: Array.isArray(state.readNumbers) ? state.readNumbers : [],
+    newNumbers: Array.isArray(state.newNumbers) ? state.newNumbers : [],
+    savedNumbers: Array.isArray(state.savedNumbers) ? state.savedNumbers : [],
+    readAllCount: typeof state.readAllCount === 'number' ? state.readAllCount : undefined,
+  });
 }
 
 export function saveMARADMINUserState(userState: MARADMINUserState) {
@@ -214,32 +191,6 @@ export function mergeFeedMessages(
     userState: nextUserState,
     newMessageNumbers: detectedNewNumbers,
   };
-}
-
-export function getCachedFeed(): RSSMessage[] | null {
-  const feedCache = readState().feedCache;
-  if (!feedCache?.messages?.length) return null;
-
-  return limitStoredFeedMessages(feedCache.messages);
-}
-
-export function isCachedFeedFresh(): boolean {
-  const feedCache = readState().feedCache;
-  if (!feedCache?.cachedAt) return false;
-
-  return Date.now() - feedCache.cachedAt < FEED_CACHE_MAX_AGE_MS;
-}
-
-export function saveCachedFeed(messages: RSSMessage[], archiveCursor?: { nextPage: number; hasMore: boolean }) {
-  const state = readState();
-  const currentFeedCache = state.feedCache;
-  state.feedCache = {
-    cachedAt: Date.now(),
-    messages: limitStoredFeedMessages(messages),
-    nextArchivePage: archiveCursor?.nextPage ?? currentFeedCache?.nextArchivePage ?? 2,
-    archiveHasMore: archiveCursor?.hasMore ?? currentFeedCache?.archiveHasMore ?? true,
-  };
-  writeState(state);
 }
 
 export function getCustomViews(): CustomView[] {

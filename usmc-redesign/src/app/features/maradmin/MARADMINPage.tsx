@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { generateMARADMINPdf, maradminEmailBody } from './maradminPdf';
 import {
-  fetchRSSFeed, fetchArticleContent, parseMARADMINText,
-  extractMARADMINSource, extractMARADMINNumber, fetchMARADMINArchivePage, tagsFromContent,
+  fetchMARADMINFeed, fetchMARADMINArticle, syncMARADMINFeed, parseMARADMINText,
+  extractMARADMINNumber, tagsFromContent,
   decodeMessageNumber, buildMessagePath,
   type RSSMessage, type ContentSection,
 } from './maradminUtils';
@@ -24,21 +24,14 @@ import {
   applyUserStateToMessages,
   clearMARADMINLocalState,
   getCachedArticle,
-  getCachedArchiveCursor,
-  getCachedFeed,
   getCustomViews,
-  getMARADMINStorageSizeBytes,
   getMARADMINUserState,
-  isCachedFeedFresh,
   mergeArchiveMessages,
   mergeFeedMessages,
   saveCachedArticle,
   deleteCachedArticle,
-  saveCachedFeed,
   saveCustomViews,
   saveMARADMINUserState,
-  ARCHIVE_STORAGE_LIMIT_BYTES,
-  MAX_FEED_MESSAGES,
   type CustomView,
   type MARADMINUserState,
 } from './maradminStorage';
@@ -81,7 +74,6 @@ interface MessageFilterState {
 }
 
 export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props) {
-  const initialArchiveCursor = getCachedArchiveCursor();
   const navigate = useNavigate();
   const { messageNumber } = useParams();
   const [messages, setMessages]             = useState<RSSMessage[]>([]);
@@ -93,6 +85,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [detailRetryCount, setDetailRetryCount] = useState(0);
   const [feedRefreshing, setFeedRefreshing] = useState(false);
   const [archiveLoading, setArchiveLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const [refreshNotice, setRefreshNotice]   = useState<RefreshNotice | null>(null);
   const [activeTab, setActiveTab]           = useState('ALL MESSAGES');
   const [heldUnreadMessageId, setHeldUnreadMessageId] = useState<string | null>(null);
@@ -115,8 +108,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     viewStoragePrefix: 'usmc-maradmin-viewed:',
   });
   const shareRef = useRef<HTMLDivElement>(null);
-  const [archiveNextPage, setArchiveNextPage] = useState(initialArchiveCursor.nextPage);
-  const [archiveHasMore, setArchiveHasMore] = useState(initialArchiveCursor.hasMore);
+  const [archiveHasMore, setArchiveHasMore] = useState(true);
   const detailScrollRef = useRef<HTMLDivElement>(null);
   const pendingNavScrollRef = useRef(false);
   const sidebarScrollRef = useRef<HTMLDivElement>(null);
@@ -127,8 +119,10 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const pendingArchiveScrollNumberRef = useRef<string | null>(null);
   const searchIndexRef = useRef(createSearchIndex());
   const indexedIdsRef = useRef<Set<string>>(new Set());
-  const archiveCursorRef = useRef({ nextPage: archiveNextPage, hasMore: archiveHasMore });
   const savedFiltersRef = useRef<{ years: Set<string>; tags: Set<string>; audiences: Set<Audience>; query: string } | null>(null);
+  const prefetchFailedRef = useRef<Set<string>>(new Set());
+  const loadOlderRef = useRef<() => Promise<number>>(() => Promise.resolve(0));
+  const searchLoadStartedRef = useRef(false);
   const [searchIndexVersion, setSearchIndexVersion] = useState(0);
 
   const routeNumber = decodeMessageNumber(messageNumber);
@@ -140,11 +134,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setDetailLoading(false);
     setShareOpen(false);
   }, []);
-
-  // Keep cursor ref in sync so the background prefetcher never sees stale values.
-  useEffect(() => {
-    archiveCursorRef.current = { nextPage: archiveNextPage, hasMore: archiveHasMore };
-  }, [archiveNextPage, archiveHasMore]);
 
   const updateSearchIndex = useCallback((msg: RSSMessage, bodyText: string) => {
     const index = searchIndexRef.current;
@@ -219,35 +208,30 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     async function prefetchNext() {
       if (cancelled || document.hidden) return;
 
-      const uncached = messagesRef.current.find(msg => !getCachedArticle(msg.number || msg.link));
+      const uncached = messagesRef.current.find(
+        msg => !getCachedArticle(msg.number || msg.link) && !prefetchFailedRef.current.has(msg.number),
+      );
       if (!uncached) return;
 
       try {
         const key = uncached.number || uncached.link;
-        const { text, method } = await fetchArticleContent(uncached.link);
+        const result = await fetchMARADMINArticle(uncached.number);
         if (cancelled) return;
 
-        const source = text ? extractMARADMINSource(text) : null;
-        saveCachedArticle(key, { text: text ?? '', method, source, cachedAt: Date.now() });
+        if (!result?.text) {
+          prefetchFailedRef.current.add(uncached.number);
+        } else {
+          saveCachedArticle(key, result);
+          updateSearchIndex(uncached, result.text);
 
-        if (text) {
-          updateSearchIndex(uncached, text);
-
-          const enrichedTags = tagsFromContent(uncached.subject, text);
+          const enrichedTags = tagsFromContent(uncached.subject, result.text);
           const tagsChanged = enrichedTags.length !== uncached.tags.length ||
             enrichedTags.some(t => !uncached.tags.includes(t));
 
           if (tagsChanged) {
-            const cursor = archiveCursorRef.current;
-            setMessages(prev => {
-              const updated = prev.map(msg =>
-                msg.id === uncached.id ? { ...msg, tags: enrichedTags } : msg,
-              );
-              if (updated.some((msg, i) => msg !== prev[i])) {
-                saveCachedFeed(updated, { nextPage: cursor.nextPage, hasMore: cursor.hasMore });
-              }
-              return updated;
-            });
+            setMessages(prev => prev.map(msg =>
+              msg.id === uncached.id ? { ...msg, tags: enrichedTags } : msg,
+            ));
           }
         }
       } catch {
@@ -282,7 +266,6 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setMessages(prev => {
       const updated = applyUserStateToMessages(prev, nextUserState);
       messagesRef.current = updated;
-      saveCachedFeed(updated, { nextPage: archiveNextPage, hasMore: archiveHasMore });
       return updated;
     });
     setSelectedMsg(prev => {
@@ -315,13 +298,13 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       ...userStateRef.current,
       readNumbers: [...userStateRef.current.readNumbers, ...unreadNumbers],
       newNumbers: userStateRef.current.newNumbers.filter(value => !unreadSet.has(value)),
+      readAllCount: totalCount || messagesRef.current.length,
     };
 
     persistUserState(nextUserState);
     setMessages(prev => {
       const updated = applyUserStateToMessages(prev, nextUserState);
       messagesRef.current = updated;
-      saveCachedFeed(updated, { nextPage: archiveNextPage, hasMore: archiveHasMore });
       return updated;
     });
     setSelectedMsg(prev => {
@@ -414,24 +397,19 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setRefreshNotice({ tone, message });
   }
 
-  const refreshFeed = useCallback(async (force = false) => {
-    if (refreshPromiseRef.current) {
-      return refreshPromiseRef.current;
-    }
-
-    const cachedFeed = messagesRef.current.length > 0 ? messagesRef.current : (getCachedFeed() ?? []);
-
-    if (!force && cachedFeed.length > 0 && isCachedFeedFresh()) return 0;
+  const refreshFeed = useCallback(async (forceSync = false) => {
+    if (refreshPromiseRef.current) return refreshPromiseRef.current;
 
     refreshPromiseRef.current = (async () => {
       setFeedRefreshing(true);
       try {
-        const msgs = await fetchRSSFeed();
-        const mergedResult = mergeFeedMessages(cachedFeed, msgs, userStateRef.current);
+        if (forceSync) await syncMARADMINFeed().catch(() => { /* non-fatal */ });
+        const { messages: msgs, total } = await fetchMARADMINFeed(0, 50);
+        setTotalCount(total);
+        const mergedResult = mergeFeedMessages(messagesRef.current, msgs, userStateRef.current);
         persistUserState(mergedResult.userState);
         messagesRef.current = mergedResult.messages;
         setMessages(mergedResult.messages);
-        saveCachedFeed(mergedResult.messages, { nextPage: archiveNextPage, hasMore: archiveHasMore });
         return mergedResult.newMessageNumbers.length;
       } finally {
         setFeedRefreshing(false);
@@ -440,7 +418,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     })();
 
     return refreshPromiseRef.current;
-  }, [archiveHasMore, archiveNextPage]);
+  }, []);
 
   useEffect(() => {
     if (!refreshNotice) return;
@@ -453,27 +431,17 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   }, [refreshNotice]);
 
   useEffect(() => {
-    const cachedFeed = getCachedFeed();
-    if (cachedFeed?.length) {
-      const hydratedMessages = applyUserStateToMessages(cachedFeed, userStateRef.current);
-      messagesRef.current = hydratedMessages;
-      setMessages(hydratedMessages);
-      setListLoading(false);
-    }
-
     void refreshFeed()
       .catch(console.error)
       .finally(() => setListLoading(false));
 
     const intervalId = window.setInterval(() => {
       if (document.hidden) return;
-      void refreshFeed(true).catch(console.error);
+      void refreshFeed().catch(console.error);
     }, FEED_POLL_INTERVAL_MS);
 
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        void refreshFeed(true).catch(console.error);
-      }
+      if (!document.hidden) void refreshFeed().catch(console.error);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -560,7 +528,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
             return Object.keys(patch).length ? { ...msg, ...patch } : msg;
           });
           if (updated.some((msg, i) => msg !== prev[i])) {
-            saveCachedFeed(updated, { nextPage: archiveNextPage, hasMore: archiveHasMore });
+            messagesRef.current = updated;
           }
           return updated;
         });
@@ -590,8 +558,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     const currentSubject = selectedMsg.subject;
     const currentTags = selectedMsg.tags;
     const currentMsg = selectedMsg;
-    fetchArticleContent(selectedMsg.link).then(({ text, method }) => {
-      const extractedSource = text ? extractMARADMINSource(text) : null;
+    fetchMARADMINArticle(selectedMsg.number).then(result => {
+      const text = result?.text ?? '';
+      const extractedSource = result?.source ?? null;
       const extractedNumber = text ? extractMARADMINNumber(text) : null;
       const enrichedTags = text ? tagsFromContent(currentSubject, text) : null;
       const tagsNeedUpdate = enrichedTags && (
@@ -611,7 +580,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
             return Object.keys(patch).length ? { ...msg, ...patch } : msg;
           });
           if (updated.some((msg, i) => msg !== prev[i])) {
-            saveCachedFeed(updated, { nextPage: archiveNextPage, hasMore: archiveHasMore });
+            messagesRef.current = updated;
           }
           return updated;
         });
@@ -628,86 +597,92 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         markMessageRead(extractedNumber);
         navigate(buildMessagePath({ number: extractedNumber, id: currentMessageId }), { replace: true });
       }
-      if (text) saveCachedArticle(cacheKey, {
-        text,
-        method,
-        source: extractedSource,
-        cachedAt: Date.now(),
-      });
+      if (result) saveCachedArticle(cacheKey, result);
       if (text) updateSearchIndex(currentMsg, text);
       setDetailSections(text ? parseMARADMINText(text) : []);
       setDetailHeaderPOCs(text ? parseHeaderPOCs(text) : []);
       setDetailLoading(false);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [archiveHasMore, archiveNextPage, selectedMsg?.id, detailRetryCount]);
+  }, [selectedMsg?.id, detailRetryCount]);
 
   const loadOlderMessages = useCallback(async (silent = false) => {
     if (archiveLoading || !archiveHasMore) return 0;
 
     setArchiveLoading(true);
     try {
-      const { messages: olderMessages, nextPage, hasMore } = await fetchMARADMINArchivePage(archiveNextPage);
+      const offset = messagesRef.current.length;
+      const { messages: olderMessages, total } = await fetchMARADMINFeed(offset, 50);
+      setTotalCount(total);
       const existingNumbers = new Set(messagesRef.current.map(message => message.number));
       const uniqueOlderMessages = olderMessages.filter(message => !existingNumbers.has(message.number));
-      const mergedMessages = mergeArchiveMessages(messagesRef.current, olderMessages, userStateRef.current);
+
+      // If loading within the "mark all read" window, persist those numbers as read
+      // so they display correctly even after page refresh.
+      const readAllCount = userStateRef.current.readAllCount ?? 0;
+      let activeUserState = userStateRef.current;
+      if (readAllCount > 0 && offset < readAllCount) {
+        const toMarkRead = uniqueOlderMessages.map(m => m.number);
+        activeUserState = {
+          ...userStateRef.current,
+          readNumbers: [...new Set([...userStateRef.current.readNumbers, ...toMarkRead])],
+        };
+        persistUserState(activeUserState);
+      }
+
+      const mergedMessages = mergeArchiveMessages(messagesRef.current, olderMessages, activeUserState);
 
       messagesRef.current = mergedMessages;
       if (!silent) pendingArchiveScrollNumberRef.current = uniqueOlderMessages[0]?.number ?? null;
       setMessages(mergedMessages);
-      setArchiveNextPage(nextPage);
-      setArchiveHasMore(hasMore);
-      saveCachedFeed(mergedMessages, { nextPage, hasMore });
+      setArchiveHasMore(olderMessages.length === 50);
 
       return uniqueOlderMessages.length;
     } finally {
       setArchiveLoading(false);
     }
-  }, [archiveHasMore, archiveLoading, archiveNextPage]);
+  }, [archiveHasMore, archiveLoading]);
 
-  // Always points to the latest loadOlderMessages so the background effect avoids stale closures.
-  const loadOlderMessagesRef = useRef(loadOlderMessages);
-  useEffect(() => { loadOlderMessagesRef.current = loadOlderMessages; }, [loadOlderMessages]);
+  // Keep ref in sync so scroll handler never captures a stale closure.
+  useEffect(() => { loadOlderRef.current = () => loadOlderMessages(true); }, [loadOlderMessages]);
 
-  // Background archive loader: silently pages through older messages while the user is on the page.
+  // Infinite scroll: auto-load next page when user reaches within 300px of bottom.
   useEffect(() => {
-    let cancelled = false;
-    let timeoutId: number;
-
-    async function loadNextArchivePage() {
-      if (cancelled || document.hidden) return;
-
-      const cursor = archiveCursorRef.current;
-      if (!cursor.hasMore) return;
-      if (messagesRef.current.length >= MAX_FEED_MESSAGES) return;
-      if (getMARADMINStorageSizeBytes() >= ARCHIVE_STORAGE_LIMIT_BYTES) return;
-
-      await loadOlderMessagesRef.current(true);
-
-      // Schedule next page only if there's still more to fetch.
-      if (!cancelled && archiveCursorRef.current.hasMore) {
-        timeoutId = window.setTimeout(loadNextArchivePage, 45_000);
+    const container = sidebarScrollRef.current;
+    if (!container) return;
+    function onScroll() {
+      if (container!.scrollHeight - container!.scrollTop - container!.clientHeight < 300) {
+        void loadOlderRef.current();
       }
     }
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Start after 20 s to let the feed refresh and article prefetch settle first.
-    timeoutId = window.setTimeout(loadNextArchivePage, 20_000);
+  // When the user types a search query, load all available MARADMINs so search is comprehensive.
+  useEffect(() => {
+    const q = debouncedQuery.trim();
+    if (!q) { searchLoadStartedRef.current = false; return; }
+    if (searchLoadStartedRef.current) return;
+    if (totalCount > 0 && messagesRef.current.length >= totalCount) return;
 
-    const handleVisibility = () => {
-      if (!document.hidden && !cancelled && archiveCursorRef.current.hasMore) {
-        timeoutId = window.setTimeout(loadNextArchivePage, 10_000);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
+    searchLoadStartedRef.current = true;
+    setArchiveLoading(true);
+    fetchMARADMINFeed(0, 500)
+      .then(({ messages: all, total }) => {
+        setTotalCount(total);
+        const merged = mergeArchiveMessages(messagesRef.current, all, userStateRef.current);
+        messagesRef.current = merged;
+        setMessages(merged);
+        setArchiveHasMore(merged.length < total);
+      })
+      .catch(() => { searchLoadStartedRef.current = false; })
+      .finally(() => setArchiveLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, []);
-
-  const unreadCount = messages.filter(m => m.unread).length;
+  const unreadCount = messages.filter(m => m.unread).length +
+    Math.max(0, totalCount - Math.max(messages.length, userStateRef.current.readAllCount ?? 0));
 
   const customViewUnreadCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -1587,6 +1562,11 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     </div>
                   );
                 })}
+                {archiveLoading && (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-700" />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1611,39 +1591,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 </>
               )}
               <span className="text-[11px] text-gray-700 font-mono">
-                {listLoading ? 'LOADING…' : activeFilterCount > 0 ? `${filteredMessages.length} OF ${messages.length} MARADMINS FETCHED` : `${messages.length} MARADMINS FETCHED`}
+                {listLoading ? 'LOADING…' : activeFilterCount > 0 ? `${filteredMessages.length} OF ${totalCount || messages.length} MARADMINS` : `${messages.length} OF ${totalCount || messages.length} MARADMINS`}
               </span>
             </div>
-            <button
-              onClick={() => {
-                void loadOlderMessages()
-                  .then(loadedCount => {
-                    showRefreshNotice(
-                      loadedCount > 0 ? 'success' : 'info',
-                      loadedCount > 0
-                        ? `${loadedCount} older MARADMIN${loadedCount === 1 ? '' : 's'} loaded.`
-                        : archiveHasMore
-                          ? 'No additional MARADMINs were found on that archive page.'
-                          : 'No more archived MARADMINs are available to load.',
-                    );
-                  })
-                  .catch(error => {
-                    console.error(error);
-                    showRefreshNotice('error', 'Loading older MARADMINs failed. Please try again.');
-                  });
-              }}
-              disabled={archiveLoading || !archiveHasMore}
-              className={`flex items-center gap-1 text-[11px] font-mono transition-colors ${
-                archiveLoading
-                  ? 'text-red-400'
-                  : archiveHasMore
-                    ? 'text-gray-600 hover:text-gray-400'
-                    : 'text-gray-800 cursor-not-allowed'
-              }`}
-            >
-              {archiveLoading ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <ChevronRight className="w-2.5 h-2.5" />}
-              {archiveHasMore ? 'LOAD OLDER' : 'ARCHIVE END'}
-            </button>
           </div>
         </div>
 
@@ -2002,14 +1952,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
       {creatingView && (
         <CreateViewModal
-          availableTags={availableTags}
           onSave={createCustomView}
           onCancel={() => setCreatingView(false)}
         />
       )}
       {editingView && (
         <CreateViewModal
-          availableTags={availableTags}
           initialValues={editingView}
           onSave={view => updateCustomView(editingView.id, view)}
           onCancel={() => setEditingView(null)}

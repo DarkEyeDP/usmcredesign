@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router';
 import { ChevronRight, Layout, Award } from 'lucide-react';
 import { useNewsItems } from '@/app/features/news';
 import { SiteLogo } from '@/app/components/layout/SiteLogo';
-import { getCachedFeed } from '@/app/features/maradmin/maradminStorage';
 import { SEOHead } from '@/app/components/SEOHead';
 import cemeLogo from '@/app/assets/ceme-logo.png';
 import mcwarLogo from '@/app/assets/mcwar-logo.png';
@@ -139,19 +138,7 @@ export function EducationPage() {
       .filter(item => isEducationRelevant(item.title, item.description))
       .map(item => ({ id: item.id, title: item.title, date: item.pubDate, href: item.link, internal: false }));
 
-    // MARADMINs from localStorage cache (grows as user browses /messages)
-    const maradmins = getCachedFeed() ?? [];
-    const fromMaradmins = maradmins
-      .filter(m => isEducationRelevant(m.subject, ''))
-      .map(m => ({
-        id: m.number,
-        title: `MARADMIN ${m.number} — ${m.subject}`,
-        date: new Date(m.displayDate),
-        href: `/messages/${m.number}`,
-        internal: true,
-      }));
-
-    return [...fromFeeds, ...fromMaradmins]
+    return [...fromFeeds]
       .filter(item => item.date instanceof Date && !isNaN(item.date.getTime()))
       .sort((a, b) => b.date.getTime() - a.date.getTime())
       .slice(0, 4);
