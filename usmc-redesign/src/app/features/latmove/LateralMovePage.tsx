@@ -16,6 +16,7 @@ import { Hero } from './components/Hero';
 import { SearchForm } from './components/SearchForm';
 import { ResultsPanel } from './components/ResultsPanel';
 import { LatMoveErrorView } from './components/LatMoveErrorView';
+import { recordLatmoveSearch, recordLatmoveMosClick } from './latmoveAnalyticsService';
 
 interface Props {
   isLoggedIn: boolean;
@@ -266,6 +267,13 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
         setHasSearched(true);
         setResultsAnimationKey(key => key + 1);
         pendingResultsTimerRef.current = null;
+        recordLatmoveSearch({
+          gt, mm, el, cl, rank, clearance, pmos,
+          hasCerts: certifications.length > 0,
+          hasDegrees: degreeFields.length > 0,
+          resultCount: nextResults.length,
+          topResults: nextResults.slice(0, 10),
+        });
       }, 350);
     });
   }
@@ -300,6 +308,18 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
   }
 
   function handleToggleExpand(id: string) {
+    if (expandedMOS !== id) {
+      const result = results.find(r => r.id === id);
+      if (result) {
+        recordLatmoveMosClick({
+          mosId: result.id,
+          mosTitle: result.title,
+          mosField: result.field,
+          rank,
+          pmos,
+        });
+      }
+    }
     setExpandedMOS(prev => (prev === id ? null : id));
   }
 
