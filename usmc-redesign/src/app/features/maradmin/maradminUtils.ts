@@ -421,6 +421,66 @@ function parseSubSections(lines: string[]): ContentSubSection[] {
   return subSections.filter(item => item.body || item.tables?.length || item.children?.length);
 }
 
+// ── Inline hierarchical section parser ──────────────────────────────────────
+// Handles the "N.A. Title. N.A.1. Sub. N.A.1.A. Detail." inline format used
+// by marines.mil MARADMINs (e.g. Execution. 3.A. Concept of Ops. 3.A.1. ...).
+
+function getHierLabelDepth(label: string): number {
+  return label.replace(/\.$/, '').split('.').length;
+}
+
+function hasInlineHierarchicalMarkers(text: string, sectionNum: number): boolean {
+  return new RegExp(`\\b${sectionNum}\\.[A-Z]\\.(?=\\s)`).test(text);
+}
+
+function parseInlineHierarchical(text: string, sectionNum: number): ContentSubSection[] {
+  const re = new RegExp(
+    `\\b(${sectionNum}\\.[A-Z](?:\\.\\d+(?:\\.[A-Z](?:\\.\\d+)?)?)?)\\. `,
+    'g',
+  );
+  const matches: Array<{ pos: number; end: number; label: string; depth: number }> = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const label = m[1] + '.';
+    matches.push({ pos: m.index, end: m.index + m[0].length, label, depth: getHierLabelDepth(label) });
+  }
+  if (matches.length === 0) return [];
+
+  const segments: Array<{ label: string; depth: number; body: string }> = [];
+  for (let i = 0; i < matches.length; i++) {
+    const bodyEnd = i + 1 < matches.length ? matches[i + 1].pos : text.length;
+    segments.push({
+      label: matches[i].label,
+      depth: matches[i].depth,
+      body: flatLine(text.slice(matches[i].end, bodyEnd)),
+    });
+  }
+
+  const topDepth = segments[0].depth;
+
+  function buildHier(startIdx: number, parentDepth: number): { items: ContentSubSection[]; end: number } {
+    const items: ContentSubSection[] = [];
+    let i = startIdx;
+    while (i < segments.length && segments[i].depth >= parentDepth) {
+      if (segments[i].depth > parentDepth) { i++; continue; }
+      const parsed = parseBodyChunk(segments[i].body ? [segments[i].body] : []);
+      const sub: ContentSubSection = {
+        label: segments[i].label,
+        body: parsed.body,
+        ...(parsed.tables && parsed.tables.length > 0 && { tables: parsed.tables }),
+      };
+      i++;
+      const { items: children, end } = buildHier(i, parentDepth + 1);
+      i = end;
+      if (children.length > 0) sub.children = children;
+      items.push(sub);
+    }
+    return { items, end: i };
+  }
+
+  return buildHier(0, topDepth).items;
+}
+
 // ── MARADMIN Text Parser ────────────────────────────────────────────────────
 
 export function parseMARADMINText(rawInput: string): ContentSection[] {
@@ -479,6 +539,27 @@ export function parseMARADMINText(rawInput: string): ContentSection[] {
 
     // Skip boilerplate closers
     if (/^(release authority|unclassified|bt$|nnnn|n\/a)/i.test(heading || remainder)) continue;
+
+    // Detect inline hierarchical format: "3.A. Section. 3.A.1. Sub. 3.A.1.A. Detail."
+    // marines.mil uses N.LETTER.NUMBER.LETTER.NUMBER nesting embedded inline in body text.
+    const numMatch = slice.match(/^(\d+)\./);
+    const sectionNum = numMatch ? parseInt(numMatch[1], 10) : 0;
+    if (sectionNum > 0 && hasInlineHierarchicalMarkers(remainder, sectionNum)) {
+      const firstIdx = remainder.search(new RegExp(`\\b${sectionNum}\\.[A-Z]\\.(?=\\s)`));
+      const preText = firstIdx > 0 ? remainder.slice(0, firstIdx).trim() : '';
+      const hierText = remainder.slice(Math.max(0, firstIdx));
+      const bullets = parseInlineHierarchical(hierText, sectionNum);
+      const parsedPre = preText
+        ? parseBodyChunk(preText.split('\n').filter(Boolean))
+        : { body: '', tables: undefined };
+      sections.push({
+        heading,
+        body: parsedPre.body,
+        ...(parsedPre.tables && parsedPre.tables.length > 0 && { tables: parsedPre.tables }),
+        ...(bullets.length > 0 && { bullets }),
+      });
+      continue;
+    }
 
     // Preserve sub-section continuity so table rows that belong to "a." / "b." stay attached.
     const lines = remainder.split('\n').map(l => l.trim()).filter(Boolean);

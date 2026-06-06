@@ -25,12 +25,22 @@ export function flattenSubSectionText(items: ContentSubSection[]): string[] {
   ]).filter(Boolean);
 }
 
+// For hierarchical labels like "3.A.1.B.", return the last component "B." for compact display.
+function mobileLabel(label: string): string {
+  if (!/^\d+\./.test(label)) return label;
+  const last = label.replace(/\.$/, '').split('.').pop() ?? '';
+  return last + '.';
+}
+
 export function SubSectionList({ items, className = '' }: { items: ContentSubSection[]; className?: string }) {
   return (
     <ul className={`space-y-1.5 ${className}`.trim()}>
       {items.map((item, index) => (
         <li key={`${item.label}-${index}`} className="flex gap-2 text-[15px] text-gray-300 leading-relaxed">
-          <span className="text-red-600 mt-0.5 flex-shrink-0">{item.label}</span>
+          <span className="text-red-600 mt-0.5 flex-shrink-0 font-mono">
+            <span className="hidden sm:inline">{item.label}</span>
+            <span className="sm:hidden">{mobileLabel(item.label)}</span>
+          </span>
           <div className="min-w-0 flex-1 space-y-2">
             {item.body && (
               <span className={`block ${isSubHeading(item.body, item) ? 'font-bold text-white' : ''}`}>
@@ -45,7 +55,7 @@ export function SubSectionList({ items, className = '' }: { items: ContentSubSec
               </div>
             )}
             {item.children && item.children.length > 0 && (
-              <SubSectionList items={item.children} className="ml-3 pt-1" />
+              <SubSectionList items={item.children} className="ml-2 sm:ml-3 pt-1" />
             )}
           </div>
         </li>

@@ -37,7 +37,7 @@ export function ContentDisplay({ sections }: { sections: ContentSection[] }) {
                 </div>
               )}
               {section.bullets && section.bullets.length > 0 && (
-                <SubSectionList items={section.bullets} className="mt-2 ml-2" />
+                <SubSectionList items={section.bullets} className="mt-2 ml-1 sm:ml-2" />
               )}
               {urlButtons.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
