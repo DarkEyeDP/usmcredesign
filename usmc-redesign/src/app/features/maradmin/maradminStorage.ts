@@ -5,6 +5,7 @@ const MAX_READ_NUMBERS = 2000;
 const MAX_NEW_NUMBERS = 500;
 const MAX_SAVED_NUMBERS = 500;
 const MAX_RECENT_ARTICLES = 75;
+const MAX_STORED_FEED_MESSAGES = 500;
 
 export interface MARADMINUserState {
   readNumbers: string[];
@@ -28,11 +29,23 @@ export interface CustomView {
   audiences: string[];
 }
 
+export interface CachedArchiveCursor {
+  nextPage: number;
+  hasMore: boolean;
+}
+
 interface StoredMARADMINState {
   articles?: Record<string, CachedArticleEntry>;
+  archiveCursor?: CachedArchiveCursor;
+  feed?: RSSMessage[];
   userState?: MARADMINUserState;
   customViews?: CustomView[];
 }
+
+const DEFAULT_ARCHIVE_CURSOR: CachedArchiveCursor = {
+  nextPage: 2,
+  hasMore: true,
+};
 
 function createDefaultUserState(): MARADMINUserState {
   return {
@@ -76,6 +89,10 @@ function unique(values: string[]): string[] {
 
 function keepMostRecent(values: string[], limit: number): string[] {
   return unique(values).slice(-limit);
+}
+
+export function limitStoredFeedMessages(messages: RSSMessage[]): RSSMessage[] {
+  return messages.slice(0, MAX_STORED_FEED_MESSAGES);
 }
 
 function normalizeUserState(userState: MARADMINUserState): MARADMINUserState {
@@ -191,6 +208,27 @@ export function mergeFeedMessages(
     userState: nextUserState,
     newMessageNumbers: detectedNewNumbers,
   };
+}
+
+export function getCachedFeed(): RSSMessage[] | null {
+  const feed = readState().feed;
+  return Array.isArray(feed) ? feed : null;
+}
+
+export function getCachedArchiveCursor(): CachedArchiveCursor {
+  const cursor = readState().archiveCursor;
+  if (!cursor || typeof cursor.nextPage !== 'number' || typeof cursor.hasMore !== 'boolean') {
+    return DEFAULT_ARCHIVE_CURSOR;
+  }
+
+  return cursor;
+}
+
+export function saveCachedFeed(messages: RSSMessage[], archiveCursor: CachedArchiveCursor = DEFAULT_ARCHIVE_CURSOR) {
+  const state = readState();
+  state.feed = limitStoredFeedMessages(messages);
+  state.archiveCursor = archiveCursor;
+  writeState(state);
 }
 
 export function getCustomViews(): CustomView[] {

@@ -1434,6 +1434,35 @@ function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamil
   };
 }
 
+function parsePSRDistrictPhoneTable(text: string): ParsedTableFamily | null {
+  const firstRowIndex = text.search(/\bPSRS-\d+,\s+[^:]+:\s+\(\d{3}\)/i);
+  if (firstRowIndex < 0 || !/\bPSR\b/i.test(text.slice(0, firstRowIndex))) return null;
+
+  const body = text
+    .slice(0, firstRowIndex)
+    .replace(/\(read in (?:two|2) columns?\)/i, '')
+    .replace(/[:\s]+$/, '')
+    .trim();
+  const data = text.slice(firstRowIndex).trim();
+  const rowRe =
+    /\b(PSRS-\d+,\s+[^:]+):\s+(\(\d{3}\)\s*[-–—]?\s*\d{3}[-–—]\d{4}(?:\s+ext\.?\s*[\d/]+)?)/gi;
+  const rows = [...data.matchAll(rowRe)].map(match => [
+    match[1].replace(/\s+/g, ' ').trim(),
+    match[2]
+      .replace(/\s+/g, ' ')
+      .replace(/\)\s*[-–—]\s*/g, ')-')
+      .replace(/\s+ext\.?\s*/i, ' ext. ')
+      .trim(),
+  ]);
+
+  if (rows.length < 2) return null;
+
+  return {
+    body,
+    tables: [{ headers: ['PSR District Headquarters', 'Phone'], rows }],
+  };
+}
+
 const TABLE_FAMILY_PARSERS = [
   parseSeniorityProjectedMonthTable,
   parseNameImosSrnoMccTable,
@@ -1457,6 +1486,7 @@ const TABLE_FAMILY_PARSERS = [
   parseIAPSelectionPanelResultsTable,
   parseNameRankMOSTable,
   parseUniversityVacancyTable,
+  parsePSRDistrictPhoneTable,
   parseRecruitingStationAvailabilityTable,
   parseCommandMCCTentativeReportDateTable,
   parseMCCUnitDescriptionNoteTable,

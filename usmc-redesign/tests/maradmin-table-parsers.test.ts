@@ -273,6 +273,36 @@ AAB OST Salem, VA 2
   assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[2], ['AAB', 'OST Salem, VA', '2']);
 });
 
+test('parses PSR district phone lists without treating area codes as subsection labels', () => {
+  const parsed = parseRecognizedTableFamily(
+    'Eligible Marines volunteering for PSR duty should contact the PSR District Headquarters closest to them at the number below: PSRS-1, Brooklyn, NY: (516) 824-3091 PSRS-4, Columbus, OH: (614) 809-2886 PSRS-6, Parris Island, SC: (423)-802-6539 PSRS-8, Fort Worth, TX: (817) 738-6260 ext. 23/24 PSRS-9, Great Lakes, IL: (847) 688-7130 ext. 772 PSRS-12, Camp Pendleton, CA: (760) 763-6218',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, 'Eligible Marines volunteering for PSR duty should contact the PSR District Headquarters closest to them at the number below');
+  assert.deepEqual(parsed.tables?.[0].headers, ['PSR District Headquarters', 'Phone']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['PSRS-1, Brooklyn, NY', '(516) 824-3091']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['PSRS-6, Parris Island, SC', '(423)-802-6539']);
+  assert.deepEqual(parsed.tables?.[0].rows[4], ['PSRS-9, Great Lakes, IL', '(847) 688-7130 ext. 772']);
+
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/5. Special Duty Assignments.
+5.h. Eligible Marines volunteering for PSR duty are required to conduct an interview with the PSR Career Recruiter closest to their location using the PSR screening addendum. Marines should contact the PSR District Headquarters closest to them at the number below (read in two columns):
+       PSRS-1, Brooklyn, NY:                (516) 824-3091
+       PSRS-4, Columbus, OH:                (614) 809-2886
+       PSRS-6, Parris Island, SC:           (423)-802-6539
+       PSRS-8, Fort Worth, TX:              (817) 738-6260 ext. 23/24
+       PSRS-9, Great Lakes, IL:             (847) 688-7130 ext. 772
+       PSRS-12, Camp Pendleton, CA:         (760) 763-6218
+6. Financial Incentives. Per reference (c), qualified Marines filling designated special assignments are eligible to receive SDA Pay.
+`);
+
+  const psrBullet = sections[0].bullets?.find(bullet => bullet.label === 'h.');
+  assert.ok(psrBullet);
+  assert.equal(psrBullet.children, undefined);
+  assert.deepEqual(psrBullet.tables?.[0].rows.at(-1), ['PSRS-12, Camp Pendleton, CA', '(760) 763-6218']);
+});
+
 test('parses TLS course allocation tables with wrapped school titles and notes', () => {
   const parsed = parseRecognizedTableFamily(
     'The AY27-28 TLS Board will select officers to attend the Senior Service Colleges listed below. (Read in five columns) Course Title/School Quota Convenes Graduates Note Air War College (AWC) (Montgomery, AL) 7 Jul 27 May 28 4 Army War College (USAWC) (Carlisle, PA) 15 Jul 27 Jun 28 1 College of Naval Warfare (CNW) (Newport, RI) 15 Jul 27 Jun 28 Note 1: Two USAWC quotas are for the blended education program. Note 4: Aviation PMOS priority.',

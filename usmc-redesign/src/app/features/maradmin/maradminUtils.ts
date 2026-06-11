@@ -48,6 +48,74 @@ export const ALL_MARADMIN_TAGS = [
   'TECHNOLOGY', 'TRAINING', 'UNIFORMS',
 ] as const;
 
+const ARCHIVE_MONTHS = [
+  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+] as const;
+
+function formatArchiveDate(rawDate: string): { displayDate: string; month: string } {
+  const match = rawDate.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) {
+    const displayDate = rawDate.trim().toUpperCase();
+    return { displayDate, month: '' };
+  }
+
+  const monthIndex = Number(match[1]) - 1;
+  const month = ARCHIVE_MONTHS[monthIndex] ?? '';
+  const day = match[2].padStart(2, '0');
+  const year = match[3];
+  return {
+    displayDate: `${day} ${month} ${year}`.trim(),
+    month: month ? `${month} ${year}` : year,
+  };
+}
+
+export function parseArchivePageRows(
+  rows: string[],
+  hrefByText: Map<string, string>,
+  page = 1,
+): RSSMessage[] {
+  const messages: RSSMessage[] = [];
+
+  for (let i = 0; i < rows.length;) {
+    const number = rows[i]?.trim();
+    if (!/^\d{3}\/\d{2}$/.test(number ?? '')) {
+      i++;
+      continue;
+    }
+
+    const subject = rows[i + 1]?.trim();
+    const rawDate = rows[i + 2]?.trim();
+    if (!subject || !rawDate) {
+      i++;
+      continue;
+    }
+
+    const { displayDate, month } = formatArchiveDate(rawDate);
+    const link = hrefByText.get(number) ?? '';
+
+    messages.push({
+      id: link || `${number}-${page}-${messages.length}`,
+      number,
+      subject,
+      date: displayDate,
+      displayDate,
+      month,
+      source: 'HQMC',
+      link,
+      unread: true,
+      isNew: false,
+      saved: false,
+      archived: false,
+      tags: tagsFromContent(subject, ''),
+    });
+
+    i += 4;
+  }
+
+  return messages;
+}
+
 // ── Worker API ──────────────────────────────────────────────────────────────
 
 export async function syncMARADMINFeed(): Promise<{ added: number }> {
@@ -358,7 +426,7 @@ const SUB_SECTION_PATTERNS: Array<{
     getBody: match => match[2],
   },
   {
-    regex: /^\((\d+)\) {0,4}(.*)$/,
+    regex: /^\((\d{1,2})\) {0,4}(.*)$/,
     getLabel: match => `(${match[1]})`,
     getBody: match => match[2],
   },
@@ -367,7 +435,7 @@ const SUB_SECTION_PATTERNS: Array<{
 function splitInlineSubSectionMarkers(lines: string[]): string[] {
   return lines.flatMap(line => {
     const splitLine = line
-      .replace(/\s+(\([a-z]\)|\(\d+\))\s+(?=[A-Z0-9])/g, '\n$1 ')
+      .replace(/\s+(\([a-z]\)|\(\d{1,2}\))\s+(?=[A-Z0-9])/g, '\n$1 ')
       .split('\n')
       .map(part => part.trim())
       .filter(Boolean);

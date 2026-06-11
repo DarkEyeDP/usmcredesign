@@ -1,0 +1,47 @@
+{
+  "fetchedAt": "2026-06-11T22:17:36.870Z",
+  "title": "MCTSSA Prepares FMF for EWOKs",
+  "pubDate": "2026-05-29T21:59:00.000Z",
+  "imageUrl": "https://media.defense.gov/2026/Jun/10/2003946672/600/400/0/260528-M-TH074-1014.JPG",
+  "description": "From tried-and-true warfighter tactics to emergent technologies and communications methods, the modern battlefield is an ever-changing environment. It takes a forward-leaning team to not only address the issues that arise in today’s fight, but also to predict the problems of tomorrow. <br/> <img src='https://media.defense.gov/2026/Jun/10/2003946672/115/75/0/260528-M-TH074-1014.JPG' alt='260528-M-TH074-1014 (May 28, 2026) An end user device and Silvis radio sit on a table during an Sensitive but Unclassified - Encrypted (SBU-E) network class during Marine Corps Tactical Systems Support Activity's (MCTSSA) Expeditionary Warfare Operations Kit (EWOK). EWOK is self contained, secure, commercial-grade tactical network designed to turn frontline Marines into sensors. (U.S. Marine Corps Photo by Joseph R. Vincent, CTR)' /> <br />",
+  "wordCount": 688,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "From tried-and-true warfighter tactics to emergent technologies and communications methods, the modern battlefield is an ever-changing environment.It takes a forward-leaning team to not only address the issues that arise in today’s fight, but also to predict the problems of tomorrow."
+    },
+    {
+      "type": "quote",
+      "text": "\"In past conflicts, information from the front line would pass from theunitincontact with the enemy, through their leadership to the joint environment, It doesn’t matter how efficient these systems became; the response always took time.\"Rick Bobst,Deputy Director, Warfighter Support Division, Marine Corps Tactical Systems Support Activity."
+    },
+    {
+      "type": "paragraph",
+      "text": "“What if we could turn a front-line Marine into a sensor that a joint command could use to prosecute a target?” said Bobst. “That’s what we’re building, but at a larger scale.We’re developing technology that can turn an entire battalion into a real-time data network that can be accessed by joint and coalition forces to make up-to-the-second decisions that can save lives.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Marine Corps Tactical Systems Support Activity’s (MCTSSA) Warfighter Support Division (WSD) has utilized the Sensitive but Unclassified-Encrypted(SBU-E)to allow the warfighter at the tactical edge to create dedicated tactical mission networks (TMN) to drive tomorrow’s communication needs and integrate unmanned systems.To further advance and enable SBU-E we needed new technology.MCTSSA, in partnership with SOCOM, who has been using this for years, developed a prototype capability called the Expeditionary Warfare Operations Kit (EWOK)."
+    },
+    {
+      "type": "paragraph",
+      "text": "Throughout the past year, the EWOK system was utilized alongside Project Dynamis—a bold service-level initiative to accelerate the modernization of Marine Corps contributions to Combined Joint All-Domain Command and Control (CJADC2) and showcase secure, commercial-grade tactical networks (SBU-E TMNs). To reinforce this capability, Project Dynamis is delivering four initial kits as a proof of concept, with MCTSSA actively training Marines from V22, V25,1st ANGLICO,CLB2, 3rdLAR,CTC-1 and 1st Recon for their initial distribution. These systems will be deployed in the upcoming summer Service Level Training Exercise (SLTE) for MAGTF global certification, providing vital user feedback to inform future force development and acquisition decisions. By delivering hands-on instruction and modern device management, MCTSSA is transforming these previously restricted devices into the powerful, mobile, and adaptable tools warfighters need to prevail in contested, multi-domain environments."
+    },
+    {
+      "type": "paragraph",
+      "text": "260528-M-TH074-1014 (May 28, 2026) An end user device and Silvis radio sit on a table during an Sensitive but Unclassified - Encrypted (SBU-E) network class during Marine Corps Tactical Systems Support Activity's (MCTSSA) Expeditionary Warfare Operations Kit (EWOK). EWOK is self contained, secure, commercial-grade tactical network designed to turn frontline Marines into sensors. (U.S. Marine Corps Photo by Joseph R. Vincent, CTR)"
+    },
+    {
+      "type": "paragraph",
+      "text": "“In the last 12 months there have been five requirements registered from the Fleet Marine Force that advocate for the acquisition of a new generation of tactical radios that are smarter, more numerous, more resilient, and more data-centric than their predecessors,” said Bobst. “The common solution is not just a single piece of hardware but a comprehensive system of radios and intelligent waveforms that can create a robust and adaptable communications network for the modern battlefield.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "At its core, using an EWOK is essentially like having a smartphone in your hand that allows you to share critical data on its own self-contained, secure network. Because anyone with authorized access to this network can share and receive information seamlessly, Marine units can now instantly exchange data across joint forces and coalition partners without the traditional roadblocks.This network leverages and enhances the MAGTF Common Handheld (MCH) devices already present in our formations in a networked fashion that is currently difficult to achieve. These devices, provisioned with Tactical Assault Kit software applications,create a network to share critical, real-time data up and down the chain of command."
+    },
+    {
+      "type": "paragraph",
+      "text": "The EWOK, consisting of 20 EUDs, 30 narrowband mesh network kits, 10 mesh rider radios, 8 high-throughput multiband radios,a Starshield terminal,CISEN VPN, Compass,a mobile broadband equipment set and a bunch of other customizable gear,are designed to turn nearly any unit into an SBU-E powerhouse.It resolves critical interoperability gaps by leveraging proven, battle-tested components already in use across the globe. By using a modular and scalable design, EWOKs ensure Marine Corps units can communicate effectively alongside joint and partner forces from day one,eliminating the need to invent a new solution from scratch."
+    }
+  ],
+  "links": []
+}
