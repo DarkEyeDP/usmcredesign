@@ -38,7 +38,8 @@ export interface ContentSection {
 
 export type FetchMethod = 'direct' | 'proxy' | null;
 
-const WORKER_BASE = (import.meta.env.VITE_NEWS_METRICS_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+const META_ENV = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
+const WORKER_BASE = META_ENV?.VITE_NEWS_METRICS_URL?.replace(/\/$/, '') ?? '';
 
 export const ALL_MARADMIN_TAGS = [
   'ADMIN', 'AVIATION', 'AWARDS', 'BOARDS', 'CIVILIAN', 'EDUCATION', 'ENLISTED',
