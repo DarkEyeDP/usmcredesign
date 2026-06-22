@@ -183,12 +183,9 @@ export function TuitionAssistancePage() {
       />
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden border-b border-white/12">
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(5,8,15,0.9) 50%, rgba(10,8,5,0.85) 100%)',
-          backgroundColor: '#050508',
-        }} />
+        <div className="absolute inset-0 hero-bg" />
         <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
 

@@ -6,6 +6,7 @@ import { SKILL_LABELS } from '../db/mos-skills';
 import { CERT_BY_ID } from '../db/cert-library';
 import { DEGREE_FIELD_BY_ID } from '../db/degree-field-library';
 import type { ResultItem } from '../types';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 
 const bonusFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -20,6 +21,8 @@ interface Props {
 }
 
 export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const formattedNumber = resultNumber == null ? '' : String(resultNumber).padStart(2, '0');
   const bonusRangeLabel = result?.lateralMoveBonusRange
     ? `${bonusFormatter.format(result.lateralMoveBonusRange.min)}-${bonusFormatter.format(result.lateralMoveBonusRange.max)}`
@@ -28,21 +31,21 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
   function qualificationTone(status: 'met' | 'unmet' | 'unknown') {
     if (status === 'unmet') {
       return {
-        icon: <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-red-400" />,
-        textClassName: 'text-[13px] leading-relaxed text-red-200',
+        icon: <AlertCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-red-600' : 'text-red-400'}`} />,
+        textClassName: `text-[13px] leading-relaxed ${isDesert ? 'text-red-700' : 'text-red-200'}`,
       };
     }
 
     if (status === 'unknown') {
       return {
-        icon: <AlertCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-yellow-500" />,
-        textClassName: 'text-[13px] leading-relaxed text-yellow-200',
+        icon: <AlertCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-yellow-600' : 'text-yellow-500'}`} />,
+        textClassName: `text-[13px] leading-relaxed ${isDesert ? 'text-yellow-700' : 'text-yellow-200'}`,
       };
     }
 
     return {
-      icon: <CheckCircle className="mt-0.5 h-3 w-3 flex-shrink-0 text-green-500" />,
-      textClassName: 'text-[13px] leading-relaxed text-green-300',
+      icon: <CheckCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-green-700' : 'text-green-500'}`} />,
+      textClassName: `text-[13px] leading-relaxed ${isDesert ? 'text-green-700' : 'text-green-300'}`,
     };
   }
 
@@ -59,7 +62,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
         >
           <div className="border border-t-0 border-red-500/30 bg-red-950/8 pb-5 pt-0">
             <div className="relative mb-5">
-              <div className="relative bg-[linear-gradient(to_bottom,rgba(19,4,4,0.96),rgba(19,4,4,0.96))] px-5">
+              <div className="relative px-5" style={{ backgroundColor: 'var(--usmc-bg-page)' }}>
                 {activeSide === 'left' ? (
                   <div className="flex min-h-11 flex-wrap items-end gap-4 border-b border-white/12 pb-2 pt-4">
                     <div className="pb-px font-mono text-[11px] font-bold tracking-[0.18em] text-red-500/45">
@@ -95,7 +98,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
                     {result.field}
                   </span>
                   {result.isHighDemandLatMove && (
-                    <span className="border border-amber-500/35 bg-amber-950/20 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] text-amber-300/90">
+                    <span className={`border px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] ${isDesert ? 'border-amber-600/50 bg-amber-100/60 text-amber-800' : 'border-amber-500/35 bg-amber-950/20 text-amber-300/90'}`}>
                       HIGH DEMAND LATMOVE MOS
                     </span>
                   )}
@@ -120,14 +123,14 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
                 </div>
                 {result.skillMatch && result.skillMatch.shared.length > 0 && (
                   <div className="mt-4">
-                    <div className="mb-2 text-[11px] font-bold tracking-[0.24em] text-cyan-500/70">
+                    <div className={`mb-2 text-[11px] font-bold tracking-[0.24em] ${isDesert ? 'text-cyan-700' : 'text-cyan-500/70'}`}>
                       TRANSFERABLE SKILLS ({result.skillMatch.pct}% MATCH)
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.skillMatch.shared.map(tag => (
                         <span
                           key={tag}
-                          className="rounded-sm border border-cyan-500/20 bg-cyan-950/30 px-2 py-0.5 font-mono text-[10px] text-cyan-400/80"
+                          className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] ${isDesert ? 'border-cyan-600/40 bg-cyan-100/60 text-cyan-800' : 'border-cyan-500/20 bg-cyan-950/30 text-cyan-400/80'}`}
                         >
                           {SKILL_LABELS[tag]}
                         </span>
@@ -147,14 +150,14 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
 
                 {result.matchingCertIds && result.matchingCertIds.length > 0 && (
                   <div className="mt-4">
-                    <div className="mb-2 text-[11px] font-bold tracking-[0.24em] text-amber-500/70">
+                    <div className={`mb-2 text-[11px] font-bold tracking-[0.24em] ${isDesert ? 'text-amber-700' : 'text-amber-500/70'}`}>
                       RELEVANT CERTIFICATIONS
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.matchingCertIds.map(id => (
                         <span
                           key={id}
-                          className="rounded-sm border border-amber-500/20 bg-amber-950/30 px-2 py-0.5 font-mono text-[10px] text-amber-400/80"
+                          className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] ${isDesert ? 'border-amber-600/40 bg-amber-100/60 text-amber-800' : 'border-amber-500/20 bg-amber-950/30 text-amber-400/80'}`}
                         >
                           {CERT_BY_ID[id]?.label ?? id}
                         </span>
@@ -165,14 +168,14 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
 
                 {result.matchingDegreeFieldIds && result.matchingDegreeFieldIds.length > 0 && (
                   <div className="mt-4">
-                    <div className="mb-2 text-[11px] font-bold tracking-[0.24em] text-violet-400/70">
+                    <div className={`mb-2 text-[11px] font-bold tracking-[0.24em] ${isDesert ? 'text-violet-700' : 'text-violet-400/70'}`}>
                       RELEVANT DEGREE BACKGROUNDS
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {result.matchingDegreeFieldIds.map(id => (
                         <span
                           key={id}
-                          className="rounded-sm border border-violet-500/20 bg-violet-950/30 px-2 py-0.5 font-mono text-[10px] text-violet-300/80"
+                          className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] ${isDesert ? 'border-violet-500/40 bg-violet-100/60 text-violet-800' : 'border-violet-500/20 bg-violet-950/30 text-violet-300/80'}`}
                         >
                           {DEGREE_FIELD_BY_ID[id]?.label ?? id}
                         </span>
@@ -201,15 +204,15 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
                   })}
                 </div>
                 {bonusRangeLabel && (
-                  <div className="mt-4 border border-red-600/20 bg-red-950/20 px-3 py-2.5">
-                    <div className="text-[11px] font-bold tracking-[0.2em] text-red-300/85">FY27 LM BONUS RANGE</div>
+                  <div className={`mt-4 px-3 py-2.5 ${isDesert ? 'border border-red-700/40 bg-red-100/40' : 'border border-red-600/20 bg-red-950/20'}`}>
+                    <div className={`text-[11px] font-bold tracking-[0.2em] ${isDesert ? 'text-red-700' : 'text-red-300/85'}`}>FY27 LM BONUS RANGE</div>
                     <div className="mt-1 text-[17px] font-black text-white">{bonusRangeLabel}</div>
                     <div className="mt-1 text-[12px] font-mono text-gray-500">
                       Base SRBP range across Zones {result.lateralMoveBonusRange?.zones.join(', ')}
                     </div>
                     <Link
                       to="/pay-benefits/bonuses"
-                      className="mt-3 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] text-red-400 transition-colors hover:text-red-300"
+                      className={`mt-3 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] transition-colors ${isDesert ? 'text-red-700 hover:text-red-800' : 'text-red-400 hover:text-red-300'}`}
                     >
                       OPEN BONUS TOOL <ChevronRight className="h-3 w-3" />
                     </Link>

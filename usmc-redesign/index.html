@@ -80,6 +80,12 @@
     </script>
 
     <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+    <script>
+      (function () {
+        var t = localStorage.getItem('usmc-theme');
+        if (t === 'od-green' || t === 'desert') document.documentElement.classList.add(t);
+      })();
+    </script>
   </head>
 
   <body>

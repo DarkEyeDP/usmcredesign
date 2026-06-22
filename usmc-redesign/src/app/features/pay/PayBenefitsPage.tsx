@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Calculator, CalendarDays, ExternalLink, Info
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/app/components/ui/dialog';
 import { Calendar } from '@/app/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import {
   clampYearsOfService,
   formatStoredDate,
@@ -134,6 +135,11 @@ function formatShortDate(date: Date) {
 
 export function PayBenefitsPage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
+  const selectedBtn = isDesert
+    ? 'border-red-700/60 bg-red-900/15 text-red-900'
+    : 'border-red-600 bg-red-950/40 text-white';
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [storedSettings, setStoredSettings] = useState<StoredPayOverviewSettings>(() => readStoredPayOverviewSettings());
   const [yearsInput, setYearsInput] = useState(() => String(readStoredPayOverviewSettings().yearsOfService));
@@ -353,16 +359,13 @@ export function PayBenefitsPage() {
       {/* Hero */}
       <div className="relative pt-20 overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(10,10,20,0.9) 40%, rgba(20,15,5,0.8) 100%)',
-          backgroundColor: '#050508'
-        }} />
+        <div className="absolute inset-0 hero-bg" />
         <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px'
         }} />
         <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-900/30" />
-        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none hero-fade-bottom" />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           {/* Financial Readiness overlay card */}
@@ -400,7 +403,7 @@ export function PayBenefitsPage() {
       </div>
 
       {/* Sticky pay-section tab bar */}
-      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 backdrop-blur-sm">
         <div className="flex items-center overflow-x-auto px-4 md:px-8">
           {payNavTabs.map(({ label, path }) => {
             const active = path === '/pay-benefits';
@@ -617,10 +620,8 @@ export function PayBenefitsPage() {
           {benefits.map((b, i) => {
             const inner = (
               <>
-                <div className="aspect-video bg-gradient-to-br from-gray-900 to-black border border-white/12 mb-3 group-hover:border-white/30 transition-colors overflow-hidden relative" style={{ backgroundColor: '#050508' }}>
-                  <div className="absolute inset-0 opacity-40" style={{
-                    background: `linear-gradient(${135 + i * 15}deg, rgba(20,10,5,1) 0%, rgba(5,5,5,1) 100%)`
-                  }} />
+                <div className="aspect-video border border-white/12 mb-3 group-hover:border-white/30 transition-colors overflow-hidden relative" style={{ backgroundColor: 'var(--usmc-bg-page)' }}>
+                  <div className="absolute inset-0 opacity-40 hero-bg" />
                   {!b.link && <SpearWatermark opacity={0.07} size="75%" />}
                   {b.link && (
                     <div className="absolute inset-0 flex items-center justify-center opacity-10">
@@ -715,7 +716,7 @@ export function PayBenefitsPage() {
       </div>
 
       <Dialog open={selectorOpen} onOpenChange={setSelectorOpen}>
-        <DialogContent className="flex w-[calc(100%-2.5rem)] max-w-3xl max-h-[calc(100vh-5rem)] flex-col border-white/12 bg-[#09090c] p-0 text-white">
+        <DialogContent className="flex w-[calc(100%-2.5rem)] max-w-3xl max-h-[calc(100vh-5rem)] flex-col border-white/12 bg-usmc-bg-surface p-0 text-white">
           <div className="flex-shrink-0 border-b border-white/10 px-6 py-5">
             <DialogTitle className="text-2xl font-black tracking-tight">Set Rank & Service</DialogTitle>
             <DialogDescription className="mt-2 text-sm text-gray-400">
@@ -733,7 +734,7 @@ export function PayBenefitsPage() {
                     onClick={() => handleCategoryChange(category)}
                     className={`border px-4 py-3 text-left transition-colors ${
                       payCategory === category
-                        ? 'border-red-600 bg-red-950/40 text-white'
+                        ? selectedBtn
                         : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
                     }`}
                   >
@@ -755,7 +756,7 @@ export function PayBenefitsPage() {
                     onClick={() => setStoredSettings((current) => ({ ...current, payRank: rank }))}
                     className={`border px-4 py-3 text-sm font-bold tracking-wide transition-colors ${
                       payRank === rank
-                        ? 'border-red-600 bg-red-950/40 text-white'
+                        ? selectedBtn
                         : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
                     }`}
                   >
@@ -838,7 +839,7 @@ export function PayBenefitsPage() {
                 </div>
               </div>
               {afadbdPickerOpen && (
-                <div className="mt-4 w-[320px] border border-white/12 bg-[#09090c] p-3 text-white">
+                <div className="mt-4 w-[320px] border border-white/12 bg-usmc-bg-surface p-3 text-white">
                   {afadbdPickerMode === 'day' ? (
                     <>
                       <div className="mb-3 text-center text-[11px] font-bold tracking-[0.18em] text-gray-500">
@@ -904,7 +905,7 @@ export function PayBenefitsPage() {
                               onClick={() => setAfadbdPickerYear(year)}
                               className={`w-full border-b border-white/6 px-3 py-2 text-left text-sm transition-colors last:border-b-0 ${
                                 afadbdPickerYear === year
-                                  ? 'bg-red-950/40 text-white'
+                                  ? isDesert ? 'bg-red-900/15 text-red-900' : 'bg-red-950/40 text-white'
                                   : 'text-gray-400 hover:bg-white/[0.05] hover:text-white'
                               }`}
                             >
@@ -920,7 +921,7 @@ export function PayBenefitsPage() {
                               onClick={() => handleAfadbdMonthPick(monthIndex)}
                               className={`border px-3 py-4 text-sm font-bold transition-colors ${
                                 afadbdViewMonth.getMonth() === monthIndex && afadbdViewMonth.getFullYear() === afadbdPickerYear
-                                  ? 'border-red-600 bg-red-950/40 text-white'
+                                  ? selectedBtn
                                   : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
                               }`}
                             >
@@ -941,7 +942,7 @@ export function PayBenefitsPage() {
                 onClick={() => setStoredSettings((current) => ({ ...current, includeBas: !current.includeBas }))}
                 className={`flex w-full items-center justify-between border px-4 py-3 text-left transition-colors ${
                   includeBas
-                    ? 'border-red-600 bg-red-950/40 text-white'
+                    ? selectedBtn
                     : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
                 }`}
               >
@@ -993,7 +994,11 @@ export function PayBenefitsPage() {
             <button
               type="button"
               onClick={() => setSelectorOpen(false)}
-              className="w-full border border-red-600 bg-red-950/40 px-6 py-3.5 text-sm font-bold tracking-[0.18em] text-white transition-colors hover:bg-red-600"
+              className={`w-full border px-6 py-3.5 text-sm font-bold tracking-[0.18em] transition-colors ${
+                isDesert
+                  ? 'border-red-700 bg-red-700 text-red-50 hover:bg-red-800'
+                  : 'border-red-600 bg-red-950/40 text-white hover:bg-red-600'
+              }`}
             >
               SAVE & CLOSE
             </button>

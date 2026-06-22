@@ -105,11 +105,127 @@ Use aliases for all cross-directory imports. Avoid deep relative paths (`../../.
 
 ---
 
+## Theming System
+
+### Overview
+
+The app has **three display themes** selectable by the user from the sidebar. The active theme is stored in `localStorage` under the key `'usmc-theme'` and applied as a class on `<html>`.
+
+| Theme | Class on `<html>` | Short code | Character |
+|-------|-------------------|------------|-----------|
+| BLACKOUT (default) | *(no class)* | `BLK` | Dark — true black backgrounds, white text |
+| WOODLAND | `.od-green` | `WDL` | Dark green — Woodland MARPAT palette |
+| DESERT | `.desert` | `DST` | Light sandy — Desert MARPAT palette |
+
+### Architecture
+
+All color tokens are CSS custom properties defined in `src/styles/theme.css`. The default `:root` block defines BLACKOUT values; `.od-green` and `.desert` classes override them for the other themes.
+
+Tailwind v4's `@theme inline` block re-routes `bg-black`, `text-white`, `border-white/X`, `bg-white/X`, and `text-gray-*` through these variables:
+
+```css
+--color-black: var(--usmc-bg-base);   /* bg-black adapts per theme */
+--color-white: var(--usmc-text-primary); /* text-white, border-white/X adapts */
+/* gray-100 through gray-800 are also overridden per theme */
+```
+
+This means **most standard Tailwind classes already adapt automatically** — you do not need conditional logic for everyday text and border colors.
+
+### ThemeContext
+
+```tsx
+import { useTheme } from '@/app/features/theme/ThemeContext';
+
+const { theme, setTheme } = useTheme();
+// theme: 'blackout' | 'od-green' | 'desert'
+const isDesert   = theme === 'desert';
+const isWoodland = theme === 'od-green';
+```
+
+`ThemeProvider` wraps the app in `App.tsx`. A flash-prevention inline `<script>` in `index.html` reads `localStorage` and applies the class to `<html>` synchronously before React hydrates.
+
+### What adapts automatically (no extra code needed)
+
+- `bg-black`, `bg-white/X` — routes through `--usmc-bg-base` / `--usmc-text-primary`
+- `text-white`, `text-gray-*` — routes through theme gray scale overrides
+- `border-white/X` — routes through `--usmc-text-primary`
+- `bg-usmc-bg-base`, `bg-usmc-bg-page`, `bg-usmc-bg-surface` — explicit token classes, always correct
+- `var(--usmc-grid-color)` in `backgroundImage` — adapts to white (blackout), khaki (woodland), dark brown (desert)
+- `.hero-bg` class — uses `--usmc-hero-overlay` which adapts per theme
+- `.hero-fade-bottom` — uses `color-mix()` against `--usmc-bg-page`
+- Shadcn UI components — use `--background`, `--foreground`, `--border` etc. which are overridden per theme
+
+### What does NOT adapt automatically (requires `isDesert` / `isWoodland`)
+
+These require explicit conditional handling:
+
+1. **Framer Motion `animate` / `whileHover` props** — inline styles bypass CSS variables entirely. Pass theme-conditional values directly:
+   ```tsx
+   animate={{ backgroundColor: isDesert ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.4)' }}
+   ```
+
+2. **Hardcoded Tailwind red tints** — `bg-red-950/40`, `bg-red-950/10`, `text-red-100`, `text-red-300` etc. are fixed Tailwind colors. In desert (light background) these dark reds become invisible or create dark boxes on sand. Use `isDesert` to swap for light red variants:
+   ```tsx
+   // selected state
+   isDesert ? 'border-red-700/60 bg-red-900/15 text-red-900' : 'border-red-600 bg-red-950/40 text-white'
+   ```
+
+3. **Hardcoded hex backgrounds** — `bg-[#09090c]`, `bg-[#0b0b0d]`, `bg-[#2a0c10]` etc. Replace with `bg-usmc-bg-surface` or conditional classes.
+
+4. **CSS animations with hardcoded colors** — e.g. `@keyframes pay-cell-pulse` uses literal dark reds. Add a `.desert` ancestor override in `globals.css`:
+   ```css
+   .desert .pay-cell-pulse { animation: pay-cell-pulse-desert 1.8s ease-in-out infinite; }
+   ```
+
+5. **`::placeholder` colors** — `placeholder-gray-800` may be invisible in woodland/desert. The gray scale IS overridden per theme (see `--color-gray-800` in theme.css), but verify placeholder colors are near-invisible on each background.
+
+6. **Inline `style={{ color: '...' }}` that must always be white** — Elements sitting over dark photos (e.g. hero slide titles, progress dots) must use `style={{ color: '#ffffff' }}` not `text-white`, because `text-white` maps to `--usmc-text-primary` which is dark brown in desert.
+
+### Theme-aware color reference
+
+When writing new components that need explicit desert/woodland variants:
+
+| Element | Blackout/Woodland | Desert |
+|---------|-------------------|--------|
+| Selected button bg | `bg-red-950/40` | `bg-red-900/15` |
+| Selected button border | `border-red-600` | `border-red-700/60` |
+| Selected button text | `text-white` | `text-red-900` |
+| Selected column cell | `bg-red-950/10 text-red-100` | `bg-red-900/15 text-red-800` |
+| Positive/match color | `text-green-400` / `text-green-500` | `text-green-700` |
+| Skill transfer color | `text-cyan-400` / `text-cyan-600` | `text-cyan-700` / `text-cyan-800` |
+| Tag (green) | `border-green-500/20 bg-green-950/30 text-green-400/80` | `border-green-700/50 bg-green-50/50 text-green-800` |
+| Tag (amber) | `border-amber-500/20 bg-amber-950/30 text-amber-400/80` | `border-amber-600/40 bg-amber-100/60 text-amber-800` |
+| Tag (cyan) | `border-cyan-500/20 bg-cyan-950/30 text-cyan-400/80` | `border-cyan-600/40 bg-cyan-100/60 text-cyan-800` |
+| Warning box | `border-red-900/40 bg-red-950/15` | `border-red-700/40 bg-red-100/40` |
+| Warning text | `text-red-300` | `text-red-700` |
+| Filter chip (available) | `border-green-500/35 bg-green-900/10 text-green-400/80` | `border-green-700/50 bg-green-50/50 text-green-800` |
+| Filter chip (excluded) | `border-red-500/70 bg-red-900/20 text-red-300 line-through` | `border-red-700/60 bg-red-50/60 text-red-800 line-through` |
+| Primary action button | `border-red-600 bg-red-950/40 text-white hover:bg-red-600` | `border-red-700 bg-red-700 text-red-50 hover:bg-red-800` |
+
+### Grid overlay pattern (theme-aware)
+
+Always use `var(--usmc-grid-color)` — never hardcode `rgba(255,255,255,0.5)`. The variable resolves to white (blackout), khaki (woodland), or dark brown (desert) automatically.
+
+```jsx
+<div
+  className="pointer-events-none absolute inset-0 opacity-[0.055]"
+  style={{
+    backgroundImage:
+      'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
+    backgroundSize: '40px 40px',
+  }}
+/>
+```
+
+**Exception:** Grids that always overlay a dark photo (e.g. `HeroSection.tsx`, `VideoPlayer.tsx`) should keep the hardcoded `rgba(255,255,255,0.5)` — the photo is always dark regardless of theme.
+
+---
+
 ## Design System
 
 ### Color Palette
 
-All tokens are defined as CSS custom properties in `src/styles/theme.css` and exposed as Tailwind utilities via `@theme inline`. Use the token names below — do not hardcode raw hex values in components.
+All tokens are defined as CSS custom properties in `src/styles/theme.css` and exposed as Tailwind utilities via `@theme inline`. The values shown below are the BLACKOUT (default) theme values. See the Theming System section above for how they change across themes.
 
 #### Backgrounds
 
@@ -168,7 +284,7 @@ All tokens are defined as CSS custom properties in `src/styles/theme.css` and ex
 
 #### Grid Overlay
 
-The background grid is always rendered as an `absolute inset-0 pointer-events-none` div with `opacity-[0.055]` inside the nearest `relative` wrapper. Pattern:
+The background grid is always rendered as an `absolute inset-0 pointer-events-none` div with `opacity-[0.055]` inside the nearest `relative` wrapper. Always use `var(--usmc-grid-color)` — never hardcode `rgba(255,255,255,0.5)`. The variable adapts per theme automatically.
 
 ```jsx
 <div className="relative px-4 py-8">
@@ -176,7 +292,7 @@ The background grid is always rendered as an `absolute inset-0 pointer-events-no
     className="pointer-events-none absolute inset-0 opacity-[0.055]"
     style={{
       backgroundImage:
-        'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+        'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
       backgroundSize: '40px 40px',
     }}
   />

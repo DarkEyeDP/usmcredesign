@@ -22,6 +22,7 @@ import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistanc
 import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
+import { ThemeProvider } from '@/app/features/theme/ThemeContext';
 
 Clarity.init('wzgag6wt8k');
 
@@ -55,6 +56,7 @@ export default function App() {
   }, [location.pathname]);
 
   return (
+    <ThemeProvider>
     <div className="min-h-screen bg-black text-white">
       {!isFullscreen && (
         <div className="print-hide">
@@ -124,5 +126,6 @@ export default function App() {
       </motion.div>
       {!isFullscreen && <MobileBottomNav isLoggedIn={isLoggedIn} />}
     </div>
+    </ThemeProvider>
   );
 }

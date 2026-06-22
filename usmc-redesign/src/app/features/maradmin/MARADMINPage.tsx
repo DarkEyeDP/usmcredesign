@@ -973,12 +973,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       {!isFullscreen && (
       <div className={`print-hide relative overflow-hidden border-b border-white/12 pt-20 flex-shrink-0 hidden md:block`}>
         {/* Backgrounds — inset-0 covers full outer div (including pt-20 space) */}
-        <div className="absolute inset-0" style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.97) 0%, rgba(5,5,10,0.93) 50%, rgba(10,3,3,0.9) 100%)',
-          backgroundColor: '#060304',
-        }} />
+        <div className="absolute inset-0 hero-bg" />
         <div className="absolute inset-0 opacity-[0.035]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
         <div className="absolute top-0 left-0 w-96 h-48 opacity-[0.06]" style={{
@@ -1853,7 +1850,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           <div ref={detailScrollRef} className="print-maradmin-body flex-1 overflow-y-auto overflow-x-hidden relative">
             {/* Subtle background texture */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+              backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }} />
 

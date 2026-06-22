@@ -13,6 +13,7 @@ import {
   SheetTrigger,
 } from '@/app/components/ui/sheet';
 import { loggedInItems, loggedOutItems } from './navigationConfig';
+import { useTheme, THEMES, type Theme } from '@/app/features/theme/ThemeContext';
 
 declare const __APP_VERSION__: string;
 const MOBILE_MENU_VERSION = `v${__APP_VERSION__}`;
@@ -27,6 +28,7 @@ function formatZuluTime(date: Date) {
   }).format(date);
 }
 
+
 interface HeaderProps {
   isLoggedIn: boolean;
   onToggleLogin: () => void;
@@ -37,6 +39,7 @@ interface HeaderProps {
 export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, isMobile }: HeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const items = isLoggedIn ? loggedInItems : loggedOutItems;
   const [zuluTime, setZuluTime] = useState(() => formatZuluTime(new Date()));
 
@@ -152,6 +155,32 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
                         PRIVACY POLICY
                       </button>
                     </SheetClose>
+
+                    {/* Display mode selector */}
+                    <div className="mt-1">
+                      <div className="mb-2 text-[9px] font-mono tracking-[0.28em] text-gray-700">DISPLAY MODE</div>
+                      <div className="flex gap-1.5">
+                        {THEMES.map(t => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setTheme(t.id as Theme)}
+                            className={`flex flex-1 flex-col items-center gap-1.5 border py-2.5 font-mono text-[9px] tracking-[0.16em] transition-colors ${
+                              theme === t.id
+                                ? 'border-red-600/60 bg-red-950/20 text-red-400'
+                                : 'border-white/10 text-gray-600 hover:border-white/20 hover:text-gray-400'
+                            }`}
+                            aria-pressed={theme === t.id}
+                          >
+                            <span
+                              className="block h-4 w-6 border border-black/20"
+                              style={{ backgroundColor: t.color }}
+                            />
+                            {t.label.substring(0, 3)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-5 border-t border-white/8 pt-4 text-center font-mono text-[10px] uppercase tracking-[0.32em] text-white/18">
                     {MOBILE_MENU_VERSION}
@@ -166,11 +195,15 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
             <span className="text-[10px] tracking-[0.24em] text-gray-500">ZULU</span>
             <span className="min-w-[72px] text-right text-sm tracking-widest text-white">{zuluTime}</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 border border-green-500/30 bg-green-900/10 rounded-sm">
+          <div className={`flex items-center gap-2 px-3 py-1.5 border rounded-sm ${
+            theme === 'desert'
+              ? 'border-green-700/60 bg-green-800/12'
+              : 'border-green-500/30 bg-green-900/10'
+          }`}>
             <div className="flex h-4 items-center">
-              <div className="h-4 w-1.5 rounded-sm bg-green-500 animate-pulse" />
+              <div className={`h-4 w-1.5 rounded-sm animate-pulse ${theme === 'desert' ? 'bg-green-700' : 'bg-green-500'}`} />
             </div>
-            <span className="text-sm text-green-400 font-mono tracking-widest">UNCLASSIFIED</span>
+            <span className={`text-sm font-mono tracking-widest ${theme === 'desert' ? 'text-green-700' : 'text-green-400'}`}>UNCLASSIFIED</span>
           </div>
         </div>
       </div>

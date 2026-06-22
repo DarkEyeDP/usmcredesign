@@ -46,10 +46,10 @@ function AttachmentList({ attachments, compact = false }: { attachments: NewsAtt
 
 function NoImagePlaceholder({ label }: { label?: string }) {
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ backgroundColor: '#050508' }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ backgroundColor: 'var(--usmc-bg-page)' }}>
       {/* Tactical grid */}
       <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+        backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
         backgroundSize: '40px 40px',
       }} />
       <SpearWatermark opacity={0.07} size="80%" />
@@ -321,8 +321,8 @@ export function NewsPage() {
       />
       {/* Page header */}
       <div className="relative overflow-hidden border-b border-white/12 pt-20">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(5,5,10,0.92) 50%, rgba(8,5,12,0.88) 100%)', backgroundColor: '#050508' }} />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0 hero-bg" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-red-900/30" />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>

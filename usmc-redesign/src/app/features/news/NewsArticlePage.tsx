@@ -80,7 +80,7 @@ function NoImagePlaceholder({ source }: { source: NewsItem['source'] }) {
       <div
         className="absolute inset-0 opacity-[0.05]"
         style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
@@ -275,11 +275,11 @@ export function NewsArticlePage() {
       />
 
       <header className="relative overflow-hidden border-b border-white/12 pt-20">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(5,5,10,0.92) 50%, rgba(8,5,12,0.88) 100%)', backgroundColor: '#050508' }} />
+        <div className="absolute inset-0 hero-bg" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />

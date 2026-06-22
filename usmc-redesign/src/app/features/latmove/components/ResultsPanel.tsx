@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown, Filter, LayoutGrid, Rows3, Maximize2, Minimize2, Search, X } from 'lucide-react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import {
   CLEARANCE_LABELS,
   EMPTY_RESULT_FILTERS,
@@ -42,15 +43,28 @@ const resultEntrance = {
   visible: { opacity: 1, y: 0 },
 };
 
+function chipClass(isSelected: boolean, isUnavailable: boolean, isDesert: boolean): string {
+  if (isSelected) return isDesert
+    ? 'border-red-700/60 bg-red-50/60 text-red-800 line-through decoration-red-700/60 decoration-2'
+    : 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2';
+  if (isUnavailable) return isDesert
+    ? 'cursor-not-allowed border-gray-400/40 bg-black/5 text-gray-400 line-through decoration-gray-400/50'
+    : 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80';
+  return isDesert
+    ? 'border-green-700/50 bg-green-50/50 text-green-800 hover:border-green-700 hover:text-green-900'
+    : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300';
+}
+
 interface FilterChipGroupProps<T extends string> {
   label: string;
   options: { value: T; label: string }[];
   selected: T[];
   available: T[];
+  isDesert: boolean;
   onToggle: (value: T) => void;
 }
 
-function FilterChipGroup<T extends string>({ label, options, selected, available, onToggle }: FilterChipGroupProps<T>) {
+function FilterChipGroup<T extends string>({ label, options, selected, available, isDesert, onToggle }: FilterChipGroupProps<T>) {
   if (options.length === 0) return null;
 
   const availableSet = new Set<T>(available);
@@ -69,13 +83,7 @@ function FilterChipGroup<T extends string>({ label, options, selected, available
               type="button"
               disabled={isUnavailable}
               onClick={() => onToggle(option.value)}
-              className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${
-                isSelected
-                  ? 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2'
-                  : isUnavailable
-                    ? 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80'
-                  : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300'
-              }`}
+              className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${chipClass(isSelected, isUnavailable, isDesert)}`}
             >
               {option.label}
             </button>
@@ -92,6 +100,8 @@ export function ResultsPanel({
   isFullscreen = false, onToggleFullscreen,
   onFiltersChange, onToggleExpand, onSortChange, onViewModeChange, onLoadMore,
 }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMosPickerOpen, setIsMosPickerOpen] = useState(false);
   const [animatedMatchCount, setAnimatedMatchCount] = useState(0);
@@ -298,8 +308,9 @@ export function ResultsPanel({
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.065]"
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: isDesert
+            ? 'linear-gradient(rgba(0,0,0,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.6) 1px, transparent 1px)'
+            : 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
@@ -431,8 +442,14 @@ export function ResultsPanel({
         {isFilterOpen && (
           <div className="mb-4 max-h-[min(52svh,calc(100svh-300px))] overflow-y-auto border border-white/14 bg-black/80 p-3 md:max-h-[min(70vh,calc(100vh-240px))]">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <div className="text-[12px] font-bold tracking-[0.22em] text-gray-500">
-                FILTER OPTIONS <span className="text-green-500/70">GREEN INCLUDED</span> <span className="text-red-400/80">RED HIDDEN</span>
+              <div className="flex items-center gap-2 text-[12px] font-bold tracking-[0.22em] text-gray-500">
+                FILTER OPTIONS
+                <span className={`border px-2 py-0.5 text-[11px] font-bold tracking-[0.14em] ${isDesert ? 'border-green-700/50 bg-green-50/50 text-green-800' : 'border-green-500/35 bg-green-900/10 text-green-400/80'}`}>
+                  INCLUDED
+                </span>
+                <span className={`border px-2 py-0.5 text-[11px] font-bold tracking-[0.14em] line-through decoration-2 ${isDesert ? 'border-red-700/60 bg-red-50/60 text-red-800 decoration-red-700/60' : 'border-red-500/70 bg-red-900/20 text-red-300 decoration-red-300/80'}`}>
+                  HIDDEN
+                </span>
               </div>
               <button
                 type="button"
@@ -489,13 +506,7 @@ export function ResultsPanel({
 
                                 onFiltersChange({ ...filters, excludedMos: next.join(', ') });
                               }}
-                              className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${
-                                isSelected
-                                  ? 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2'
-                                  : isUnavailable
-                                    ? 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80'
-                                    : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300'
-                              }`}
+                              className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${chipClass(isSelected, isUnavailable, isDesert)}`}
                             >
                               {option.id} - {option.title}
                             </button>
@@ -514,6 +525,7 @@ export function ResultsPanel({
                 options={fieldOptions.map(field => ({ value: field, label: field }))}
                 selected={filters.excludedFields}
                 available={activeFields}
+                isDesert={isDesert}
                 onToggle={value => toggleFilterValue('excludedFields', value)}
               />
               <FilterChipGroup
@@ -521,6 +533,7 @@ export function ResultsPanel({
                 options={clearanceOptions.map(clearance => ({ value: clearance, label: CLEARANCE_LABELS[clearance] }))}
                 selected={filters.excludedClearances}
                 available={activeClearances}
+                isDesert={isDesert}
                 onToggle={value => toggleFilterValue<ClearanceLevel>('excludedClearances', value)}
               />
               <FilterChipGroup
@@ -528,6 +541,7 @@ export function ResultsPanel({
                 options={REQUIREMENT_FILTER_OPTIONS.map(option => ({ value: option.value, label: option.label }))}
                 selected={filters.excludedRequirementTags}
                 available={activeRequirementTags}
+                isDesert={isDesert}
                 onToggle={value => toggleFilterValue<RequirementFilterTag>('excludedRequirementTags', value)}
               />
               <div>
@@ -537,13 +551,7 @@ export function ResultsPanel({
                     type="button"
                     disabled={!filters.hideColorVisionRequired && !hasActiveColorVisionRequirement}
                     onClick={() => onFiltersChange({ ...filters, hideColorVisionRequired: !filters.hideColorVisionRequired })}
-                    className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${
-                      filters.hideColorVisionRequired
-                        ? 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2'
-                        : !hasActiveColorVisionRequirement
-                          ? 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80'
-                        : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300'
-                    }`}
+                    className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${chipClass(filters.hideColorVisionRequired, !filters.hideColorVisionRequired && !hasActiveColorVisionRequirement, isDesert)}`}
                   >
                     Color Vision Required
                   </button>
@@ -556,13 +564,7 @@ export function ResultsPanel({
                     type="button"
                     disabled={!filters.onlyLmBonusEligible && !hasActiveLmBonusEligibleResults}
                     onClick={() => onFiltersChange({ ...filters, onlyLmBonusEligible: !filters.onlyLmBonusEligible })}
-                    className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${
-                      filters.onlyLmBonusEligible
-                        ? 'border-red-500/70 bg-red-900/20 text-red-300 line-through decoration-red-300/80 decoration-2'
-                        : !hasActiveLmBonusEligibleResults
-                          ? 'cursor-not-allowed border-gray-800/70 bg-black/30 text-gray-700 line-through decoration-gray-700/80'
-                          : 'border-green-500/35 bg-green-900/10 text-green-400/80 hover:border-green-400/60 hover:text-green-300'
-                    }`}
+                    className={`border px-3 py-1.5 text-[12px] font-bold tracking-[0.14em] transition-colors ${chipClass(filters.onlyLmBonusEligible, !filters.onlyLmBonusEligible && !hasActiveLmBonusEligibleResults, isDesert)}`}
                   >
                     Show only FY27 LM bonus MOS
                   </button>

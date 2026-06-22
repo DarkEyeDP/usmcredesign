@@ -614,7 +614,7 @@ export function ReadingListPage() {
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.80) 30%, rgba(0,0,0,0.28) 65%, rgba(0,0,0,0.12) 100%)' }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.40) 28%, transparent 55%)' }} />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, transparent 30%)' }} />
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute right-8 top-5 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
@@ -651,7 +651,7 @@ export function ReadingListPage() {
       </div>
 
       {/* Sticky controls bar */}
-      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 backdrop-blur-sm">
         {/* Tabs row */}
         <div className="flex items-center overflow-x-auto px-4 sm:px-8">
           <button

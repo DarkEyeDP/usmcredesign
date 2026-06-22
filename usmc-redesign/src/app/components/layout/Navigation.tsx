@@ -1,7 +1,10 @@
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { motion } from 'motion/react';
 import { loggedInItems, loggedOutItems } from './navigationConfig';
+import { useTheme, THEMES, type Theme } from '@/app/features/theme/ThemeContext';
 
 interface NavigationProps {
   isLoggedIn: boolean;
@@ -11,6 +14,103 @@ interface NavigationProps {
 
 declare const __APP_VERSION__: string;
 const SIDEBAR_VERSION = `v${__APP_VERSION__}`;
+
+function ThemeDot({ color }: { color: string }) {
+  return (
+    <span
+      className="inline-block flex-shrink-0 border border-white/30"
+      style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 2 }}
+    />
+  );
+}
+
+function ThemeSidebarToggle({ isExpanded }: { isExpanded: boolean }) {
+  const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [flyoutPos, setFlyoutPos] = useState<{ bottom: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const flyoutRef = useRef<HTMLDivElement>(null);
+
+  const current = THEMES.find(t => t.id === theme) ?? THEMES[0];
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      const target = e.target as Node;
+      const insideBtn = btnRef.current?.contains(target);
+      const insideFlyout = flyoutRef.current?.contains(target);
+      if (!insideBtn && !insideFlyout) setOpen(false);
+    }
+    if (open) document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [open]);
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setFlyoutPos({
+        bottom: window.innerHeight - rect.bottom,
+        left: rect.right + 8,
+      });
+    }
+    setOpen(v => !v);
+  }
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={handleToggle}
+        className={`absolute bottom-6 flex h-9 items-center gap-2 border border-white/16 text-gray-500 transition-colors hover:border-white/40 hover:text-white ${
+          isExpanded
+            ? 'left-[22px] px-3'
+            : 'left-10 w-9 -translate-x-1/2 justify-center'
+        }`}
+        aria-label="Change display theme"
+        aria-expanded={open}
+      >
+        <ThemeDot color={current.color} />
+        {isExpanded && (
+          <span className="font-mono text-[10px] tracking-[0.22em]">{current.short}</span>
+        )}
+      </button>
+
+      {open && flyoutPos && createPortal(
+        <div
+          ref={flyoutRef}
+          style={{
+            position: 'fixed',
+            bottom: flyoutPos.bottom,
+            left: flyoutPos.left,
+            zIndex: 9999,
+          }}
+          className="min-w-[148px] border border-white/16 bg-black shadow-lg"
+        >
+          <div className="border-b border-white/8 px-3 py-2">
+            <span className="text-[9px] font-mono tracking-[0.28em] text-gray-600">DISPLAY MODE</span>
+          </div>
+          {THEMES.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => { setTheme(t.id as Theme); setOpen(false); }}
+              className={`flex w-full items-center gap-3 px-3 py-2.5 text-left font-mono text-[11px] tracking-[0.18em] transition-colors ${
+                theme === t.id
+                  ? 'bg-white/[0.06] text-white'
+                  : 'text-gray-400 hover:bg-white/[0.04] hover:text-gray-200'
+              }`}
+            >
+              <ThemeDot color={t.color} />
+              <span>{t.label}</span>
+              {theme === t.id && <span className="ml-auto text-red-500">◆</span>}
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
 
 export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: NavigationProps) {
   const navigate = useNavigate();
@@ -69,11 +169,14 @@ export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: Navigat
         })}
       </div>
 
+      {/* Theme toggle — above collapse button, always centered in the fixed 80px column */}
+      <ThemeSidebarToggle isExpanded={isExpanded} />
+
       {/* Toggle button — always centered in the fixed 80px column */}
       <button
         type="button"
         onClick={onToggleExpanded}
-        className="absolute bottom-6 left-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center border border-white/16 text-gray-500 transition-colors hover:border-white/40 hover:text-white"
+        className="absolute bottom-[68px] left-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center border border-white/16 text-gray-500 transition-colors hover:border-white/40 hover:text-white"
         aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
       >
         {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}

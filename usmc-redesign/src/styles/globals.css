@@ -86,10 +86,25 @@
   animation: pay-cell-pulse 1.8s ease-in-out infinite;
 }
 
+@keyframes pay-cell-pulse-desert {
+  0%, 100% {
+    background-color: rgb(254, 226, 226);
+    box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.45), 0 0 0 rgba(185, 28, 28, 0);
+  }
+  50% {
+    background-color: rgb(252, 202, 202);
+    box-shadow: inset 0 0 0 1px rgba(185, 28, 28, 0.80), 0 0 14px rgba(185, 28, 28, 0.25);
+  }
+}
+
+.desert .pay-cell-pulse {
+  animation: pay-cell-pulse-desert 1.8s ease-in-out infinite;
+}
+
 .page-hero-title {
   max-width: 100%;
   overflow-wrap: anywhere;
-  color: #fff;
+  color: var(--usmc-text-primary);
   font-family: var(--font-tactical);
   font-size: 2rem;
   font-weight: 900;
@@ -158,6 +173,16 @@
 ::selection {
   background: rgba(239, 68, 68, 0.3);
   color: white;
+}
+
+/* Theme-aware hero section backgrounds */
+.hero-bg {
+  background: var(--usmc-hero-overlay);
+  background-color: var(--usmc-bg-page);
+}
+
+.hero-fade-bottom {
+  background: linear-gradient(to top, color-mix(in srgb, var(--usmc-bg-page) 92%, transparent) 0%, transparent 100%);
 }
 
 /* Pointer cursor on all interactive elements */

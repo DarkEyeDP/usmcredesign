@@ -154,7 +154,10 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
             aria-label={`Slide ${i + 1}`}
             className="p-1 group"
           >
-            <div className={`transition-all duration-300 rounded-full ${i === current ? 'w-4 h-1 bg-white' : 'w-1 h-1 bg-white/30 group-hover:bg-white/60'}`} />
+            <div
+              className={`transition-all duration-300 rounded-full ${i === current ? 'w-4 h-1' : 'w-1 h-1'}`}
+              style={{ backgroundColor: i === current ? '#ffffff' : 'rgba(255,255,255,0.30)' }}
+            />
           </button>
         ))}
       </div>
@@ -187,7 +190,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
             <div className="text-[clamp(0.85rem,2.2vw,0.95rem)] text-gray-400 font-mono tracking-[0.24em] md:tracking-[0.3em] mb-3">
               {slide.label}
             </div>
-            <h1 className={`${mobileHeadingSizeClass} md:text-7xl font-black tracking-[-0.045em] md:tracking-tight text-white mb-4 leading-[0.88] md:leading-[0.9] max-w-[calc(100vw-3rem)] md:max-w-none`}>
+            <h1 className={`${mobileHeadingSizeClass} md:text-7xl font-black tracking-[-0.045em] md:tracking-tight mb-4 leading-[0.88] md:leading-[0.9] max-w-[calc(100vw-3rem)] md:max-w-none`} style={{ color: '#ffffff' }}>
               {headingLines.slice(0, -1).map((line, index) => (
                 <span key={`${line}-${index}`}>
                   {line}

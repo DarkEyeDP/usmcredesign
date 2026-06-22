@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { clearanceRequirementAbbreviation, colorVisionAbbreviation } from '../types';
 import type { ResultItem } from '../types';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 
 const bonusFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -16,13 +17,23 @@ interface Props {
   onToggle: () => void;
 }
 
-function matchColor(pct: number) {
+function matchColor(pct: number, isDesert: boolean) {
+  if (isDesert) {
+    if (pct >= 95) return 'text-green-700';
+    if (pct >= 90) return 'text-green-700';
+    return 'text-yellow-700';
+  }
   if (pct >= 95) return 'text-green-400';
   if (pct >= 90) return 'text-green-500';
   return 'text-yellow-500';
 }
 
-function skillMatchColor(pct: number) {
+function skillMatchColor(pct: number, isDesert: boolean) {
+  if (isDesert) {
+    if (pct >= 70) return 'text-cyan-700';
+    if (pct >= 40) return 'text-cyan-800';
+    return 'text-gray-600';
+  }
   if (pct >= 70) return 'text-cyan-400';
   if (pct >= 40) return 'text-cyan-600';
   return 'text-gray-500';
@@ -33,6 +44,8 @@ function compactRequirementLabel(reqStr: string) {
 }
 
 export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const formattedNumber = String(resultNumber).padStart(2, '0');
   const bonusRangeLabel = result.lateralMoveBonusRange
     ? `${bonusFormatter.format(result.lateralMoveBonusRange.min)}-${bonusFormatter.format(result.lateralMoveBonusRange.max)}`
@@ -58,17 +71,19 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
           'rgba(69,10,10,0.1)',
         ],
       } : {
-        borderColor: 'rgba(229,231,235,0.16)',
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderColor: isDesert ? 'rgba(0,0,0,0.22)' : 'rgba(229,231,235,0.16)',
+        backgroundColor: isDesert ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.4)',
       }}
       whileHover={isActive ? {
         borderColor: 'rgba(248,113,113,0.75)',
         backgroundColor: 'rgba(69,10,10,0.16)',
         boxShadow: 'inset 0 0 0 1px rgba(248,113,113,0.16), 0 0 24px rgba(127,29,29,0.18)',
       } : {
-        borderColor: 'rgba(229,231,235,0.34)',
-        backgroundColor: 'rgba(69,10,10,0.16)',
-        boxShadow: 'inset 0 0 0 1px rgba(239,68,68,0.12), 0 0 22px rgba(127,29,29,0.16)',
+        borderColor: isDesert ? 'rgba(0,0,0,0.40)' : 'rgba(229,231,235,0.34)',
+        backgroundColor: isDesert ? 'rgba(0,0,0,0.24)' : 'rgba(69,10,10,0.16)',
+        boxShadow: isDesert
+          ? 'inset 0 0 0 1px rgba(0,0,0,0.14), 0 0 18px rgba(0,0,0,0.08)'
+          : 'inset 0 0 0 1px rgba(239,68,68,0.12), 0 0 22px rgba(127,29,29,0.16)',
       }}
       transition={{
         layout: { duration: 0.28 },
@@ -121,20 +136,20 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
             <div className="mb-1.5 flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold tracking-[0.22em] text-red-400/70">{result.field}</span>
               {result.isHighDemandLatMove && (
-                <span className="border border-amber-500/35 bg-amber-950/20 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] text-amber-300/90">
+                <span className={`border px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] ${isDesert ? 'border-amber-600/50 bg-amber-100/60 text-amber-800' : 'border-amber-500/35 bg-amber-950/20 text-amber-300/90'}`}>
                   HIGH DEMAND
                 </span>
               )}
             </div>
           </div>
           <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className={`text-[32px] font-black leading-none tracking-[-0.03em] ${matchColor(result.match)}`}>
+            <div className={`text-[32px] font-black leading-none tracking-[-0.03em] ${matchColor(result.match, isDesert)}`}>
               {result.match}%
             </div>
             <div className="text-[10px] tracking-[0.16em] text-gray-600">QUALIFIED</div>
             {result.skillMatch != null && (
               <div className="mt-1 flex flex-col items-end">
-                <div className={`text-[22px] font-black leading-none tracking-[-0.02em] ${skillMatchColor(result.skillMatch.pct)}`}>
+                <div className={`text-[22px] font-black leading-none tracking-[-0.02em] ${skillMatchColor(result.skillMatch.pct, isDesert)}`}>
                   {result.skillMatch.pct}%
                 </div>
                 <div className="text-[10px] tracking-[0.16em] text-gray-600">SKILL XFR</div>

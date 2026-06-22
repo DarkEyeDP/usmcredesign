@@ -47,7 +47,7 @@ export function SiteMapPage() {
           background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(10,10,14,0.92) 48%, rgba(18,8,8,0.88) 100%)',
         }} />
         <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }} />
 

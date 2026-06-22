@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { motion, animate, useMotionValue, useTransform } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, ExternalLink, Info } from 'lucide-react';
@@ -118,6 +119,8 @@ function AnimatedCurrency({ value, fromValue, shouldAnimate }: AnimatedCurrencyP
 
 export function BasicPayPage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const tableScrollRef = useRef<HTMLDivElement | null>(null);
   const selectedCellRef = useRef<HTMLTableCellElement | null>(null);
   const selectedHeaderRef = useRef<HTMLTableCellElement | null>(null);
@@ -179,22 +182,16 @@ export function BasicPayPage() {
         path="/pay-benefits/basic-pay"
       />
       <div className="relative pt-20 overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(6,8,14,0.92) 45%, rgba(18,10,4,0.85) 100%)',
-            backgroundColor: '#050508',
-          }}
-        />
+        <div className="absolute inset-0 hero-bg" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+              'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none hero-fade-bottom" />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute top-5 right-8 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
@@ -243,7 +240,7 @@ export function BasicPayPage() {
       </div>
 
       {/* Sticky pay-section tab bar */}
-      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 backdrop-blur-sm">
         <div className="flex items-center overflow-x-auto px-4 md:px-8">
           {[
             { label: 'OVERVIEW', path: '/pay-benefits' },
@@ -297,9 +294,9 @@ export function BasicPayPage() {
           </div>
           {formattedAfadbd && nextIncrease ? (
             <div className="xl:justify-self-center xl:self-end">
-              <div className="border border-red-900/40 bg-red-950/15 px-4 py-3 text-left xl:min-w-[290px] xl:text-right">
+              <div className={`border px-4 py-3 text-left xl:min-w-[290px] xl:text-right ${isDesert ? 'border-red-700/40 bg-red-100/40' : 'border-red-900/40 bg-red-950/15'}`}>
                 <div className="text-[11px] font-bold tracking-[0.2em] text-gray-500 mb-1">NEXT PAY INCREASE</div>
-                <div className="text-2xl font-black text-red-300">+{formatCurrency(nextIncrease.monthlyIncrease)}</div>
+                <div className={`text-2xl font-black ${isDesert ? 'text-red-700' : 'text-red-300'}`}>+{formatCurrency(nextIncrease.monthlyIncrease)}</div>
                 <div className="mt-1 text-xs text-gray-400">
                   {formattedNextIncreaseDate} · {nextIncrease.daysUntil} days · {nextIncrease.bracket.label}
                 </div>
@@ -331,7 +328,7 @@ export function BasicPayPage() {
           <table className="min-w-[1200px] w-full border-collapse">
             <thead>
               <tr className="border-b border-white/12 bg-white/[0.03]">
-                <th className="sticky left-0 z-10 border-r border-white/12 bg-[#0b0b0d] px-4 py-3 text-left text-[12px] font-bold tracking-[0.2em] text-gray-400">
+                <th className="sticky left-0 z-10 border-r border-white/12 bg-usmc-bg-surface px-4 py-3 text-left text-[12px] font-bold tracking-[0.2em] text-gray-400">
                   PAY GRADE
                 </th>
                 {PAY_BRACKETS_2026.map((bracket, index) => {
@@ -341,7 +338,9 @@ export function BasicPayPage() {
                       key={bracket.label}
                       ref={isSelectedBracket ? selectedHeaderRef : null}
                       className={`border-r border-white/12 px-4 py-3 text-left text-xs font-bold tracking-wide ${
-                        isSelectedBracket ? 'bg-red-950/40 text-red-300' : 'text-gray-300'
+                        isSelectedBracket
+                          ? isDesert ? 'bg-red-900/20 text-red-800' : 'bg-red-950/40 text-red-300'
+                          : 'text-gray-300'
                       }`}
                     >
                       {bracket.label}
@@ -357,7 +356,9 @@ export function BasicPayPage() {
                   <tr key={rank} className="border-b border-white/8 hover:bg-white/[0.02]">
                     <td
                       className={`sticky left-0 z-10 border-r border-white/12 px-4 py-3 text-sm font-black tracking-wide ${
-                        isSavedRank ? 'bg-[#2a0c10] text-white' : 'bg-[#09090c] text-gray-200'
+                        isSavedRank
+                          ? isDesert ? 'bg-red-900/25 text-white' : 'bg-[#2a0c10] text-white'
+                          : 'bg-usmc-bg-surface text-gray-200'
                       }`}
                     >
                       {rank}
@@ -380,7 +381,9 @@ export function BasicPayPage() {
                             isSelectedCell
                               ? 'pay-cell-pulse text-white font-bold'
                               : isSelectedColumn
-                                ? 'bg-red-950/10 text-red-100 hover:bg-red-950/20'
+                                ? isDesert
+                                  ? 'bg-red-900/15 text-red-800 hover:bg-red-900/25'
+                                  : 'bg-red-950/10 text-red-100 hover:bg-red-950/20'
                               : value === null
                                 ? 'text-gray-600 hover:bg-white/[0.03] hover:text-gray-500'
                                 : 'text-gray-300 hover:bg-white/[0.05] hover:text-white'

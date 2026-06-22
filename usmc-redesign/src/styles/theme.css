@@ -46,6 +46,10 @@
   --usmc-grid-color:   rgba(255, 255, 255, 0.50);
   --usmc-grid-size:    40px;
   --usmc-grid-opacity: 0.055;
+
+  /* Hero section gradient overlay */
+  --usmc-hero-overlay:
+    linear-gradient(135deg, rgba(0,0,0,0.97) 0%, rgba(5,5,10,0.93) 50%, rgba(10,3,3,0.90) 100%);
 }
 
 /* Expose USMC tokens as Tailwind v4 utility classes
@@ -64,6 +68,11 @@
   --color-usmc-green-400:        var(--usmc-green-400);
   --color-usmc-amber-500:        var(--usmc-amber-500);
   --color-usmc-amber-300:        var(--usmc-amber-300);
+
+  /* Route Tailwind's built-in black/white through USMC tokens so themes
+     can remap bg-black, text-white, border-white/X, bg-white/X etc. */
+  --color-black: var(--usmc-bg-base);
+  --color-white: var(--usmc-text-primary);
 }
 
 
@@ -245,4 +254,141 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   WOODLAND Theme — OD Green / Woodland MARPAT
+   Dark green palette based on the USMC Woodland cammie colors.
+   ───────────────────────────────────────────────────────────────── */
+.od-green {
+  /* Backgrounds */
+  --usmc-bg-base:     #1a2518;
+  --usmc-bg-page:     #111a10;
+  --usmc-bg-surface:  #0d1309;
+  --usmc-bg-elevated: rgba(197, 192, 134, 0.06);
+
+  /* Borders (khaki/tan alpha scale) */
+  --usmc-border-subtle:  rgba(197, 192, 134, 0.07);
+  --usmc-border-default: rgba(197, 192, 134, 0.11);
+  --usmc-border-medium:  rgba(197, 192, 134, 0.16);
+  --usmc-border-strong:  rgba(197, 192, 134, 0.23);
+  --usmc-border-hover:   rgba(197, 192, 134, 0.42);
+  --usmc-border-focus:   rgba(239, 68, 68, 0.50);
+
+  /* Text hierarchy */
+  --usmc-text-primary:   #e0d8b4;
+  --usmc-text-secondary: #c5c086;
+  --usmc-text-muted:     #8a925e;
+  --usmc-text-subtle:    #657048;
+  --usmc-text-disabled:  rgba(224, 216, 180, 0.20);
+
+  /* Grid overlay */
+  --usmc-grid-color:   rgba(197, 192, 134, 0.50);
+  --usmc-grid-opacity: 0.06;
+
+  /* Hero section gradient overlay */
+  --usmc-hero-overlay:
+    linear-gradient(135deg, rgba(17,26,16,0.97) 0%, rgba(13,19,9,0.93) 50%, rgba(26,37,24,0.90) 100%);
+
+  /* Shadcn variables */
+  --background:               #1a2518;
+  --foreground:               #e0d8b4;
+  --card:                     #1a2518;
+  --card-foreground:          #e0d8b4;
+  --popover:                  #111a10;
+  --popover-foreground:       #e0d8b4;
+  --primary:                  #e0d8b4;
+  --primary-foreground:       #1a2518;
+  --secondary:                #252e1e;
+  --secondary-foreground:     #c5c086;
+  --muted:                    #252e1e;
+  --muted-foreground:         #8a925e;
+  --accent:                   #252e1e;
+  --accent-foreground:        #c5c086;
+  --border:                   rgba(197, 192, 134, 0.16);
+  --input:                    rgba(197, 192, 134, 0.11);
+  --input-background:         #1e2b1c;
+  --ring:                     rgba(197, 192, 134, 0.42);
+  --sidebar:                  #111a10;
+  --sidebar-foreground:       #e0d8b4;
+
+  /* Tailwind gray scale → warm olive/khaki tones on dark green */
+  --color-gray-100: #eae4c8;
+  --color-gray-200: #d8d098;
+  --color-gray-300: #c5c086;
+  --color-gray-400: #8a925e;
+  --color-gray-500: #657048;
+  --color-gray-600: #4e5838;
+  --color-gray-700: #3b4430;
+  --color-gray-800: #18211a;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DESERT Theme — Desert MARPAT
+   Light sandy palette based on the USMC Desert cammie colors.
+   ───────────────────────────────────────────────────────────────── */
+.desert {
+  /* Backgrounds (light sandy tones) */
+  --usmc-bg-base:     #e8dcc8;
+  --usmc-bg-page:     #f2ead8;
+  --usmc-bg-surface:  #f8f4ea;
+  --usmc-bg-elevated: rgba(90, 58, 22, 0.06);
+
+  /* Borders (dark brown alpha scale) */
+  --usmc-border-subtle:  rgba(90, 58, 22, 0.08);
+  --usmc-border-default: rgba(90, 58, 22, 0.14);
+  --usmc-border-medium:  rgba(90, 58, 22, 0.20);
+  --usmc-border-strong:  rgba(90, 58, 22, 0.28);
+  --usmc-border-hover:   rgba(90, 58, 22, 0.48);
+  --usmc-border-focus:   rgba(185, 28, 28, 0.60);
+
+  /* Text hierarchy */
+  --usmc-text-primary:   #1e1408;
+  --usmc-text-secondary: #5a3c1a;
+  --usmc-text-muted:     #8a6030;
+  --usmc-text-subtle:    #a87848;
+  --usmc-text-disabled:  rgba(30, 20, 8, 0.22);
+
+  /* Grid overlay */
+  --usmc-grid-color:   rgba(90, 58, 22, 0.50);
+  --usmc-grid-opacity: 0.07;
+
+  /* Hero section gradient overlay */
+  --usmc-hero-overlay:
+    linear-gradient(135deg, rgba(242,234,216,0.97) 0%, rgba(248,244,234,0.93) 50%, rgba(232,220,200,0.90) 100%);
+
+  /* Shadcn variables */
+  --background:               #f2ead8;
+  --foreground:               #1e1408;
+  --card:                     #e8dcc8;
+  --card-foreground:          #1e1408;
+  --popover:                  #f8f4ea;
+  --popover-foreground:       #1e1408;
+  --primary:                  #1e1408;
+  --primary-foreground:       #f2ead8;
+  --secondary:                #ddd0b8;
+  --secondary-foreground:     #1e1408;
+  --muted:                    #ddd0b8;
+  --muted-foreground:         #8a6030;
+  --accent:                   #ddd0b8;
+  --accent-foreground:        #1e1408;
+  --border:                   rgba(90, 58, 22, 0.20);
+  --input:                    rgba(90, 58, 22, 0.14);
+  --input-background:         #f0e8d4;
+  --ring:                     rgba(90, 58, 22, 0.42);
+  --sidebar:                  #e0d4bc;
+  --sidebar-foreground:       #1e1408;
+
+  /* Tailwind gray scale → warm brown tones on sand */
+  --color-gray-100: #2a1a08;
+  --color-gray-200: #3d2810;
+  --color-gray-300: #5a3c1a;
+  --color-gray-400: #8a6030;
+  --color-gray-500: #a87848;
+  --color-gray-600: #c09060;
+  --color-gray-700: #d4a870;
+  --color-gray-800: #e5dac8;
+
+  /* Desert-specific: active nav/selection uses a warm amber-red tint */
+  --usmc-red-950: #4a1a00;
 }

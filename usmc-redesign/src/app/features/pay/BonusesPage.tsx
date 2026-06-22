@@ -135,23 +135,16 @@ export function BonusesPage() {
       />
       {/* ── Hero ── */}
       <div className="relative overflow-hidden pt-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(10,10,18,0.92) 48%, rgba(28,10,10,0.9) 100%)',
-            backgroundColor: '#050508',
-          }}
-        />
+        <div className="absolute inset-0 hero-bg" />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+              'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
-        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none hero-fade-bottom" />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
           <div className="absolute right-8 top-5 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
@@ -201,7 +194,7 @@ export function BonusesPage() {
       </div>
 
       {/* Sticky pay-section tab bar */}
-      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 shadow-[0_18px_30px_rgba(0,0,0,0.55)] backdrop-blur-sm">
+      <div className="sticky top-20 z-30 isolate border-b border-white/10 bg-black/95 backdrop-blur-sm">
         <div className="flex items-center overflow-x-auto px-4 sm:px-8">
           {[
             { label: 'OVERVIEW', path: '/pay-benefits' },
@@ -232,7 +225,7 @@ export function BonusesPage() {
           className="pointer-events-none absolute inset-0 opacity-[0.055]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+              'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
