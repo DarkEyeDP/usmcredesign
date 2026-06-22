@@ -174,6 +174,8 @@ export function extractMARADMINSource(raw: string): string | null {
 
   const parts = releaseText.split(',').map(part => part.trim()).filter(Boolean);
   if (parts.length >= 2) {
+    const title = parts.slice(1).join(', ');
+    if (/^(?:assistant\s+)?deputy commandant\b/i.test(title)) return title;
     return parts[parts.length - 1];
   }
 

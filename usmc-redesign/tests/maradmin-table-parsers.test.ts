@@ -514,9 +514,13 @@ test('extracts the releasing organization from release authority lines', () => {
   const deputySource = extractMARADMINSource(
     'Release authorized by Lieutenant General William J. Bowers, Deputy Commandant for Manpower and Reserve Affairs.//',
   );
+  const commaDeputySource = extractMARADMINSource(
+    'Release authorized by LtGen J. M. Bargeron, Deputy Commandant for Plans, Policies, and Operations.//',
+  );
 
   assert.equal(divisionSource, 'Manpower Management Division');
   assert.equal(deputySource, 'Deputy Commandant for Manpower and Reserve Affairs');
+  assert.equal(commaDeputySource, 'Deputy Commandant for Plans, Policies, and Operations');
 });
 
 test('parses ordered MARADMIN archive rows from archive pages', () => {

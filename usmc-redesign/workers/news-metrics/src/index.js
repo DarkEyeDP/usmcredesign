@@ -2,6 +2,7 @@
 
 const RSS_URL =
   'https://www.marines.mil/DesktopModules/ArticleCS/RSS.ashx?ContentType=6&Site=481&max=500&category=14336';
+const READER_URL_PREFIX = 'https://r.jina.ai/http://';
 const USER_AGENT = 'Mozilla/5.0 (compatible; StayMarine/1.0)';
 
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -141,6 +142,16 @@ function extractArticleText(html) {
     .trim();
 }
 
+function extractReaderArticleText(markdown) {
+  const content = markdown.replace(/\r/g, '').split(/\nMarkdown Content:\n/i).pop() ?? '';
+  const text = content
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  if (!/\bMARADMIN\s+\d+\/\d+\b/i.test(text)) return null;
+  return text;
+}
+
 // ── RSS parsing ───────────────────────────────────────────────────────────────
 
 function extractRSSTag(itemXml, tag) {
@@ -196,6 +207,8 @@ function extractSource(text) {
   const raw = m[1].replace(/[./\s]+$/, '').trim();
   if (!raw) return null;
   const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
+  const title = parts.slice(1).join(', ');
+  if (/^(?:assistant\s+)?deputy commandant\b/i.test(title)) return title;
   return parts.length >= 2 ? parts[parts.length - 1] : raw;
 }
 
@@ -252,13 +265,25 @@ async function syncRSSFeed(env) {
 async function fetchAndCacheArticle(env, number, link) {
   if (!link) return null;
 
-  const res = await fetch(link, {
+  let method = 'direct';
+  let text = null;
+
+  const directRes = await fetch(link, {
     headers: { 'User-Agent': USER_AGENT, Accept: 'text/html' },
   });
-  if (!res.ok) return null;
+  if (directRes.ok) {
+    text = extractArticleText(await directRes.text());
+  }
 
-  const html = await res.text();
-  const text = extractArticleText(html);
+  if (!text) {
+    const readerRes = await fetch(`${READER_URL_PREFIX}${link}`, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'text/plain' },
+    });
+    if (!readerRes.ok) return null;
+    text = extractReaderArticleText(await readerRes.text());
+    method = 'reader';
+  }
+
   if (!text) return null;
 
   const source = extractSource(text) ?? 'HQMC';
@@ -267,18 +292,18 @@ async function fetchAndCacheArticle(env, number, link) {
   await env.DB.batch([
     env.DB.prepare(`
       INSERT INTO maradmin_articles (number, text, source, method, cached_at)
-      VALUES (?1, ?2, ?3, 'direct', CURRENT_TIMESTAMP)
+      VALUES (?1, ?2, ?3, ?4, CURRENT_TIMESTAMP)
       ON CONFLICT(number) DO UPDATE SET
         text = excluded.text, source = excluded.source,
-        method = 'direct', cached_at = CURRENT_TIMESTAMP
-    `).bind(number, text, source),
+        method = excluded.method, cached_at = CURRENT_TIMESTAMP
+    `).bind(number, text, source, method),
     // Update enriched source on the metadata row.
     env.DB.prepare(`
       UPDATE maradmins SET source = ?1 WHERE number = ?2 AND source IN ('', 'HQMC')
     `).bind(source, number),
   ]);
 
-  return { text, source, method: 'direct', cachedAt };
+  return { text, source, method, cachedAt };
 }
 
 // ── CORS & JSON helpers ───────────────────────────────────────────────────────
