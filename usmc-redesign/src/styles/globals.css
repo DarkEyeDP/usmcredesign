@@ -326,3 +326,10 @@ textarea:disabled {
     background: transparent !important;
   }
 }
+
+/* MARADMIN detail ribbon — auto-size metadata text to fit between nav buttons and action icons */
+@media (min-width: 768px) {
+  .maradmin-ribbon-meta span {
+    font-size: clamp(9px, 1.1vw, 12px);
+  }
+}

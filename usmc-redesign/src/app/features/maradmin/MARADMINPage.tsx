@@ -1754,7 +1754,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     animate={{ opacity: 1, x: 0 }}
                     exit={(dir: number) => ({ opacity: 0, x: dir > 0 ? 20 : -20 })}
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center md:pointer-events-none md:absolute md:left-1/2 md:top-1/2 md:mt-0 md:max-w-[min(56vw,860px)] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
+                    className="maradmin-ribbon-meta mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center md:mt-0 md:flex-1 md:min-w-0 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
                   >
                     {selectedMsg.unread && (
                       <div className="flex items-center gap-1.5 md:flex-shrink-0">
