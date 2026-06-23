@@ -1,0 +1,59 @@
+{
+  "fetchedAt": "2026-06-23T18:03:38.661Z",
+  "title": "U.S. Marine Corps Announces ODIN Reporting System",
+  "pubDate": "2026-06-23T14:15:00.000Z",
+  "imageUrl": null,
+  "description": "The U.S. Marine Corps announced in MARADMIN 281/26 that it will fully transition its operational reporting to the Operational Data Integration Nexus (ODIN) on July 7, 2026. The move, authorized by Lt. Gen. Jay M. Bargeron, Deputy Commandant for Plans, Policies, and Operations, formally designates ODIN as the official and authoritative platform for operational reporting, marking a pivotal achievement in the Corps’ Force Design modernization efforts.<br/>",
+  "wordCount": 401,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "WASHINGTON, D.C. - The U.S. Marine Corps announced in MARADMIN 281/26 that it will fully transition its operational reporting to the Operational Data Integration Nexus (ODIN) on July 7, 2026. The move, authorized by Lt. Gen. Jay M. Bargeron, Deputy Commandant for Plans, Policies, and Operations, formally designates ODIN as the official and authoritative platform for operational reporting, marking a pivotal achievement in the Corps’ Force Design modernization efforts."
+    },
+    {
+      "type": "paragraph",
+      "text": "ODIN, a digital application within the Maven Smart System (MSS), is a next-generation, data-centric decision support tool designed to replace legacy, manual processes and achieve decision superiority. Historically, Marine Corps operational reporting has relied on a document-centric process where units at each echelon manually create and consolidate narrative Situation Reports (SITREPs). This method consumed valuable operational time, created information silos, and hindered operational tempo."
+    },
+    {
+      "type": "paragraph",
+      "text": "ODIN fundamentally transforms this workflow. By utilizing structured data inputs rather than narrative text, ODIN leverages Artificial Intelligence to automatically aggregate critical information such as personnel status, equipment readiness, and logistics posture into a centralized dashboard. This provides commanders with a single, continuously updated operational picture, moving the Marine Corps from being data-rich but information-poor to a state of information superiority."
+    },
+    {
+      "type": "paragraph",
+      "text": "“ODIN is more than a reporting tool; it is a strategic asset that returns valuable time to our commanders,” said Lt. Gen. Bargeron. “By automating the flow of data from the tactical edge to strategic decision makers, we are equipping our Marines with the near real-time information required to outpace our adversaries and fight effectively in a distributed environment.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "ODIN dramatically reduces administrative workloads by automating data entry through integration with authoritative databases, allowing leaders to focus entirely on warfighting and operational intent. The system contextualizes disparate data into actionable insights, enabling commanders to manage risk dynamically and operate inside the adversary’s decision cycle. Furthermore, ODIN establishes a state of collective consciousness across the force, enabling lateral data sharing between adjacent units and vertical transparency keeping the Marine Corps fully aligned with Joint Staff data-centricity requirements for seamless integration with combatant commands."
+    },
+    {
+      "type": "paragraph",
+      "text": "Once fully adopted, ODIN will serve as the Marine Corps’ single source of truth for operational data, marking a definitive end to manual, document-centric reporting."
+    },
+    {
+      "type": "paragraph",
+      "text": "For more information regarding the ODIN system and the Marine Corps' ongoing Force Design data modernization initiatives, please contact ontherecord@usmc.mil."
+    },
+    {
+      "type": "heading",
+      "text": "About"
+    },
+    {
+      "type": "paragraph",
+      "text": "The Corps Units News Photos Leaders Marines Family Community Relations"
+    },
+    {
+      "type": "heading",
+      "text": "Connect"
+    },
+    {
+      "type": "paragraph",
+      "text": "Contact Us FAQS Social Media RSS Feeds"
+    },
+    {
+      "type": "heading",
+      "text": "Links"
+    }
+  ],
+  "links": []
+}
