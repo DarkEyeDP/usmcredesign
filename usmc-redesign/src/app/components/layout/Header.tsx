@@ -40,6 +40,7 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const isDesert = theme === 'desert';
   const items = isLoggedIn ? loggedInItems : loggedOutItems;
   const [zuluTime, setZuluTime] = useState(() => formatZuluTime(new Date()));
 
@@ -124,7 +125,7 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
                           <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${active ? 'text-red-500' : 'text-gray-600'}`} />
                           <span className="text-[12px] font-bold tracking-[0.18em] flex-1">{item.label}</span>
                           {item.badge && (
-                            <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-[9px] font-black tracking-widest text-white">
+                            <span className={`ml-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-widest ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'}`}>
                               {item.badge}
                             </span>
                           )}
@@ -158,7 +159,9 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
 
                     {/* Display mode selector */}
                     <div className="mt-1">
-                      <div className="mb-2 text-[9px] font-mono tracking-[0.28em] text-gray-700">DISPLAY MODE</div>
+                      <div className="mb-2 text-[9px] font-mono tracking-[0.28em] text-gray-700">
+                        DISPLAY MODE: <span className="text-gray-500">{THEMES.find(t => t.id === theme)?.label}</span>
+                      </div>
                       <div className="flex gap-1.5">
                         {THEMES.map(t => (
                           <button

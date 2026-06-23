@@ -71,7 +71,7 @@ function ThemeSidebarToggle({ isExpanded }: { isExpanded: boolean }) {
       >
         <ThemeDot color={current.color} />
         {isExpanded && (
-          <span className="font-mono text-[10px] tracking-[0.22em]">{current.short}</span>
+          <span className="font-mono text-[10px] tracking-[0.22em]">{current.label}</span>
         )}
       </button>
 

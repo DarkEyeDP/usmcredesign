@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { SEOHead } from '@/app/components/SEOHead';
 import {
   createSearchIndex,
@@ -75,6 +76,8 @@ interface MessageFilterState {
 
 export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props) {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const { messageNumber } = useParams();
   const [messages, setMessages]             = useState<RSSMessage[]>([]);
   const [listLoading, setListLoading]       = useState(true);
@@ -1033,7 +1036,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 >
                   {tab}
                   {tab === 'UNREAD' && unreadCount > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                    <span className={`ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'}`}>
                       {unreadCount}
                     </span>
                   )}
@@ -1058,7 +1061,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     >
                       {view.name}
                       {unread > 0 && (
-                        <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                        <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                           {unread}
                         </span>
                       )}
@@ -1108,7 +1111,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               >
                 {tab}
                 {tab === 'UNREAD' && unreadCount > 0 && (
-                  <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                  <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                     {unreadCount}
                   </span>
                 )}
@@ -1133,7 +1136,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   >
                     {view.name}
                     {unread > 0 && (
-                      <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                      <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                         {unread}
                       </span>
                     )}
@@ -1193,7 +1196,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               >
                 {tab}
                 {tab === 'UNREAD' && unreadCount > 0 && (
-                  <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                  <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                     {unreadCount}
                   </span>
                 )}
@@ -1218,7 +1221,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 >
                   {view.name}
                   {unread > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                    <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                       {unread}
                     </span>
                   )}
@@ -1313,7 +1316,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                         <Filter className="w-3 h-3" />
                         FILTER
                         {activeFilterCount > 0 && (
-                          <span className="ml-0.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                          <span className={`ml-0.5 ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none`}>
                             {activeFilterCount}
                           </span>
                         )}
@@ -1611,7 +1614,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               >
                 {tab}
                 {tab === 'UNREAD' && unreadCount > 0 && (
-                  <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                  <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                     {unreadCount}
                   </span>
                 )}
@@ -1636,7 +1639,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 >
                   {view.name}
                   {unread > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded-full">
+                    <span className={`ml-1.5 text-[10px] ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} font-bold px-1.5 py-0.5 rounded-full`}>
                       {unread}
                     </span>
                   )}
