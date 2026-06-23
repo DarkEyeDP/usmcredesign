@@ -1,0 +1,99 @@
+{
+  "fetchedAt": "2026-06-23T02:43:04.730Z",
+  "title": "The unlikely role of Operation Epic Fury in a Mississippi AI data center lawsuit",
+  "pubDate": "2026-06-22T15:08:06.000Z",
+  "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/COZS7VNWUZE4HFDYJBPJXI4LJQ.jpeg",
+  "description": "The lawsuit argues that the data centers are operating illegally and polluting surrounding areas, but the DOJ said they’re needed for national security.",
+  "wordCount": 871,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "A Defense Department official disclosed that U.S. forces used Elon Musk’s Grok AI tool to help deploy “over 2,000 munitions to 2,000 distinct targets” during the first four days of combat operations in Iran."
+    },
+    {
+      "type": "paragraph",
+      "text": "The disclosure offered a glimpse into how generative AI is being used by the military. It came in a court filing supporting the Justice Department’s effort to dismiss a lawsuit targeting a Mississippi power plant, also owned by Musk, that supplies electricity to data centers used to run the AI system."
+    },
+    {
+      "type": "paragraph",
+      "text": "Cameron Stanley, the Defense Department’s chief digital and artificial intelligence officer, made the disclosure in a statement filed in support of the government’s motion. He called the example “a testament to the greatly increased operational efficiency made possible by the Grok Gov Model.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "He added that if the lawsuit succeeds in shutting down the power plant, Grok’s parent company, xAI, would lose capacity to train and develop future versions of the AI tool. “And if xAI is hindered from continuing to improve and upgrade Grok, including the Grok Gov Model, [the Department of Defense’s] ability to meet its national security mission and keep pace with adversaries will be impaired,” Stanley said."
+    },
+    {
+      "type": "paragraph",
+      "text": "Although Stanley did not elaborate on how military operators used Grok during combat missions, he instead described it as a “critical national security” tool."
+    },
+    {
+      "type": "paragraph",
+      "text": "“For example, it is deployed in Maven Smart Systems (MSS) to support vital national security missions, including targeting, intelligence, readiness, and recruitment,” he said."
+    },
+    {
+      "type": "paragraph",
+      "text": "Stanley explained that MSS users process nearly two billion tokens on the Defense Department’s top-secret network each day. Tokens are units used to measure AI processing. “This amount of AI usage is roughly equivalent to 1.5 billion words or up to 6 million pages of text being processed by the technology,” he said."
+    },
+    {
+      "type": "paragraph",
+      "text": "The Justice Department filed Stanley’s statement alongside its motion on June 15. In the filing, government attorneys argued the lawsuit “threatens American national, economic, and energy security by seeking to shut off the power supply for artificial-intelligence innovation that supports the Department of Defense’s military operations.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The lawsuit, filed in April by the NAACP and its Mississippi chapter, alleges that xAI and MZX Tech failed to obtain required permits before installing and operating 27 gas-powered turbines at a facility in Southaven, Mississippi, roughly 13 miles south of Memphis, Tennessee."
+    },
+    {
+      "type": "paragraph",
+      "text": "The facility, known as the Colossus Gas Plant, powers two data centers — Colossus I and Colossus II — used to operate the Grok chatbot. The complaint said xAI also plans to build a third data center closer to the plant."
+    },
+    {
+      "type": "paragraph",
+      "text": "The organizations argued the turbines are operating without adequate pollution controls and are emitting harmful pollutants that pose risks to public health. They say the facility operates near an area with “tens of thousands of people” and has the potential to emit more than 1,700 tons of smog-forming nitrogen oxides."
+    },
+    {
+      "type": "paragraph",
+      "text": "They contend that a Clean Air Act permit would require the plant to use the “best available control technology,” or BACT, to reduce emissions to acceptable levels."
+    },
+    {
+      "type": "paragraph",
+      "text": "“Had Defendants obtained a permit, they would have been held to this standard,” the complaint said. “By simply not applying for — or receiving — a permit, xAI and MZX Tech have avoided subjecting these twenty-seven unpermitted turbines to a BACT determination.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Associate Attorney General Stanley Woodward said the Justice Department intervened because enforcement of federal law falls to the executive branch, not private interest groups. “The Department of Justice is committed to maintaining that constitutional order while protecting national security and promoting American energy and innovation,” he said."
+    },
+    {
+      "type": "paragraph",
+      "text": "Justice Department officials added in a press release that the state of Mississippi is charged with administering the permitting program and decided no permit was required."
+    },
+    {
+      "type": "paragraph",
+      "text": "Adam Gustafson, principal deputy assistant attorney general for the Environment and Natural Resources Division, said the government “will not sit idly by while private organizations use environmental laws to undermine our national security.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "In a statement, officials with Earthjustice and the Southern Environmental Law Center, the legal groups representing the NAACP in the lawsuit, framed the motion as the Trump administration’s attempting to protect wealthy, well-connected companies from being held to account."
+    },
+    {
+      "type": "paragraph",
+      "text": "They noted that instead of disputing xAI’s permit violations and allegations of unlawful polluting, the Justice Department expressed “vague” concerns about national security."
+    },
+    {
+      "type": "paragraph",
+      "text": "“This isn’t about national security,” said Laura Thoms, director of enforcement for Earthjustice. “It’s a desperate attempt to protect wealthy corporations like xAI from obeying our bedrock environmental laws.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Last year, the Defense Department awarded xAI — along with other AI companies — a contract of up to $200 million for developing “agentic AI workflows across a variety of mission areas.” Around that same time, the White House revealed its plan for integrating AI into workflows across the federal government."
+    },
+    {
+      "type": "paragraph",
+      "text": "Kym Meyer, SELC’s litigation director, said the motion contradicts “decades of well-established legal precedent,” and called it “an unprecedented attack on the public’s ability to defend themselves from illegal pollution.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "Daniel Terrill is a contributor to Military Times. He’s been reporting on military issues, the gun industry, and the outdoors for nearly two decades. Although writing is his passion, he’s been a Marine, police officer, and, perhaps the most dangerous job of his career, a substitute teacher."
+    }
+  ],
+  "links": []
+}
