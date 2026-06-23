@@ -386,7 +386,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
       const blob = await generateMARADMINPdf(selectedMsg, detailSections);
       const file = new File([blob], `MARADMIN-${selectedMsg.number}.pdf`, { type: 'application/pdf' });
       const title = `MARADMIN ${selectedMsg.number}`;
-      const text = `${selectedMsg.subject}\n\nView online: ${window.location.origin}/messages/${selectedMsg.number}`;
+      const text = `${selectedMsg.subject}\n\nView online: ${window.location.origin}/messages/${selectedMsg.number.replace('/', '-')}`;
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ title, text, files: [file] });
       } else if (navigator.share) {
@@ -399,7 +399,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
 
   function handleCopyLink() {
     if (!selectedMsg) return;
-    const url = `${window.location.origin}/messages/${selectedMsg.number}`;
+    const url = `${window.location.origin}/messages/${selectedMsg.number.replace('/', '-')}`;
     navigator.clipboard.writeText(url).catch(() => {
       const ta = Object.assign(document.createElement('textarea'), { value: url });
       Object.assign(ta.style, { position: 'fixed', opacity: '0', pointerEvents: 'none' });
