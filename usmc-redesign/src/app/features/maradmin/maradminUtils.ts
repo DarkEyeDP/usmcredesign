@@ -360,90 +360,89 @@ function parseReadInColumnsHint(lines: string[]): { preBody: string; table: Dete
   const nCols     = COLUMN_WORD_MAP[hintMatch[1].toLowerCase()];
   if (!nCols) return null;
 
-  // Text before (and around) the hint becomes the body title for this chunk.
   const preBody = flatLine(
-    [
-      ...lines.slice(0, hintIdx),
-      hintLine.replace(READ_IN_COLUMNS_RE, '').replace(/[:\s]+$/, '').trim(),
-    ]
-      .filter(Boolean)
-      .join(' '),
+    [...lines.slice(0, hintIdx), hintLine.replace(READ_IN_COLUMNS_RE, '').replace(/[:\s]+$/, '').trim()]
+      .filter(Boolean).join(' '),
   );
 
   const afterLines = lines.slice(hintIdx + 1).map(l => l.trim()).filter(Boolean);
-  let tokens: string[];
 
-  if (afterLines.length >= nCols * 2) {
-    // Each subsequent line is one cell — but if they're already columnar (2-space
-    // separated), let detectTablesInLines handle them; we just strip the hint text.
-    if (afterLines.slice(0, 2).every(l => looksTabular(l))) return null;
-
-    // If detectAndMarkTables already marked the first block, hand off to
-    // extractTablesFromBody rather than incorrectly grouping with this hint.
-    if (afterLines[0]?.startsWith(T_START)) return null;
-
-    // When there are far more lines than N*4 cells, each line is almost certainly
-    // a complete table row (not a single cell in newspaper-column format).
-    // Try content-aware per-row splitting, then fall back to a single-column list.
-    if (afterLines.length > nCols * 4) {
-      const firstLine = afterLines[0] ?? '';
-      // A header line has 2+ tokens ending with ":" (e.g. "Monitor: Duty:" or "Location: Date(s): Brief Time")
-      const isHeader  = (firstLine.match(/\S+:/g) ?? []).length >= 2;
-      const dataLines = isHeader ? afterLines.slice(1) : afterLines;
-      if (dataLines.length < 1) return null;
-
-      // Build proper per-column header labels from the header line.
-      const headers: string[] = (() => {
-        if (!isHeader) return [];
-        const words = firstLine.trim().split(/\s+/);
-        const colonIdx: number[] = [];
-        words.forEach((w, i) => { if (w.endsWith(':')) colonIdx.push(i); });
-        if (colonIdx.length >= nCols - 1) {
-          const parts: string[] = [];
-          let prev = 0;
-          for (let k = 0; k < nCols - 1; k++) {
-            parts.push(words.slice(prev, colonIdx[k] + 1).join(' '));
-            prev = colonIdx[k] + 1;
-          }
-          parts.push(words.slice(prev).join(' '));
-          return parts;
-        }
-        return [firstLine]; // fallback: treat whole line as single header
-      })();
-
-      // ── Smart per-row splitting ──────────────────────────────────────────
-      // nCols=3: Location / Date / Brief-Time  (SDA opportunities brief tables)
-      if (nCols === 3) {
-        const dtRe = /^(.+?)\s+(\d{1,2}(?:-\d{1,2})?\s+[A-Za-z]{3}\s+\d{2})\s+(\d{4}(?:\s+and\s+\d{4})?)\s*$/;
-        const parsed = dataLines.map(l => { const m = l.match(dtRe); return m ? [m[1].trim(), m[2].trim(), m[3].trim()] : null; });
-        if (parsed.every(r => r !== null)) {
-          return { preBody, table: { headers, rows: parsed as string[][] } };
-        }
+  // Build column headers from a header line by splitting at colon-terminated tokens.
+  const buildHeaders = (headerLine: string): string[] => {
+    const words = headerLine.trim().split(/\s+/);
+    const colonIdx: number[] = [];
+    words.forEach((w, i) => { if (w.endsWith(':')) colonIdx.push(i); });
+    if (colonIdx.length >= nCols - 1) {
+      const parts: string[] = [];
+      let prev = 0;
+      for (let k = 0; k < nCols - 1; k++) {
+        parts.push(words.slice(prev, colonIdx[k] + 1).join(' '));
+        prev = colonIdx[k] + 1;
       }
-
-      // nCols=2: Monitor (rank+name) / Duty  (monitor duty tables)
-      if (nCols === 2) {
-        const rankRe = /^((?:GySgt|SSgt|SgtMaj|MSgt|1stSgt|Sgt|LCpl|Cpl|PFC|Pvt|Maj|LtCol|Col|Capt|Lt|CWO\d?|WO\d?)\s+\w+)\s+(.+)$/;
-        const parsed = dataLines.map(l => { const m = l.match(rankRe); return m ? [m[1].trim(), m[2].trim()] : ['', l.trim()]; });
-        if (parsed.some(r => r[0] !== '')) {
-          return { preBody, table: { headers, rows: parsed } };
-        }
-      }
-
-      // Fallback: 1-column list — each original line as its own row.
-      return { preBody, table: { headers, rows: dataLines.map(l => [l]) } };
+      parts.push(words.slice(prev).join(' '));
+      return parts;
     }
+    return [headerLine];
+  };
 
+  // Try to split each line into nCols parts using content-aware patterns.
+  const trySmartSplit = (dataLines: string[]): string[][] | null => {
+    const RANK = '(?:GySgt|SSgt|SgtMaj|MSgt|1stSgt|Sgt|LCpl|Cpl|PFC|Pvt|Maj|LtCol|Col|Capt|Lt|CWO\\d?|WO\\d?)';
+    if (nCols === 3) {
+      // Pattern A: Location / Date / Brief-Time (SDA brief tables)
+      const dtRe = /^(.+?)\s+(\d{1,2}(?:-\d{1,2})?\s+[A-Za-z]{3}\s+\d{2})\s+(\d{4}(?:\s+and\s+\d{4})?)\s*$/;
+      const rA = dataLines.map(l => { const m = l.match(dtRe); return m ? [m[1].trim(), m[2].trim(), m[3].trim()] : null; });
+      if (rA.every(r => r !== null)) return rA as string[][];
+      // Pattern B: Rank+Name / E-mail / Phone (monitor contact tables)
+      const epRe = new RegExp(`^(${RANK}\\s+\\w+)\\s+(\\S+@\\S+)\\s+(\\(\\d{3}\\)\\s+\\d{3}-\\d{4})\\s*$`);
+      const rB = dataLines.map(l => { const m = l.match(epRe); return m ? [m[1].trim(), m[2].trim(), m[3].trim()] : null; });
+      if (rB.every(r => r !== null)) return rB as string[][];
+    }
+    if (nCols === 2) {
+      // Pattern C: Rank+Name / Duty (monitor duty tables; empty first col for continuations)
+      const dutyRe = new RegExp(`^(${RANK}\\s+\\w+)\\s+(.+)$`);
+      const rC = dataLines.map(l => { const m = l.match(dutyRe); return m ? [m[1].trim(), m[2].trim()] : ['', l.trim()]; });
+      if (rC.some(r => r[0] !== '')) return rC;
+    }
+    return null;
+  };
+
+  // ── Priority path: header line + data rows → try smart per-row splitting ──
+  const firstLine = afterLines[0] ?? '';
+  const isHeader  = (firstLine.match(/\S+:/g) ?? []).length >= 2;
+  if (isHeader && afterLines.length >= 2) {
+    const dataLines = afterLines.slice(1);
+    const splitRows = trySmartSplit(dataLines);
+    if (splitRows !== null) {
+      return { preBody, table: { headers: buildHeaders(firstLine), rows: splitRows } };
+    }
+  }
+
+  // ── Already columnar (2-space separated): let detectTablesInLines handle ──
+  if (afterLines.length >= nCols * 2 && afterLines.slice(0, 2).every(l => looksTabular(l))) return null;
+
+  // ── detectAndMarkTables already marked the block: hand off to extractTablesFromBody ──
+  if (afterLines[0]?.startsWith(T_START)) return null;
+
+  // ── Newspaper-column grouping: N lines → N cells per row ──────────────────
+  let tokens: string[];
+  if (afterLines.length >= nCols * 2) {
+    // Too many lines for newspaper layout — each line is a complete row.
+    // Fall back to a 1-col list so the content remains readable.
+    if (afterLines.length > nCols * 4) {
+      const hdr = isHeader ? [firstLine] : [];
+      const data = isHeader ? afterLines.slice(1) : afterLines;
+      return { preBody, table: { headers: hdr, rows: data.map(l => [l]) } };
+    }
     tokens = afterLines;
   } else {
     // Data follows the hint inline on the same line, separated by 2+ spaces.
     const afterHint = hintLine.replace(/^.*?\(read in \w+ columns?\)[:\s]*/i, '').trim();
-    const cols      = splitColumnar(afterHint);
+    const cols = splitColumnar(afterHint);
     if (cols.length < nCols * 2) return null;
     tokens = cols;
   }
 
-  // Group tokens nCols at a time into rows.
   const rows: string[][] = [];
   for (let i = 0; i + nCols <= tokens.length; i += nCols) {
     rows.push(tokens.slice(i, i + nCols));
@@ -506,6 +505,12 @@ const SUB_SECTION_PATTERNS: Array<{
   {
     regex: /^\((\d{1,2})\) {0,4}(.*)$/,
     getLabel: match => `(${match[1]})`,
+    getBody: match => match[2],
+  },
+  // Compound section numbers like "4a." (digit + letter + period, no separating period)
+  {
+    regex: /^\d+([a-z])\. {1,4}(.*)$/,
+    getLabel: match => `${match[1].toLowerCase()}.`,
     getBody: match => match[2],
   },
 ];
