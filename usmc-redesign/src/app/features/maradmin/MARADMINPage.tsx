@@ -1662,9 +1662,9 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           </div>{/* end mobile tabs row */}
 
           {/* Detail top bar */}
-          <div className="print-hide relative z-10 flex-shrink-0 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:justify-between md:px-8">
+          <div className="print-hide relative z-10 flex-shrink-0 border-b border-white/12 bg-black/90 px-4 py-3 backdrop-blur-sm md:flex md:items-center md:justify-between md:px-3">
             <div className="flex items-center justify-between gap-3 md:flex-shrink-0">
-              <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex items-center gap-3 md:gap-3">
               <button
                 onClick={() => setMobileView('list')}
                 className="md:hidden flex items-center gap-1 text-[12px] font-mono text-gray-500 hover:text-white transition-colors mr-2"
@@ -1754,7 +1754,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     animate={{ opacity: 1, x: 0 }}
                     exit={(dir: number) => ({ opacity: 0, x: dir > 0 ? 20 : -20 })}
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="maradmin-ribbon-meta mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center md:mt-0 md:flex-1 md:min-w-0 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
+                    className="maradmin-ribbon-meta mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center md:pointer-events-none md:absolute md:left-1/2 md:top-1/2 md:mt-0 md:max-w-[min(56vw,860px)] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-nowrap md:overflow-hidden md:whitespace-nowrap"
                   >
                     {selectedMsg.unread && (
                       <div className="flex items-center gap-1.5 md:flex-shrink-0">
@@ -1788,7 +1788,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 )}
               </AnimatePresence>
 
-            <div className="hidden md:flex md:flex-shrink-0 md:items-center md:gap-3">
+            <div className="hidden md:flex md:flex-shrink-0 md:items-center md:gap-2">
               {/* Share button + dropdown */}
               <div ref={shareRef} className="relative flex items-center">
                 <button

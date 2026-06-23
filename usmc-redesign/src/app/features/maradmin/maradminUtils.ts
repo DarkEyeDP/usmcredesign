@@ -205,8 +205,10 @@ const T_END    = '<<TBLEND>>';
 const T_HEADER = '<<H>>';
 
 function splitColumnar(line: string): string[] {
-  // Split on 2+ spaces OR tabs (HTML table cell separators)
-  return line.trim().split(/\t+|\s{2,}/).map(s => s.trim()).filter(Boolean);
+  // Protect date patterns like "31  Jul 26" or "1   Sep 26" so the double space
+  // within a day+month+year sequence doesn't cause a spurious column split.
+  const protected_ = line.replace(/\b(\d{1,2})\s{2,}([A-Za-z]{3}\s+\d{2})\b/g, '$1 $2');
+  return protected_.trim().split(/\t+|\s{2,}/).map(s => s.trim()).filter(Boolean);
 }
 
 function looksTabular(line: string): boolean {
@@ -221,26 +223,42 @@ function detectAndMarkTables(text: string): string {
 
   while (i < lines.length) {
     if (looksTabular(lines[i])) {
-      const tableLines: string[] = [lines[i]];
+      const tableRows: string[][] = [splitColumnar(lines[i])];
       let j = i + 1;
-      while (j < lines.length && looksTabular(lines[j])) {
-        tableLines.push(lines[j]);
-        j++;
+
+      while (j < lines.length) {
+        if (looksTabular(lines[j])) {
+          tableRows.push(splitColumnar(lines[j]));
+          j++;
+        } else if (
+          /^\s{4,}\S/.test(lines[j]) &&
+          !/^\s+[a-z]\. /i.test(lines[j]) &&   // not a sub-section like "    a. ..."
+          !/^\s+\d+[a-z]?\. /i.test(lines[j])   // not a numbered sub-section
+        ) {
+          // Leading-whitespace line with no indent marker: treat as a table continuation
+          // row where the first column is empty (common in two-column duty/contact tables).
+          const trimmed = lines[j].trim();
+          if (trimmed) { tableRows.push(['', trimmed]); j++; } else break;
+        } else {
+          break;
+        }
       }
 
-      if (tableLines.length >= 2) {
-        const rows = tableLines.map(splitColumnar);
-        const colCounts = rows.map(r => r.length);
+      if (tableRows.length >= 2) {
+        const colCounts = tableRows.map(r => r.length);
         const maxCols = Math.max(...colCounts);
         const minCols = Math.min(...colCounts);
 
         if (maxCols >= 2 && maxCols - minCols <= 1) {
+          // Detect header: either data rows contain digit-starting cells, or all
+          // cells in the first row end with ":" (explicit column-label headers).
           const hasHeader =
-            !rows[0].some(c => /^\d/.test(c)) &&
-            rows.slice(1).some(r => r.some(c => /^\d/.test(c)));
+            (!tableRows[0].some(c => /^\d/.test(c)) &&
+              tableRows.slice(1).some(r => r.some(c => /^\d/.test(c)))) ||
+            tableRows[0].every(c => /\w+:\s*$/.test(c));
 
-          const headerPart = hasHeader ? T_HEADER + rows[0].join(T_COL) + T_ROW : '';
-          const dataRows   = hasHeader ? rows.slice(1) : rows;
+          const headerPart = hasHeader ? T_HEADER + tableRows[0].join(T_COL) + T_ROW : '';
+          const dataRows   = hasHeader ? tableRows.slice(1) : tableRows;
           const dataPart   = dataRows.map(r => r.join(T_COL)).join(T_ROW);
 
           result.push(T_START + headerPart + dataPart + T_END);
@@ -359,6 +377,63 @@ function parseReadInColumnsHint(lines: string[]): { preBody: string; table: Dete
     // Each subsequent line is one cell — but if they're already columnar (2-space
     // separated), let detectTablesInLines handle them; we just strip the hint text.
     if (afterLines.slice(0, 2).every(l => looksTabular(l))) return null;
+
+    // If detectAndMarkTables already marked the first block, hand off to
+    // extractTablesFromBody rather than incorrectly grouping with this hint.
+    if (afterLines[0]?.startsWith(T_START)) return null;
+
+    // When there are far more lines than N*4 cells, each line is almost certainly
+    // a complete table row (not a single cell in newspaper-column format).
+    // Try content-aware per-row splitting, then fall back to a single-column list.
+    if (afterLines.length > nCols * 4) {
+      const firstLine = afterLines[0] ?? '';
+      // A header line has 2+ tokens ending with ":" (e.g. "Monitor: Duty:" or "Location: Date(s): Brief Time")
+      const isHeader  = (firstLine.match(/\S+:/g) ?? []).length >= 2;
+      const dataLines = isHeader ? afterLines.slice(1) : afterLines;
+      if (dataLines.length < 1) return null;
+
+      // Build proper per-column header labels from the header line.
+      const headers: string[] = (() => {
+        if (!isHeader) return [];
+        const words = firstLine.trim().split(/\s+/);
+        const colonIdx: number[] = [];
+        words.forEach((w, i) => { if (w.endsWith(':')) colonIdx.push(i); });
+        if (colonIdx.length >= nCols - 1) {
+          const parts: string[] = [];
+          let prev = 0;
+          for (let k = 0; k < nCols - 1; k++) {
+            parts.push(words.slice(prev, colonIdx[k] + 1).join(' '));
+            prev = colonIdx[k] + 1;
+          }
+          parts.push(words.slice(prev).join(' '));
+          return parts;
+        }
+        return [firstLine]; // fallback: treat whole line as single header
+      })();
+
+      // ── Smart per-row splitting ──────────────────────────────────────────
+      // nCols=3: Location / Date / Brief-Time  (SDA opportunities brief tables)
+      if (nCols === 3) {
+        const dtRe = /^(.+?)\s+(\d{1,2}(?:-\d{1,2})?\s+[A-Za-z]{3}\s+\d{2})\s+(\d{4}(?:\s+and\s+\d{4})?)\s*$/;
+        const parsed = dataLines.map(l => { const m = l.match(dtRe); return m ? [m[1].trim(), m[2].trim(), m[3].trim()] : null; });
+        if (parsed.every(r => r !== null)) {
+          return { preBody, table: { headers, rows: parsed as string[][] } };
+        }
+      }
+
+      // nCols=2: Monitor (rank+name) / Duty  (monitor duty tables)
+      if (nCols === 2) {
+        const rankRe = /^((?:GySgt|SSgt|SgtMaj|MSgt|1stSgt|Sgt|LCpl|Cpl|PFC|Pvt|Maj|LtCol|Col|Capt|Lt|CWO\d?|WO\d?)\s+\w+)\s+(.+)$/;
+        const parsed = dataLines.map(l => { const m = l.match(rankRe); return m ? [m[1].trim(), m[2].trim()] : ['', l.trim()]; });
+        if (parsed.some(r => r[0] !== '')) {
+          return { preBody, table: { headers, rows: parsed } };
+        }
+      }
+
+      // Fallback: 1-column list — each original line as its own row.
+      return { preBody, table: { headers, rows: dataLines.map(l => [l]) } };
+    }
+
     tokens = afterLines;
   } else {
     // Data follows the hint inline on the same line, separated by 2+ spaces.
