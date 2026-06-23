@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Filter, ChevronRight, Printer, Bookmark, Maximize2, Minimize2,
-  ChevronLeft, ChevronDown, ChevronUp, Loader2, Mail, Phone, RefreshCw, Plus, X, Pencil, Share2,
+  ChevronLeft, ChevronDown, ChevronUp, Loader2, Mail, Phone, RefreshCw, Plus, X, Pencil, Share2, Link2, Check,
 } from 'lucide-react';
 import { generateMARADMINPdf, maradminEmailBody } from './maradminPdf';
 import {
@@ -106,6 +106,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
   const [mobileView, setMobileView]         = useState<'list' | 'detail'>('list');
   const [shareOpen, setShareOpen]           = useState(false);
   const [shareGenerating, setShareGenerating] = useState(false);
+  const [linkCopied, setLinkCopied]         = useState(false);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const { metrics: selectedMetrics } = useContentMetrics(getMARADMINMetricsKey(selectedMsg), {
     viewStoragePrefix: 'usmc-maradmin-viewed:',
@@ -394,6 +395,22 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     } finally {
       setShareGenerating(false);
     }
+  }
+
+  function handleCopyLink() {
+    if (!selectedMsg) return;
+    const url = `${window.location.origin}/messages/${selectedMsg.number}`;
+    navigator.clipboard.writeText(url).catch(() => {
+      const ta = Object.assign(document.createElement('textarea'), { value: url });
+      Object.assign(ta.style, { position: 'fixed', opacity: '0', pointerEvents: 'none' });
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch {}
+      document.body.removeChild(ta);
+    });
+    setShareOpen(false);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
   }
 
   function showRefreshNotice(tone: RefreshNotice['tone'], message: string) {
@@ -1696,7 +1713,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   >
                     {shareGenerating
                       ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <Share2 className="w-4 h-4" />
+                      : linkCopied
+                        ? <span className="flex items-center gap-1 text-emerald-600">
+                            <Check className="w-4 h-4" />
+                            <span className="text-[9px] font-mono tracking-widest">COPIED</span>
+                          </span>
+                        : <Share2 className="w-4 h-4" />
                     }
                   </button>
                   <AnimatePresence>
@@ -1708,6 +1730,13 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                         transition={{ duration: 0.12 }}
                         className="absolute right-0 top-7 z-50 w-44 bg-black border border-white/12 shadow-xl py-1"
                       >
+                        <button
+                          onClick={handleCopyLink}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
+                        >
+                          <Link2 className="w-3.5 h-3.5 flex-shrink-0" />
+                          COPY LINK
+                        </button>
                         <button
                           onClick={handleShareEmail}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
@@ -1799,7 +1828,12 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 >
                   {shareGenerating
                     ? <Loader2 className="w-4 h-4 animate-spin" />
-                    : <Share2 className="w-4 h-4" />
+                    : linkCopied
+                      ? <span className="flex items-center gap-1 text-emerald-600">
+                          <Check className="w-4 h-4" />
+                          <span className="text-[9px] font-mono tracking-widest">COPIED</span>
+                        </span>
+                      : <Share2 className="w-4 h-4" />
                   }
                 </button>
                 <AnimatePresence>
@@ -1811,6 +1845,13 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       transition={{ duration: 0.12 }}
                       className="absolute right-0 top-7 z-50 w-44 bg-black border border-white/12 shadow-xl py-1"
                     >
+                      <button
+                        onClick={handleCopyLink}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
+                      >
+                        <Link2 className="w-3.5 h-3.5 flex-shrink-0" />
+                        COPY LINK
+                      </button>
                       <button
                         onClick={handleShareEmail}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
