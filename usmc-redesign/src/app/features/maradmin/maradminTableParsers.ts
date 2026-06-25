@@ -133,6 +133,42 @@ function parseInlinePromotionTable(text: string): ParsedTableFamily | null {
   };
 }
 
+function parsePairedNameMCCTable(text: string): ParsedTableFamily | null {
+  const match = text.match(/^(.*?)\bName\s+MCC\s+Name\s+MCC\s+(.+)$/i);
+  if (!match) return null;
+
+  const body = match[1].trim();
+  const tokens = match[2].trim().split(/\s+/).filter(Boolean);
+  const mccRe = /^[A-Z0-9]{3}$/i;
+  const entries: string[][] = [];
+  let cursor = 0;
+
+  while (cursor < tokens.length) {
+    const mccIdx = tokens.findIndex((token, idx) => idx > cursor && mccRe.test(token));
+    if (mccIdx < 0) break;
+
+    const nameTokens = tokens.slice(cursor, mccIdx);
+    if (nameTokens.length === 0) return null;
+
+    entries.push([nameTokens.join(' '), tokens[mccIdx]]);
+    cursor = mccIdx + 1;
+  }
+
+  if (entries.length < 2) return null;
+
+  const rows = chunkArray(entries, 2).map(pair => [
+    pair[0][0],
+    pair[0][1],
+    pair[1]?.[0] ?? '',
+    pair[1]?.[1] ?? '',
+  ]);
+
+  return {
+    body,
+    tables: [{ headers: ['Name', 'MCC', 'Name', 'MCC'], rows }],
+  };
+}
+
 function parseInlineAttendeeTable(text: string): ParsedTableFamily | null {
   const match = text.match(/^(.*?Read in three columns\.)\s+Name\s+Rank\s+MCC\s+(.+)$/i);
   if (!match) return null;
@@ -1478,6 +1514,7 @@ const TABLE_FAMILY_PARSERS = [
   parseSRBKickerTable,
   parseSRBPMOSBonusTable,
   parseInlinePromotionTable,
+  parsePairedNameMCCTable,
   parseLDOSelecteeTable,
   parseInlineAttendeeTable,
   parseRankNameImosMccTable,

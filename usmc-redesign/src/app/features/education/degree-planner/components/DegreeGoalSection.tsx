@@ -70,7 +70,7 @@ export function DegreeGoalSection({
                 className="w-full border border-white/16 bg-black px-4 py-3 font-mono text-sm text-white placeholder-gray-700 focus:border-red-500/50 focus:outline-none"
               />
               {showSchoolSuggestions && (
-                <div className="absolute left-0 right-0 top-full z-50 border border-white/16 border-t-0 bg-[#0a0a0a] shadow-xl">
+                <div className={`absolute left-0 right-0 top-full z-50 border border-t-0 shadow-xl ${isDesert ? 'border-black/10 bg-[#f0ebe0]' : 'border-white/16 bg-[#0a0a0a]'}`}>
                   {schoolSuggestions.map((s, i) => (
                     <button
                       key={i}
@@ -90,10 +90,10 @@ export function DegreeGoalSection({
                           })));
                         }
                       }}
-                      className="flex w-full items-center justify-between px-4 py-2.5 text-left cursor-pointer hover:bg-white/8 border-b border-white/8 last:border-b-0"
+                      className={`flex w-full cursor-pointer items-center justify-between border-b px-4 py-2.5 text-left last:border-b-0 ${isDesert ? 'border-black/8 hover:bg-black/5' : 'border-white/8 hover:bg-white/8'}`}
                     >
-                      <span className="font-mono text-sm text-white truncate pr-3">{s.name}</span>
-                      <span className="shrink-0 text-xs text-gray-500">{s.city}, {s.state}</span>
+                      <span className={`truncate pr-3 font-mono text-sm ${isDesert ? 'text-gray-900' : 'text-white'}`}>{s.name}</span>
+                      <span className={`shrink-0 text-xs ${isDesert ? 'text-stone-500' : 'text-gray-500'}`}>{s.city}, {s.state}</span>
                     </button>
                   ))}
                 </div>
@@ -124,7 +124,7 @@ export function DegreeGoalSection({
                     )}
                   </div>
                   {schoolDetails.ownership === 3 && (
-                    <p className="text-[11px] leading-snug text-amber-500">
+                    <p className={`text-[11px] leading-snug ${isDesert ? 'text-amber-800' : 'text-amber-500'}`}>
                       ⚠ For-profit institutions may have additional USMC TA eligibility requirements. Verify regional accreditation before enrolling.
                     </p>
                   )}

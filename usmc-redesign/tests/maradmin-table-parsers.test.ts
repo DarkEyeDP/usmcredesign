@@ -26,6 +26,60 @@ test('parses inline promotion tables', () => {
   assert.deepEqual(parsed.tables?.[0].rows[0], ['Victor M. Berg, Jr.', '03May26', '175']);
 });
 
+test('parses paired name MCC meritorious promotion tables', () => {
+  const parsed = parseRecognizedTableFamily(
+    'To Staff Sergeant: Name MCC Name MCC Agustin, J. R6N Akers, J.K. 994 Alvidrez, K.M. 924 Amador, D.A. 041 Boateng Jr, K.A. 952 Bond, L.A. 90E Wells IV, L. 934 Wolf, B.P. 992',
+  );
+
+  assert.ok(parsed);
+  assert.equal(parsed.body, 'To Staff Sergeant:');
+  assert.deepEqual(parsed.tables?.[0].headers, ['Name', 'MCC', 'Name', 'MCC']);
+  assert.deepEqual(parsed.tables?.[0].rows[0], ['Agustin, J.', 'R6N', 'Akers, J.K.', '994']);
+  assert.deepEqual(parsed.tables?.[0].rows[2], ['Boateng Jr, K.A.', '952', 'Bond, L.A.', '90E']);
+  assert.deepEqual(parsed.tables?.[0].rows[3], ['Wells IV, L.', '934', 'Wolf, B.P.', '992']);
+});
+
+test('keeps paired name MCC promotion lists as tables during full MARADMIN parsing', () => {
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/2. Meritorious Promotion List.
+2.a. To Staff Sergeant:
+Name MCC Name MCC
+Agustin, J. R6N Akers, J.K. 994
+Alvidrez, K.M. 924 Amador, D.A. 041
+Boateng Jr, K.A. 952 Bond, L.A. 90E
+Wells IV, L. 934 Wolf, B.P. 992
+2.b. To Gunnery Sergeant:
+Name MCC Name MCC
+Apollon, G.R. 040 Aviles, M.A. 998
+Ba, M. 980 Bail, A.E. KA3
+Payne II, B. 926 Robertson, R.A. 041
+3. Marines who are selected to the ranks of SSgt through SgtMaj/MGySgt must have at least 24-months of obligated service.
+`);
+
+  assert.equal(sections[0].heading, 'Meritorious Promotion List');
+  assert.equal(sections[0].bullets?.[0].body, 'To Staff Sergeant:');
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[1], [
+    'Alvidrez, K.M.',
+    '924',
+    'Amador, D.A.',
+    '041',
+  ]);
+  assert.deepEqual(sections[0].bullets?.[0].tables?.[0].rows[3], [
+    'Wells IV, L.',
+    '934',
+    'Wolf, B.P.',
+    '992',
+  ]);
+  assert.equal(sections[0].bullets?.[1].body, 'To Gunnery Sergeant:');
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[0], ['Apollon, G.R.', '040', 'Aviles, M.A.', '998']);
+  assert.deepEqual(sections[0].bullets?.[1].tables?.[0].rows[2], [
+    'Payne II, B.',
+    '926',
+    'Robertson, R.A.',
+    '041',
+  ]);
+});
+
 test('parses general officer promotion board schedule and zone tables', () => {
   const schedule = parseRecognizedTableFamily(
     'As announced by reference (a), the FY28 U.S. Marine Corps Major General and Brigadier General Promotion Selection Boards will convene at 2008 Elliot Road, Quantico, VA 22134, as follows: Selection To Component Bd.Corr.Due Convening Date MajGen Active 27 Jun 26 08 Jul 26 BGen Active 03 Jul 26 14 Jul 26',
