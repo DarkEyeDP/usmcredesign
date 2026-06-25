@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, ChevronDown, ExternalLink, Clock, AlertTriangle, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
 
-const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
+const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const taTabs = ['OVERVIEW', 'ELIGIBILITY', 'HOW TO APPLY', 'GRADE REQUIREMENTS', 'RECOUPMENT'];
 const inactiveEducationTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
@@ -226,7 +226,11 @@ export function TuitionAssistancePage() {
               return (
                 <button
                   key={tab}
-                  onClick={() => (isActive || isInactive) ? undefined : navigate('/education')}
+                  onClick={() => {
+                    if (isActive || isInactive) return;
+                    if (tab === 'DEGREE PLANNER') navigate('/education/degree-planner');
+                    else navigate('/education');
+                  }}
                   className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
                     isActive
                       ? 'text-white'

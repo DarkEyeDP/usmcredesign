@@ -11,7 +11,7 @@ import commandStaffLogo from '@/app/assets/command-staff-logo.jpeg';
 import ewsLogo from '@/app/assets/ews-logo.jpeg';
 import cdetLogo from '@/app/assets/cdet-logo.jpg';
 
-const tabs = ['OVERVIEW', 'TA EDUCATION', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
+const tabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const inactiveTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
 const pathwaySteps = [
@@ -31,7 +31,7 @@ const topBenefits = [
 ];
 
 const educationTools = [
-  { label: 'Degree Planner', desc: 'Plan your degree and track your progress' },
+  { label: 'Degree Planner', desc: 'Plan your degree and track your progress', internalPath: '/education/degree-planner' },
   { label: 'TA Request (WebTA)', desc: 'Apply for Tuition Assistance online' },
   { label: 'Navy College Program', desc: 'Access courses and manage your education', href: 'https://www.navycollege.navy.mil' },
   { label: 'Joint Services Transcript', desc: 'View and download your official transcript', href: 'https://jst.doded.mil/jst/' },
@@ -200,7 +200,11 @@ export function EducationPage() {
               return (
                 <button
                   key={tab}
-                  onClick={() => tab === 'TA EDUCATION' ? navigate('/education/tuition-assistance') : (isInactive ? undefined : setActiveTab(tab))}
+                  onClick={() => {
+                    if (tab === 'TA EDUCATION') navigate('/education/tuition-assistance');
+                    else if (tab === 'DEGREE PLANNER') navigate('/education/degree-planner');
+                    else if (!isInactive) setActiveTab(tab);
+                  }}
                   className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
                     isActive
                       ? 'text-white'
@@ -303,7 +307,10 @@ export function EducationPage() {
           </div>
           <div className="space-y-0">
             {educationTools.map((t, i) => {
-              const internalPath = t.label === 'TA Request (WebTA)' ? '/education/tuition-assistance' : undefined;
+              const internalPath =
+                t.label === 'TA Request (WebTA)'
+                  ? '/education/tuition-assistance'
+                  : (t as { internalPath?: string }).internalPath ?? undefined;
               const linked = Boolean(internalPath || t.href);
               return (
                 <a

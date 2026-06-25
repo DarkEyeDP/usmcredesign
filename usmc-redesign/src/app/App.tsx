@@ -19,6 +19,7 @@ import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
 import { BAHCalculatorPage } from '@/app/features/pay/BAHCalculatorPage';
 import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
+import { DegreePlannerPage } from '@/app/features/education/DegreePlannerPage';
 import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
@@ -104,6 +105,7 @@ export default function App() {
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
             <Route path="/education" element={<EducationPage />} />
             <Route path="/education/tuition-assistance" element={<TuitionAssistancePage />} />
+            <Route path="/education/degree-planner" element={<DegreePlannerPage />} />
             <Route path="/reading-list" element={<ReadingListPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/sitemap" element={<SiteMapPage />} />

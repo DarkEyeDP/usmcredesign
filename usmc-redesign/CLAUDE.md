@@ -95,6 +95,184 @@ Use aliases for all cross-directory imports. Avoid deep relative paths (`../../.
 
 ---
 
+## Modularization — Always split features into small files
+
+**Every feature must be broken into separate files from the start.** Never build a feature as a single large component file and refactor later.
+
+### Required structure for any non-trivial feature
+
+```
+features/<feature-name>/
+  <FeaturePage>.tsx          — slim orchestrator: holds state, computed values, handlers; renders section components
+  types.ts                   — all TypeScript types and interfaces for this feature
+  constants.ts               — module-level constants (lookup tables, cycles, config values, style strings)
+  storage.ts                 — localStorage key + load/save helpers (if feature persists data)
+  utils.ts                   — pure helper functions (no React, no side effects)
+  components/
+    <SectionA>.tsx           — one component per logical section of the page
+    <SectionB>.tsx
+    <RowComponent>.tsx       — leaf-level repeating items (e.g. a single row in a list)
+    ...
+```
+
+### Rules
+
+1. **Page component is an orchestrator only.** It owns state, computed values (`useMemo`), side effects (`useEffect`), and event handlers. It does NOT contain large JSX blocks — it renders named section components and passes props down.
+
+2. **One responsibility per file.** Types go in `types.ts`. Constants go in `constants.ts`. Pure functions go in `utils.ts`. If a function touches React state it belongs in a component or hook, not `utils.ts`.
+
+3. **Size limit: ~200 lines per file.** If a component file grows past ~200 lines, split it. A component that renders more than one logical "section" of the UI should be two components.
+
+4. **Props over Context by default.** Pass props explicitly. Only reach for React Context if prop drilling crosses more than 2–3 levels and multiple siblings need the same data.
+
+5. **Name files after what they render**, not after their role in the hierarchy. `TermRow.tsx` not `ListItem.tsx`. `TABudgetTracker.tsx` not `Section3Part2.tsx`.
+
+6. **Co-locate feature code.** All files for a feature live inside that feature's folder. Never scatter feature-specific types or helpers into shared `utils/` or `types/` directories unless they are genuinely reused across multiple features.
+
+### When to apply this
+
+- **New feature from scratch:** design the file structure before writing any code.
+- **Existing file approaching 300+ lines:** split it before adding more.
+- **Any time a single file contains types + constants + helpers + components:** that file needs to be split.
+
+### Example: degree-planner (reference implementation)
+
+```
+features/education/
+  DegreePlannerPage.tsx          — ~290 lines, state + computed + handlers only
+  degree-planner/
+    types.ts                     — 8 types/interfaces
+    constants.ts                 — DEGREE_CREDITS, FUNDING_META, GRADE_POINTS, etc.
+    storage.ts                   — STORAGE_KEY + loadSaved()
+    utils.ts                     — genId, fiscalYear, courseTACost, fundingClass, etc.
+    components/
+      NumericInput.tsx           — reusable controlled input with isFocused sync
+      SectionHeader.tsx          — numbered section label
+      DegreeGoalSection.tsx      — school autocomplete + degree/field selectors
+      CreditsEarnedSection.tsx   — JST/transfer/CLEP inputs
+      CoursePlanSection.tsx      — section 3 wrapper
+      TABudgetTracker.tsx        — FY budget cards + uncovered gap card
+      TermRow.tsx                — single term accordion
+      CourseRow.tsx              — single course row
+      SummarySection.tsx         — progress bar + cost breakdown
+```
+
+---
+
+## Theme Compliance — Always design for all three themes
+
+Every new component or page must work correctly in BLACKOUT, WOODLAND, and DESERT. Never design only for the dark themes and fix desert later.
+
+### Checklist for every new component
+
+1. **Check every color class you write.** Standard `bg-black`, `text-white`, `text-gray-*`, `border-white/X` adapt automatically. Everything else needs scrutiny.
+
+2. **Amber/orange elements always need a desert variant.** Amber reads fine on dark backgrounds but becomes hard to see on desert's sandy surface. Always pair with an `isDesert` conditional:
+   ```tsx
+   className={isDesert ? 'text-amber-700 border-amber-600/40 bg-amber-100/60' : 'text-amber-400 border-amber-500/20 bg-amber-950/30'}
+   ```
+
+3. **Red tints need desert variants.** Dark reds (`bg-red-950/40`, `text-red-100`) are invisible on sand. Use:
+   ```tsx
+   isDesert ? 'border-red-700/60 bg-red-900/15 text-red-900' : 'border-red-600 bg-red-950/40 text-white'
+   ```
+
+4. **Framer Motion inline styles need explicit values.** `animate={{ backgroundColor: ... }}` bypasses CSS variables. Always pass theme-conditional values:
+   ```tsx
+   animate={{ backgroundColor: isDesert ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.4)' }}
+   ```
+
+5. **Never hardcode hex backgrounds.** Replace `bg-[#09090c]` with `bg-usmc-bg-surface`, `bg-[#050508]` with `bg-usmc-bg-page`, etc.
+
+6. **Get `isDesert` from the hook, not props.** Each component that needs it should call `useTheme()` directly:
+   ```tsx
+   const { theme } = useTheme();
+   const isDesert = theme === 'desert';
+   ```
+
+7. **After building a new component, mentally walk through desert mode.** Ask: would any text be invisible, any border disappear, any background create a dark box on a sand background? If yes, fix it before committing.
+
+See the **Theming System** section below for the full color reference table and what adapts automatically vs. what requires explicit handling.
+
+---
+
+## Page Hero — Every feature page uses the same header pattern
+
+All feature pages (sub-pages under a top-level nav section) share a consistent hero header. Copy this pattern exactly — do not invent a new layout.
+
+```tsx
+{/* Hero */}
+<div className="relative pt-20 overflow-hidden border-b border-white/12">
+  {/* Background layers */}
+  <div className="absolute inset-0 hero-bg" />
+  <div
+    className="absolute inset-0 opacity-[0.04]"
+    style={{
+      backgroundImage:
+        'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
+      backgroundSize: '40px 40px',
+    }}
+  />
+
+  <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
+    {/* Optional top-right info badge (desktop only) */}
+    <div className="absolute top-5 right-8 border border-white/10 bg-black/50 px-5 py-3 text-right hidden lg:block">
+      <div className="text-[12px] font-black text-white tracking-widest">LABEL HERE<span className="text-red-600">.</span></div>
+      <div className="w-6 h-px bg-red-600 ml-auto mb-2" />
+      <div className="text-[11px] text-gray-500 tracking-wider">SUPPORTING DETAIL</div>
+    </div>
+
+    <div className="flex-1 flex flex-col justify-center px-8 py-6">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
+        <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
+        <ChevronRight className="w-3 h-3" />
+        <button onClick={() => navigate('/parent-route')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">PARENT</button>
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-red-500">CURRENT PAGE</span>
+      </div>
+
+      {/* Title with red left bar */}
+      <div className="flex items-start gap-4">
+        <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
+          className="page-hero-title mb-3"
+        >
+          PAGE TITLE<span className="text-red-600">.</span>
+        </motion.h1>
+      </div>
+
+      {/* Subtitle */}
+      <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
+        Brief description of what this page does.
+      </p>
+    </div>
+
+    {/* Tab bar (if this page has sub-tabs) */}
+    <div className="flex items-center px-8 -mb-px overflow-x-auto">
+      {tabs.map(tab => { /* ... tab buttons ... */ })}
+    </div>
+  </div>
+</div>
+```
+
+### Hero rules
+
+- `pt-20` accounts for the fixed navigation bar height — always include it.
+- `hero-bg` and `hero-fade-bottom` are defined in `globals.css` and adapt per theme automatically.
+- The grid overlay uses `var(--usmc-grid-color)` — never hardcode a color here.
+- The red left bar (`w-1 bg-red-600`) is part of the title treatment — always include it when there's an `h1`.
+- `page-hero-title` is a global CSS class — use it for all page `h1` elements; do not replicate its styles inline.
+- Breadcrumb buttons use `bg-transparent p-0 border-0` to avoid browser default button styling.
+- The last breadcrumb segment (current page) is always `text-red-500` and is a `<span>`, not a `<button>`.
+- The top-right badge is `hidden lg:block` — desktop only, always optional.
+- If the page has tabs, they sit at the bottom of the hero div touching the `border-b` line (the `-mb-px` pattern).
+
+---
+
 ## Tech Stack
 
 - **Framework:** Vite + React 19 + TypeScript
