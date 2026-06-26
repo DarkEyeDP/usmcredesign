@@ -29,14 +29,18 @@ export function TABudgetTracker({
 }: TABudgetTrackerProps) {
   return (
     <div className="border-b border-white/10 px-6 py-4">
-      <div className="mb-3 flex items-center gap-2">
-        <DollarSign className="h-3.5 w-3.5 text-red-500" />
-        <span className="text-[11px] font-bold tracking-widest text-gray-400">TA BUDGET TRACKER</span>
-        <span className="text-[10px] text-gray-600">— grouped by fiscal year (Oct 1 – Sep 30)</span>
+      <div className="mb-3 flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-3.5 w-3.5 text-red-500" />
+            <span className="text-[11px] font-bold tracking-widest text-gray-400">TA BUDGET TRACKER</span>
+          </div>
+          <p className="mt-0.5 pl-[22px] text-[10px] text-gray-600">grouped by fiscal year (Oct 1 – Sep 30)</p>
+        </div>
         <button
           type="button"
           onClick={() => { setShowBulkCostEditor(v => !v); setBulkCostRaw(''); }}
-          className="ml-auto cursor-pointer text-[10px] font-bold tracking-wider text-gray-600 transition-colors hover:text-gray-300"
+          className="flex-shrink-0 cursor-pointer text-[10px] font-bold tracking-wider text-gray-600 transition-colors hover:text-gray-300"
         >
           {showBulkCostEditor ? 'CANCEL' : 'SET ALL COSTS'}
         </button>

@@ -498,12 +498,13 @@ const SUB_SECTION_PATTERNS: Array<{
     getBody: match => match[2],
   },
   {
-    regex: /^\(([a-z])\) {0,4}(.*)$/,
+    // Require whitespace and body text so wrapped references like "(d)." stay in the paragraph.
+    regex: /^\(([a-z])\) {1,4}(.+)$/,
     getLabel: match => `(${match[1].toLowerCase()})`,
     getBody: match => match[2],
   },
   {
-    regex: /^\((\d{1,2})\) {0,4}(.*)$/,
+    regex: /^\((\d{1,2})\) {1,4}(.+)$/,
     getLabel: match => `(${match[1]})`,
     getBody: match => match[2],
   },

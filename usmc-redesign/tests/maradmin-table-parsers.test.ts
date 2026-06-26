@@ -264,6 +264,22 @@ a. Resident Full-Length Schools (FLS) are approximately 10-months in duration.
   assert.equal(cnw?.children?.[0].body, 'Newport, RI');
 });
 
+test('keeps wrapped reference citations inside paragraph text', () => {
+  const sections = parseMARADMINText(`
+GENTEXT/REMARKS/4. MOS Title. MOS 8899, Career Doctor of Philosophy, Technical (PHDP-T) (I) (LtCol to Col) PMOS, DC CD&I.
+4.a. Summary. Marine Corps Career Technical PhD Officers are both Marine Officers with associated occupational skills and operational experience as well as researchers with the associated knowledge in their discipline and dissertation-specific expertise. They have further proven their ability to apply their doctoral expertise to the Service's hardest challenges during their initial dynamic employment utilization tour as Technical PhD Officers per reference
+(d).
+4.b. Prerequisites. Officers must meet the criteria.
+`);
+
+  const summary = sections[0].bullets?.[0];
+
+  assert.equal(summary?.label, 'a.');
+  assert.match(summary?.body ?? '', /per reference \(d\)\./);
+  assert.equal(summary?.children, undefined);
+  assert.equal(sections[0].bullets?.[1].label, 'b.');
+});
+
 test('parses command MCC tentative report date billet slate tables in sections and subsections', () => {
   const parsed = parseRecognizedTableFamily(
     'Force Level. COMMAND MCC TENTATIVE REPORT DATE M&RA Q55 SEP 2027 III MEF 1C1 SEP 2027 I MEF Q21 DEC 2027 CD&I 007 SEP 2027 MARCENT 1U8 SEP 2027',

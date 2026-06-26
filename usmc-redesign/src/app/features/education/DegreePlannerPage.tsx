@@ -506,22 +506,26 @@ export function DegreePlannerPage() {
         </motion.div>
 
         {/* ── Actions ── */}
-        <div className="flex items-center justify-between pb-2">
+        <div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
           <button
             onClick={handleExportPdf}
             disabled={isPdfExporting}
-            className={`flex cursor-pointer items-center gap-2 border px-4 py-2 text-[11px] font-bold tracking-wider transition-colors ${
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-56 disabled:opacity-50 ${
               isDesert
-                ? 'border-red-700 bg-red-700 text-red-50 hover:bg-red-800 disabled:opacity-50'
-                : 'border-red-600 bg-red-950/40 text-white hover:bg-red-600 disabled:opacity-50'
+                ? 'border-red-700 bg-red-700 text-red-50 hover:bg-red-800'
+                : 'border-red-600 bg-red-950/40 text-white hover:bg-red-600'
             }`}
           >
-            <Download className="h-3 w-3" />
+            <Download className="h-3.5 w-3.5" />
             {isPdfExporting ? 'GENERATING...' : 'EXPORT PDF'}
           </button>
           <button
             onClick={resetPlan}
-            className="cursor-pointer text-[11px] tracking-wider text-gray-700 transition-colors hover:text-red-500"
+            className={`w-full cursor-pointer border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-40 ${
+              isDesert
+                ? 'border-black/15 text-gray-600 hover:border-red-700/50 hover:text-red-700'
+                : 'border-white/10 text-gray-600 hover:border-red-500/40 hover:text-red-500'
+            }`}
           >
             RESET PLAN
           </button>

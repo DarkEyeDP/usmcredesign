@@ -79,12 +79,12 @@ export default function App() {
         </div>
       )}
       <motion.div
-        className="flex flex-col min-h-screen"
+        className="flex flex-col md:min-h-screen"
         initial={false}
         animate={{ marginLeft: isMobile || isFullscreen ? 0 : (isSidebarExpanded ? 192 : 80) }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        <div className="flex-1 pb-[72px] md:pb-0">
+        <div className="md:flex-1 pb-[72px] md:pb-0">
           <Routes>
             <Route path="/" element={<HomePage isFullscreen={isFullscreen} onToggleFullscreen={() => setIsFullscreen(f => !f)} />} />
             <Route path="/messages" element={

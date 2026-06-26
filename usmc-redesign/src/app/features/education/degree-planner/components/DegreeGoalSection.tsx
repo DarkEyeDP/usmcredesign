@@ -161,21 +161,21 @@ export function DegreeGoalSection({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + levelIdx * 0.07, duration: 0.3 }}
                   onClick={() => { setDegreeLevel(level); setCustomCredits(null); }}
-                  className={`cursor-pointer border px-4 py-5 text-left transition-colors ${
+                  className={`cursor-pointer border px-2 py-3 text-left transition-colors md:px-4 md:py-5 ${
                     selected
                       ? isDesert ? 'border-red-700/60 bg-red-900/15 text-red-900' : 'border-red-600 bg-red-950/40 text-white'
                       : 'border-white/16 bg-black text-gray-400 hover:border-white/30 hover:text-white'
                   }`}
                 >
-                  <div className="mb-3 text-sm font-bold tracking-wider">
+                  <div className="mb-2 min-h-[2.25rem] text-[10px] font-bold tracking-wide md:mb-3 md:min-h-0 md:text-sm md:tracking-wider">
                     {level === 'associates' ? "ASSOCIATE'S" : level === 'bachelors' ? "BACHELOR'S" : "MASTER'S"}
                   </div>
-                  <div className={`text-4xl font-black leading-none ${selected ? (isDesert ? 'text-red-800' : 'text-red-400') : 'text-gray-600'}`}>
+                  <div className={`text-2xl font-black leading-none md:text-4xl ${selected ? (isDesert ? 'text-red-800' : 'text-red-400') : 'text-gray-600'}`}>
                     {DEGREE_CREDITS[level]}
-                    <span className="ml-1.5 text-base font-bold">SH</span>
+                    <span className="ml-1 text-sm font-bold md:ml-1.5 md:text-base">SH</span>
                   </div>
                   {level === 'masters' && (
-                    <div className="mt-3 text-[10px] text-gray-600">grad coursework only</div>
+                    <div className="mt-2 text-[9px] text-gray-600 md:mt-3 md:text-[10px]">grad coursework only</div>
                   )}
                 </motion.button>
               );
