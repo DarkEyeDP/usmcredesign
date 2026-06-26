@@ -407,6 +407,51 @@ function parseReadInColumnsHint(lines: string[]): { preBody: string; table: Dete
     return null;
   };
 
+  // ── 4-column location/date/agency/note schedule tables ─────────────────────
+  // The header "Location  Date/s  Responsible Agency  Note" has no colon tokens
+  // so the isHeader check below would miss it. Detect by matching data row pattern.
+  if (nCols === 4 && afterLines.length >= 3) {
+    const schedRe = /^(.+?)\s+(\d{1,2}(?:-\d{1,2})?\s+[A-Za-z]{3})\s+(.+?)\s+([1-9][AB])\s*$/;
+    const firstMatchIdx = afterLines.findIndex(l => schedRe.test(l));
+    // 0 = first line is already data (no separate header); 1 = afterLines[0] is the header
+    if (firstMatchIdx >= 0 && firstMatchIdx <= 1) {
+      const dataRows: string[][] = [];
+      let footerStart = afterLines.length;
+      for (let i = firstMatchIdx; i < afterLines.length; i++) {
+        const m = afterLines[i].match(schedRe);
+        if (m) {
+          dataRows.push([m[1].trim(), m[2].trim(), m[3].trim(), m[4].trim()]);
+        } else {
+          footerStart = i;
+          break;
+        }
+      }
+      if (dataRows.length >= 2) {
+        const headerLine = firstMatchIdx === 1 ? afterLines[0] : '';
+        const headers = (() => {
+          if (!headerLine) return [];
+          const cols = splitColumnar(headerLine);
+          if (cols.length === 4) return cols;
+          // After whitespace normalization "Responsible Agency" has a single space,
+          // yielding 5 tokens: [Loc, Date, Responsible, Agency, Note].
+          // Merge middle two words when the last token is "Note" and second is "Date…".
+          const words = headerLine.trim().split(/\s+/);
+          if (words.length === 5 && /^note$/i.test(words[4]) && /^date/i.test(words[1])) {
+            return [words[0], words[1], `${words[2]} ${words[3]}`, words[4]];
+          }
+          return cols.length >= 2 ? cols : [headerLine];
+        })();
+        const footerText = footerStart < afterLines.length
+          ? flatLine(afterLines.slice(footerStart).join(' '))
+          : '';
+        return {
+          preBody: [preBody, footerText].filter(Boolean).join(' ').trim(),
+          table: { headers, rows: dataRows },
+        };
+      }
+    }
+  }
+
   // ── Priority path: header line + data rows → try smart per-row splitting ──
   const firstLine = afterLines[0] ?? '';
   const isHeader  = (firstLine.match(/\S+:/g) ?? []).length >= 2;
@@ -652,8 +697,13 @@ export function parseMARADMINText(rawInput: string): ContentSection[] {
   }
   const rawBody = bodyStart >= 0 ? raw.slice(bodyStart).trim() : raw;
   // Strip from the final "//" — the end-of-message marker — and any website footer that follows.
-  const lastSlash = rawBody.lastIndexOf('//');
-  const body = lastSlash >= 0 ? rawBody.slice(0, lastSlash).trim() : rawBody;
+  // Skip "//" that is part of a URL (preceded by ":"), e.g. "https://...". Work backwards
+  // from the end so that URLs in the body don't shadow the real terminal marker.
+  let lastSlash = rawBody.lastIndexOf('//');
+  while (lastSlash > 0 && rawBody[lastSlash - 1] === ':') {
+    lastSlash = rawBody.lastIndexOf('//', lastSlash - 1);
+  }
+  const body = lastSlash > 0 ? rawBody.slice(0, lastSlash).trim() : rawBody;
 
   // Match numbered top-level paragraphs.
   // Real MARADMINs use TWO spaces after the period: "1.  Purpose." or "1.  This MARADMIN..."
