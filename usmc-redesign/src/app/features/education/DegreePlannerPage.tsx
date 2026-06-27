@@ -16,6 +16,7 @@ import { DegreeGoalSection } from './degree-planner/components/DegreeGoalSection
 import { CreditsEarnedSection } from './degree-planner/components/CreditsEarnedSection';
 import { CoursePlanSection } from './degree-planner/components/CoursePlanSection';
 import { SummarySection } from './degree-planner/components/SummarySection';
+import { DegreePlannerFAQ } from './degree-planner/components/DegreePlannerFAQ';
 
 const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const inactiveEducationTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
@@ -313,8 +314,71 @@ export function DegreePlannerPage() {
   return (
     <>
       <SEOHead
-        title="Degree Planner | USMC Education"
-        description="Plan your Marine Corps degree term by term — track JST credits, map courses, and see how Tuition Assistance covers your path to graduation."
+        title="USMC Degree Planner | Free Education Planning Tool for Marines"
+        description="Plan your degree with USMC Tuition Assistance. Track JST credits, map TA-funded courses term by term, and monitor your $4,500 annual TA budget. Free for active-duty Marines."
+        keywords="USMC tuition assistance, Marine Corps degree planner, military education planning, TA degree tracker, USMC JST credits, Marine Corps college degree, active duty education benefits, TA annual limit Marines"
+        path="/education/degree-planner"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'USMC Degree Planner',
+            url: 'https://stay-marine.com/education/degree-planner',
+            description: 'Free interactive degree planning tool for active-duty Marines. Plan your associate, bachelor\'s, or master\'s degree using USMC Tuition Assistance, track JST credits, map courses by term, and monitor the $250/credit and $4,500/year TA budget.',
+            applicationCategory: 'EducationApplication',
+            operatingSystem: 'Web',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+            featureList: [
+              'Track JST, transfer, and CLEP credits',
+              'Plan courses by term (Fall, Spring, Summer)',
+              'Monitor $250/credit-hour and $4,500/year USMC TA limits',
+              'Export degree plan as PDF',
+              'Search accredited universities by name',
+            ],
+            provider: { '@type': 'Organization', name: 'Stay Marine', url: 'https://stay-marine.com' },
+            audience: { '@type': 'Audience', audienceType: 'Active-duty United States Marines' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://stay-marine.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Education', item: 'https://stay-marine.com/education' },
+              { '@type': 'ListItem', position: 3, name: 'Degree Planner', item: 'https://stay-marine.com/education/degree-planner' },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'How much does USMC Tuition Assistance pay per credit?',
+                acceptedAnswer: { '@type': 'Answer', text: 'USMC Tuition Assistance (TA) covers up to $250 per semester hour and up to $4,500 per fiscal year (October 1 – September 30). Any tuition above these caps must be covered by other sources such as the Post-9/11 GI Bill, FAFSA, or scholarships. The Degree Planner tracks both limits automatically.' },
+              },
+              {
+                '@type': 'Question',
+                name: 'What are JST credits and do colleges accept them?',
+                acceptedAnswer: { '@type': 'Answer', text: 'The Joint Services Transcript (JST) translates military training and experience into college-level credit recommendations. Most accredited universities accept JST credits toward general education requirements or electives, reducing the number of paid courses needed.' },
+              },
+              {
+                '@type': 'Question',
+                name: 'How many credits do I need to earn a degree?',
+                acceptedAnswer: { '@type': 'Answer', text: "An Associate degree typically requires 60 semester hours; a Bachelor's degree requires 120 semester hours; a Master's degree typically requires 30–36 semester hours beyond a bachelor's. The USMC Degree Planner adjusts your target automatically based on your selected degree level." },
+              },
+              {
+                '@type': 'Question',
+                name: 'Can I use Tuition Assistance and the GI Bill together?',
+                acceptedAnswer: { '@type': 'Answer', text: 'TA and the Post-9/11 GI Bill cannot pay for the same course costs at the same time, but they complement each other. If tuition exceeds the TA cap ($250/SH or $4,500/year), GI Bill benefits may cover the gap. Most Marines use TA on active duty and transition to the GI Bill after EAS.' },
+              },
+              {
+                '@type': 'Question',
+                name: 'Does Tuition Assistance cover online and distance learning programs?',
+                acceptedAnswer: { '@type': 'Answer', text: 'Yes. USMC Tuition Assistance covers tuition at accredited institutions regardless of delivery method, including fully online programs. The school and program must be approved through Marine Online (MOL) before classes begin.' },
+              },
+            ],
+          },
+        ]}
       />
 
       {/* ── Hero header ── */}
@@ -347,7 +411,7 @@ export function DegreePlannerPage() {
               DEGREE PLANNER<span className="text-red-600">.</span>
             </motion.h1>
             <p className="mb-3 max-w-xl text-[14px] leading-relaxed text-gray-400">
-              Map your path to graduation — set your goal, enter credits already earned, then plan courses term by term.
+              Plan your associate, bachelor's, or master's degree using USMC Tuition Assistance. Track JST credits, map TA-funded courses term by term, and monitor your $4,500 annual TA budget.
             </p>
           </div>
 
@@ -466,6 +530,35 @@ export function DegreePlannerPage() {
           resetPlan={resetPlan}
         />
 
+        {/* ── Actions ── */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            onClick={handleExportPdf}
+            disabled={isPdfExporting}
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-56 disabled:opacity-50 ${
+              isDesert
+                ? 'border-red-700 bg-red-700 text-red-50 hover:bg-red-800'
+                : 'border-red-600 bg-red-950/40 text-white hover:bg-red-600'
+            }`}
+          >
+            <Download className="h-3.5 w-3.5" />
+            {isPdfExporting ? 'GENERATING...' : 'EXPORT PDF'}
+          </button>
+          <button
+            onClick={resetPlan}
+            className={`w-full cursor-pointer border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-40 ${
+              isDesert
+                ? 'border-black/15 text-gray-600 hover:border-red-700/50 hover:text-red-700'
+                : 'border-white/10 text-gray-600 hover:border-red-500/40 hover:text-red-500'
+            }`}
+          >
+            RESET PLAN
+          </button>
+        </div>
+
+        {/* ── FAQ ── */}
+        <DegreePlannerFAQ />
+
         {/* ── Resources ── */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -504,32 +597,6 @@ export function DegreePlannerPage() {
             ))}
           </div>
         </motion.div>
-
-        {/* ── Actions ── */}
-        <div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            onClick={handleExportPdf}
-            disabled={isPdfExporting}
-            className={`flex w-full cursor-pointer items-center justify-center gap-2 border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-56 disabled:opacity-50 ${
-              isDesert
-                ? 'border-red-700 bg-red-700 text-red-50 hover:bg-red-800'
-                : 'border-red-600 bg-red-950/40 text-white hover:bg-red-600'
-            }`}
-          >
-            <Download className="h-3.5 w-3.5" />
-            {isPdfExporting ? 'GENERATING...' : 'EXPORT PDF'}
-          </button>
-          <button
-            onClick={resetPlan}
-            className={`w-full cursor-pointer border py-3 text-[11px] font-bold tracking-wider transition-colors sm:w-40 ${
-              isDesert
-                ? 'border-black/15 text-gray-600 hover:border-red-700/50 hover:text-red-700'
-                : 'border-white/10 text-gray-600 hover:border-red-500/40 hover:text-red-500'
-            }`}
-          >
-            RESET PLAN
-          </button>
-        </div>
 
       </div>
     </>
