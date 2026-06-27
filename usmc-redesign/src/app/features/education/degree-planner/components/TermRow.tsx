@@ -54,48 +54,66 @@ export function TermRow({
       transition={{ duration: 0.22 }}
     >
       {/* Term header row */}
-      <div className="group flex items-center gap-2 px-6 py-3 transition-colors hover:bg-white/[0.03]">
-        <button
-          type="button"
-          onClick={() => toggleTerm(term.id)}
-          className="flex flex-1 cursor-pointer items-center gap-3 text-left"
-        >
-          <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center border border-white/20 text-[10px] font-bold text-gray-500 transition-colors group-hover:border-white/35 group-hover:text-gray-400">
-            {String(termIdx + 1).padStart(2, '0')}
-          </div>
-          <span className="text-sm font-bold text-white">{term.season} {term.year}</span>
-          <span className="text-[11px] text-gray-600">{termCredits} SH</span>
-          {fyOver && (
-            <span className={`border px-1.5 py-0.5 text-[10px] font-bold ${isDesert ? 'border-amber-700/50 text-amber-900' : 'border-amber-500/30 text-amber-400'}`}>
-              FY OVER LIMIT
-            </span>
-          )}
-          <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-600 transition-[transform,color] group-hover:text-gray-400 ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
-        <div className="flex items-center gap-2">
-          <select
-            value={term.season}
-            onChange={e => setTerms(prev => prev.map(t => t.id === term.id ? { ...t, season: e.target.value as typeof term.season } : t))}
-            className="appearance-none border border-white/16 bg-black px-2 py-1.5 font-mono text-[11px] text-gray-300 focus:border-red-500/50 focus:outline-none"
-          >
-            {SEASONS.map(s => <option key={s}>{s}</option>)}
-          </select>
-          <select
-            value={term.year}
-            onChange={e => setTerms(prev => prev.map(t => t.id === term.id ? { ...t, year: Number(e.target.value) } : t))}
-            className="appearance-none border border-white/16 bg-black px-2 py-1.5 font-mono text-[11px] text-gray-300 focus:border-red-500/50 focus:outline-none"
-          >
-            {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i - 1).map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-          <button
-            onClick={() => removeTerm(term.id)}
-            className="flex h-7 w-7 cursor-pointer items-center justify-center border border-white/10 text-gray-600 transition-colors hover:border-red-500/40 hover:text-red-500"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+      <div
+        className="group flex cursor-pointer items-center gap-2 px-6 py-3 transition-colors hover:bg-white/[0.03]"
+        onClick={() => toggleTerm(term.id)}
+      >
+        {/* Index badge */}
+        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center border border-white/20 text-[10px] font-bold text-gray-500 transition-colors group-hover:border-white/35 group-hover:text-gray-400">
+          {String(termIdx + 1).padStart(2, '0')}
         </div>
+
+        {/* Inline season select — ch units match exact character count in monospace */}
+        <select
+          value={term.season}
+          onChange={e => setTerms(prev => prev.map(t => t.id === term.id ? { ...t, season: e.target.value as typeof term.season } : t))}
+          onClick={e => e.stopPropagation()}
+          onMouseDown={e => e.stopPropagation()}
+          title="Click to change season"
+          className={`appearance-none cursor-pointer border-b border-transparent bg-transparent p-0 font-mono text-sm font-bold transition-colors focus:outline-none hover:border-white/30 focus:border-red-500/60 ${isDesert ? 'text-gray-900' : 'text-white'}`}
+          style={{ width: `${term.season.length}ch` }}
+        >
+          {SEASONS.map(s => <option key={s} value={s} className={isDesert ? 'bg-[#f0ebe0]' : 'bg-black'}>{s}</option>)}
+        </select>
+
+        {/* Inline year select */}
+        <select
+          value={term.year}
+          onChange={e => setTerms(prev => prev.map(t => t.id === term.id ? { ...t, year: Number(e.target.value) } : t))}
+          onClick={e => e.stopPropagation()}
+          onMouseDown={e => e.stopPropagation()}
+          title="Click to change year"
+          className={`appearance-none cursor-pointer border-b border-transparent bg-transparent p-0 font-mono text-sm font-bold transition-colors focus:outline-none hover:border-white/30 focus:border-red-500/60 ${isDesert ? 'text-gray-900' : 'text-white'}`}
+          style={{ width: '4ch' }}
+        >
+          {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i - 1).map(y => (
+            <option key={y} value={y} className={isDesert ? 'bg-[#f0ebe0]' : 'bg-black'}>{y}</option>
+          ))}
+        </select>
+
+        {/* Edit hint */}
+        <span className={`text-[9px] italic ${isDesert ? 'text-stone-400' : 'text-gray-600'}`}>
+          — click to edit
+        </span>
+
+        {/* Credits + FY over-limit badge */}
+        <span className="text-[11px] text-gray-600">{termCredits} SH</span>
+        {fyOver && (
+          <span className={`border px-1.5 py-0.5 text-[10px] font-bold ${isDesert ? 'border-amber-700/50 text-amber-900' : 'border-amber-500/30 text-amber-400'}`}>
+            FY OVER LIMIT
+          </span>
+        )}
+
+        {/* Chevron — pushed right */}
+        <ChevronDown className={`ml-auto h-4 w-4 flex-shrink-0 text-gray-600 transition-[transform,color] group-hover:text-gray-400 ${isOpen ? 'rotate-180' : ''}`} />
+
+        {/* Trash — destructive, kept far right and separated */}
+        <button
+          onClick={e => { e.stopPropagation(); removeTerm(term.id); }}
+          className="flex h-7 w-7 cursor-pointer items-center justify-center border border-white/10 text-gray-600 transition-colors hover:border-red-500/40 hover:text-red-500"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
 
       {/* Expandable course rows */}

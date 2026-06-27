@@ -617,11 +617,11 @@ export function ReadingListPage() {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 flex flex-col" style={{ minHeight: '220px' }}>
-          <div className="absolute right-8 top-5 hidden border border-white/10 bg-black/50 px-5 py-4 text-right lg:block">
-            <div className="text-xs font-black tracking-widest text-white">BUILD YOUR NEXT STACK</div>
+          <div className="absolute right-8 top-5 hidden border border-white/10 px-5 py-4 text-right lg:block" style={{ background: 'rgba(0,0,0,0.50)' }}>
+            <div className="text-xs font-black tracking-widest" style={{ color: '#ffffff' }}>BUILD YOUR NEXT STACK</div>
             <div className="my-2 ml-auto h-0.5 w-8 bg-red-600" />
-            <div className="text-[11px] tracking-[0.2em] text-gray-500">{totalTitles} TITLES</div>
-            <div className="text-[11px] tracking-[0.2em] text-gray-500">BOOKS + PDFs</div>
+            <div className="text-[11px] tracking-[0.2em]" style={{ color: '#9ca3af' }}>{totalTitles} TITLES</div>
+            <div className="text-[11px] tracking-[0.2em]" style={{ color: '#9ca3af' }}>BOOKS + PDFs</div>
           </div>
 
           <div className="flex flex-1 flex-col justify-center px-4 py-6 sm:px-8">
@@ -629,7 +629,7 @@ export function ReadingListPage() {
               <button onClick={() => navigate('/')} className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">HOME</button>
               <ChevronRight className="h-3 w-3" />
               <span className="text-red-500">READING LIST</span>
-              <span className="border border-red-500 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em] text-white">2026</span>
+              <span className="border border-red-500 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em]" style={{ color: '#ffffff' }}>2026</span>
             </div>
             <div className="flex min-w-0 items-start gap-4">
               <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
@@ -638,6 +638,7 @@ export function ReadingListPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
                 className="page-hero-title mb-3 min-w-0"
+                style={{ color: '#ffffff' }}
               >
                 COMMANDANT&apos;S<br />READING LIST<span className="text-red-600">.</span>
               </motion.h1>
