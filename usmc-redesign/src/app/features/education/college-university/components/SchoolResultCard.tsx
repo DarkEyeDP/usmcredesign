@@ -51,7 +51,7 @@ export function SchoolResultCard({
                 </span>
               )}
               {isOOS && (
-                <span className="text-[9px] font-bold tracking-wider border border-amber-500/30 px-1.5 py-0.5 text-amber-500/70">
+                <span className={`text-[9px] font-bold tracking-wider border px-1.5 py-0.5 ${isDesert ? 'border-amber-600/40 text-amber-800' : 'border-amber-500/30 text-amber-500/70'}`}>
                   OUT-OF-STATE
                 </span>
               )}

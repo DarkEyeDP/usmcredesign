@@ -516,7 +516,7 @@ export function PayBenefitsPage() {
                 BAS: <span className="font-bold text-white">{includeBas ? formatCurrency(basRates[payCategory]) : 'Not included'}</span>
               </div>
               {monthlyBasicPay === null && nextAvailableBracket && (
-                <p className="text-xs text-amber-400 leading-relaxed mt-2">
+                <p className={`text-xs leading-relaxed mt-2 ${isDesert ? 'text-amber-700' : 'text-amber-400'}`}>
                   This grade begins paying at the {nextAvailableBracket.label.toLowerCase()} bracket.
                 </p>
               )}
@@ -571,7 +571,7 @@ export function PayBenefitsPage() {
             <div className="border-t border-white/12 pt-4">
               <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-2">DFAS MYPAY LOGIN</div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl font-black text-green-400" style={{ fontStyle: 'italic' }}>MyPay</span>
+                <span className={`text-xl font-black ${isDesert ? 'text-green-700' : 'text-green-400'}`} style={{ fontStyle: 'italic' }}>MyPay</span>
               </div>
               <p className="text-[13px] text-gray-500 leading-relaxed mb-3">Access your LES, W-2, and pay information.</p>
               <a
@@ -1021,7 +1021,7 @@ export function PayBenefitsPage() {
             )}
 
             {monthlyBasicPay === null && nextAvailableBracket && (
-              <p className="mt-4 text-sm text-amber-400">
+              <p className={`mt-4 text-sm ${isDesert ? 'text-amber-700' : 'text-amber-400'}`}>
                 No chart value is listed for this combination yet. The next available rate for {payRank} starts at {nextAvailableBracket.label.toLowerCase()} years of service.
               </p>
             )}

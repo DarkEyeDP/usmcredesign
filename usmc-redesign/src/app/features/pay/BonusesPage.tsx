@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
@@ -132,6 +133,9 @@ const inputClass =
 
 export function BonusesPage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
+  const greenText = isDesert ? 'text-green-700' : 'text-green-400';
   const [values, setValues] = useState<SrbpFormValues>(() => readStoredValues());
   const [resultState, setResultState] = useState<SrbpCalculationState>({ status: 'idle' });
   const [nmosOpen, setNmosOpen] = useState(false);
@@ -593,7 +597,7 @@ export function BonusesPage() {
               {/* Headline body */}
               <div className="border-b border-white/10 px-5 py-5">
                 <div className="flex items-baseline gap-3">
-                  <div className={`text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter ${result ? 'text-green-400' : 'text-white/20'}`}>
+                  <div className={`text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter ${result ? greenText : 'text-white/20'}`}>
                     {result ? formatCurrency(result.bestKicker ? result.bestKicker.total : result.proratedBonus) : '—'}
                   </div>
                   {result && <span className="text-[10px] font-bold tracking-widest text-gray-600">PRE-TAX</span>}
@@ -619,18 +623,18 @@ export function BonusesPage() {
               <div className="grid grid-cols-2 gap-0 border-b border-white/10">
                 <div className="border-r border-white/10 px-5 py-4">
                   <div className="text-[11px] font-bold tracking-[0.2em] text-gray-500">BASE PMOS</div>
-                  <div className={`mt-1.5 text-xl font-black ${result ? 'text-green-400' : 'text-white/20'}`}>
+                  <div className={`mt-1.5 text-xl font-black ${result ? greenText : 'text-white/20'}`}>
                     {result ? formatCurrency(result.proratedBonus) : '—'}
                   </div>
                   {result?.bestKicker && (
-                    <div className="mt-1 text-[11px] font-bold text-green-400">
+                    <div className={`mt-1 text-[11px] font-bold ${greenText}`}>
                       + {formatCurrency(result.bestKicker.amount)} kicker
                     </div>
                   )}
                 </div>
-                <div className={`px-5 py-4 transition-colors ${result ? 'bg-green-950/30' : ''}`}>
+                <div className={`px-5 py-4 transition-colors ${result ? isDesert ? 'bg-green-100/50' : 'bg-green-950/30' : ''}`}>
                   <div className={`text-[11px] font-bold tracking-[0.2em] ${result ? 'text-green-700' : 'text-gray-500'}`}>PAYOUT AFTER TAXES</div>
-                  <div className={`mt-1.5 text-xl font-black leading-tight ${result ? 'text-green-400' : 'text-white/20'}`}>
+                  <div className={`mt-1.5 text-xl font-black leading-tight ${result ? greenText : 'text-white/20'}`}>
                     {result
                       ? `~${formatCurrency(result.taxEstimate.highNet)} – ${formatCurrency(result.taxEstimate.lowNet)}`
                       : '—'}
@@ -664,7 +668,7 @@ export function BonusesPage() {
                                 <div className="mt-1 text-[11px] leading-relaxed text-gray-500">{kicker.description}</div>
                               </div>
                               <div className="flex-shrink-0 text-right">
-                                <div className="text-sm font-black text-green-400">+{formatCurrency(kicker.amount)}</div>
+                                <div className={`text-sm font-black ${greenText}`}>+{formatCurrency(kicker.amount)}</div>
                                 <div className="mt-0.5 text-[10px] text-gray-600">Total {formatCurrency(kicker.total)}</div>
                               </div>
                             </div>
@@ -722,13 +726,13 @@ export function BonusesPage() {
                 className={`mb-6 border px-6 py-5 ${
                   resultState.status === 'error'
                     ? 'border-red-700/60 bg-red-950/20'
-                    : 'border-amber-500/40 bg-amber-950/10'
+                    : isDesert ? 'border-amber-600/40 bg-amber-100/60' : 'border-amber-500/40 bg-amber-950/10'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <Info
                     className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                      resultState.status === 'error' ? 'text-red-400' : 'text-amber-300'
+                      resultState.status === 'error' ? 'text-red-400' : isDesert ? 'text-amber-700' : 'text-amber-300'
                     }`}
                   />
                   <div>

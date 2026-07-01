@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import type { DetectedTable } from '../maradminUtils';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 
 function getColumnWidth(header: string): number {
   const normalized = header.toLowerCase();
@@ -24,6 +25,8 @@ function getColumnWidth(header: string): number {
 const SEARCH_THRESHOLD = 15;
 
 export function TableBlock({ table }: { table: DetectedTable }) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const stickyHeaderTrackRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const rowActionButtonRef = useRef<HTMLButtonElement>(null);
@@ -186,7 +189,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
               <button
                 type="button"
                 onClick={startCelebration}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center border border-yellow-500/25 bg-black text-yellow-500 transition-colors hover:border-yellow-500/60 hover:bg-yellow-500/10 md:hidden"
+                className={`flex h-8 w-8 flex-shrink-0 items-center justify-center border transition-colors md:hidden ${isDesert ? 'border-amber-600/40 bg-amber-50/30 text-amber-700 hover:border-amber-600/70 hover:bg-amber-50/60' : 'border-yellow-500/25 bg-black text-yellow-500 hover:border-yellow-500/60 hover:bg-yellow-500/10'}`}
                 aria-label="Celebrate"
                 title="Celebrate"
               >
@@ -295,7 +298,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
             type="button"
             tabIndex={-1}
             onClick={startCelebration}
-            className="pointer-events-none absolute left-2 top-0 z-50 hidden h-6 w-6 -translate-y-1/2 items-center justify-center border border-yellow-500/45 bg-black/90 text-yellow-500 opacity-0 shadow-[0_0_14px_rgba(245,158,11,0.18)] transition-opacity duration-100 md:flex"
+            className={`pointer-events-none absolute left-2 top-0 z-50 hidden h-6 w-6 -translate-y-1/2 items-center justify-center border opacity-0 transition-opacity duration-100 md:flex ${isDesert ? 'border-amber-600/50 bg-amber-50/90 text-amber-700 shadow-[0_0_14px_rgba(180,100,0,0.15)]' : 'border-yellow-500/45 bg-black/90 text-yellow-500 shadow-[0_0_14px_rgba(245,158,11,0.18)]'}`}
             aria-label="Celebrate this row"
             title="Celebrate"
           >

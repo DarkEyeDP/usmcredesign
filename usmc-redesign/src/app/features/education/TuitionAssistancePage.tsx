@@ -1,4 +1,5 @@
 ﻿import { useState, type ReactNode } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { CaretRight, CaretDown, ArrowSquareOut, Clock, Warning, CheckCircle, FileText, GraduationCap } from '@phosphor-icons/react';
@@ -168,6 +169,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export function TuitionAssistancePage() {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const [activeTab, setActiveTab] = useState('OVERVIEW');
 
   return (
@@ -179,8 +182,8 @@ export function TuitionAssistancePage() {
       />
 
 
-      <div className="px-8 py-8">
-        <div className="mb-8 flex flex-col gap-3 border-b border-white/12 -mx-8 px-8 md:flex-row md:items-end md:justify-between">
+      <div className="px-8">
+        <div className="flex flex-col gap-3 border-b border-white/12 -mx-8 px-8 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center overflow-x-auto">
             {taTabs.map((tab) => (
               <button
@@ -448,7 +451,7 @@ export function TuitionAssistancePage() {
               {/* One-course restriction — fits naturally below T-I-S */}
               <div className="mt-8">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-1 h-5 bg-amber-500" />
+                  <div className={`w-1 h-5 ${isDesert ? 'bg-amber-700' : 'bg-amber-500'}`} />
                   <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">ONE-COURSE RESTRICTION</div>
                 </div>
                 <p className="text-[13px] text-gray-500 leading-relaxed mb-4 mt-2">
@@ -462,8 +465,8 @@ export function TuitionAssistancePage() {
                     'A grade of C was received in a graduate course',
                     'A voluntary or involuntary withdrawal occurred from any course',
                   ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 bg-amber-950/10 border border-amber-500/15 px-4 py-3 hover:border-amber-500/30 transition-colors">
-                      <Warning className="w-3.5 h-3.5 text-amber-500/60 flex-shrink-0 mt-0.5" />
+                    <div key={i} className={`flex items-start gap-3 px-4 py-3 transition-colors border ${isDesert ? 'bg-amber-50/40 border-amber-600/30 hover:border-amber-600/50' : 'bg-amber-950/10 border-amber-500/15 hover:border-amber-500/30'}`}>
+                      <Warning className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${isDesert ? 'text-amber-700' : 'text-amber-500/60'}`} />
                       <span className="text-[13px] text-gray-400 leading-relaxed">{item}</span>
                     </div>
                   ))}
@@ -520,7 +523,7 @@ export function TuitionAssistancePage() {
                   {[
                     { icon: Clock, label: 'Submit Request', value: 'No more than 60 days before class start', accent: 'border-white/12' },
                     { icon: Clock, label: 'Command Approval', value: 'At least 48 hours before class start', accent: 'border-white/12' },
-                    { icon: Warning, label: 'FY Blackout Period', value: 'No processing Sep 15–30 (year-end closeout)', accent: 'border-amber-500/20' },
+                    { icon: Warning, label: 'FY Blackout Period', value: 'No processing Sep 15–30 (year-end closeout)', accent: isDesert ? 'border-amber-600/40' : 'border-amber-500/20' },
                     { icon: FileText, label: 'Grade Submission', value: 'Grades due to NETPDC within 30 days of term end', accent: 'border-white/12' },
                   ].map((item, i) => (
                     <div key={i} className={`border ${item.accent} bg-black px-4 py-4 flex items-start gap-3 hover:bg-white/[0.03] transition-colors`}>
@@ -574,8 +577,8 @@ export function TuitionAssistancePage() {
               {gradeRequirements.map((row, i) => (
                 <div key={i} className={`grid grid-cols-3 px-6 py-4 hover:bg-white/[0.02] transition-colors ${i < gradeRequirements.length - 1 ? 'border-b border-white/10' : ''}`}>
                   <div className="text-[13px] text-gray-200 font-medium">{row.level}</div>
-                  <div className="text-[13px] text-green-400 font-bold">{row.passing}</div>
-                  <div className="text-[13px] text-amber-400/80">{row.warning}</div>
+                  <div className={`text-[13px] font-bold ${isDesert ? 'text-green-700' : 'text-green-400'}`}>{row.passing}</div>
+                  <div className={`text-[13px] ${isDesert ? 'text-amber-800' : 'text-amber-400/80'}`}>{row.warning}</div>
                 </div>
               ))}
             </div>
@@ -595,16 +598,16 @@ export function TuitionAssistancePage() {
                   <div className="text-[12px] font-bold text-gray-400 tracking-[0.2em] mb-3 pb-2 border-b border-white/10">UNDERGRADUATE</div>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${isDesert ? 'text-green-700' : 'text-green-400'}`} />
                       <div>
-                        <div className="text-[12px] font-bold text-green-400">GPA 2.5+</div>
+                        <div className={`text-[12px] font-bold ${isDesert ? 'text-green-700' : 'text-green-400'}`}>GPA 2.5+</div>
                         <div className="text-[12px] text-gray-500">Full TA access (up to 2 courses)</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Warning className="w-3.5 h-3.5 text-amber-400/70 flex-shrink-0 mt-0.5" />
+                      <Warning className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${isDesert ? 'text-amber-700' : 'text-amber-400/70'}`} />
                       <div>
-                        <div className="text-[12px] font-bold text-amber-400/80">GPA 2.0–2.49</div>
+                        <div className={`text-[12px] font-bold ${isDesert ? 'text-amber-800' : 'text-amber-400/80'}`}>GPA 2.0–2.49</div>
                         <div className="text-[12px] text-gray-500">Limited to 1 course next term</div>
                       </div>
                     </div>
@@ -621,9 +624,9 @@ export function TuitionAssistancePage() {
                   <div className="text-[12px] font-bold text-gray-400 tracking-[0.2em] mb-3 pb-2 border-b border-white/10">GRADUATE</div>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${isDesert ? 'text-green-700' : 'text-green-400'}`} />
                       <div>
-                        <div className="text-[12px] font-bold text-green-400">GPA 3.0+</div>
+                        <div className={`text-[12px] font-bold ${isDesert ? 'text-green-700' : 'text-green-400'}`}>GPA 3.0+</div>
                         <div className="text-[12px] text-gray-500">Full TA access (up to 2 courses)</div>
                       </div>
                     </div>
@@ -642,14 +645,14 @@ export function TuitionAssistancePage() {
             {/* Incomplete grades */}
             <div className="px-8 py-8">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-1 h-5 bg-amber-500" />
+                <div className={`w-1 h-5 ${isDesert ? 'bg-amber-700' : 'bg-amber-500'}`} />
                 <div className="text-[13px] text-gray-300 font-bold tracking-[0.2em]">INCOMPLETE GRADES ("I")</div>
               </div>
-              <div className="border border-amber-500/20 bg-amber-950/10 px-5 py-5 mb-4">
+              <div className={`border px-5 py-5 mb-4 ${isDesert ? 'border-amber-600/40 bg-amber-50/40' : 'border-amber-500/20 bg-amber-950/10'}`}>
                 <div className="flex items-start gap-3">
-                  <Warning className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <Warning className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isDesert ? 'text-amber-700' : 'text-amber-400'}`} />
                   <div className="space-y-3 text-[13px] text-gray-400 leading-relaxed">
-                    <p>You have <strong className="text-amber-400">up to 6 months</strong> from the term end date to convert an "I" grade to a passing grade. The school's deadline takes precedence if it is shorter.</p>
+                    <p>You have <strong className={isDesert ? 'text-amber-800' : 'text-amber-400'}>up to 6 months</strong> from the term end date to convert an "I" grade to a passing grade. The school's deadline takes precedence if it is shorter.</p>
                     <p>You <strong className="text-white">cannot submit any new TA requests</strong> until the Incomplete is fully resolved — no exceptions.</p>
                   </div>
                 </div>

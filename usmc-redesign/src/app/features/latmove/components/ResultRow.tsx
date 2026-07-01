@@ -1,6 +1,7 @@
 ﻿import { motion, AnimatePresence } from 'motion/react';
 import { CaretRight, CaretDown, CaretUp, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { Link } from 'react-router';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { CLEARANCE_LABELS, colorVisionLabel } from '../types';
 import { SKILL_LABELS } from '../db/mos-skills';
 import { CERT_BY_ID } from '../db/cert-library';
@@ -20,19 +21,31 @@ interface Props {
   onToggle: () => void;
 }
 
-function matchColor(pct: number) {
+function matchColor(pct: number, isDesert: boolean) {
+  if (isDesert) {
+    if (pct >= 95) return 'text-green-700';
+    if (pct >= 90) return 'text-green-700';
+    return 'text-yellow-700';
+  }
   if (pct >= 95) return 'text-green-400';
   if (pct >= 90) return 'text-green-500';
   return 'text-yellow-500';
 }
 
-function skillMatchColor(pct: number) {
+function skillMatchColor(pct: number, isDesert: boolean) {
+  if (isDesert) {
+    if (pct >= 70) return 'text-cyan-700';
+    if (pct >= 40) return 'text-cyan-800';
+    return 'text-gray-600';
+  }
   if (pct >= 70) return 'text-cyan-400';
   if (pct >= 40) return 'text-cyan-600';
   return 'text-gray-500';
 }
 
 export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const formattedNumber = String(resultNumber).padStart(2, '0');
   const bonusRangeLabel = result.lateralMoveBonusRange
     ? `${bonusFormatter.format(result.lateralMoveBonusRange.min)}-${bonusFormatter.format(result.lateralMoveBonusRange.max)}`
@@ -48,14 +61,14 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
 
     if (status === 'unknown') {
       return {
-        icon: <WarningCircle className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />,
-        textClassName: 'text-[13px] text-yellow-200 leading-relaxed',
+        icon: <WarningCircle className={`w-3 h-3 flex-shrink-0 mt-0.5 ${isDesert ? 'text-yellow-700' : 'text-yellow-500'}`} />,
+        textClassName: isDesert ? 'text-[13px] text-yellow-800 leading-relaxed' : 'text-[13px] text-yellow-200 leading-relaxed',
       };
     }
 
     return {
-      icon: <CheckCircle className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />,
-      textClassName: 'text-[13px] text-green-300 leading-relaxed',
+      icon: <CheckCircle className={`w-3 h-3 flex-shrink-0 mt-0.5 ${isDesert ? 'text-green-700' : 'text-green-500'}`} />,
+      textClassName: isDesert ? 'text-[13px] text-green-800 leading-relaxed' : 'text-[13px] text-green-300 leading-relaxed',
     };
   }
 
@@ -74,17 +87,17 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
         <div className="pr-2 flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-bold tracking-[0.22em] text-red-400/70">{result.field}</span>
           {result.isHighDemandLatMove && (
-            <span className="border border-amber-500/35 bg-amber-950/20 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] text-amber-300/90">
+            <span className={`border px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] ${isDesert ? 'border-amber-600/50 bg-amber-100/60 text-amber-800' : 'border-amber-500/35 bg-amber-950/20 text-amber-300/90'}`}>
               HIGH DEMAND
             </span>
           )}
         </div>
         <div>
-          <div className={`text-[28px] font-black leading-none tracking-[-0.03em] ${matchColor(result.match)}`}>{result.match}%</div>
+          <div className={`text-[28px] font-black leading-none tracking-[-0.03em] ${matchColor(result.match, isDesert)}`}>{result.match}%</div>
           <div className="text-[10px] tracking-[0.16em] text-gray-600">QUALIFIED</div>
           {result.skillMatch != null && (
             <>
-              <div className={`mt-1 text-[18px] font-black leading-none tracking-[-0.02em] ${skillMatchColor(result.skillMatch.pct)}`}>{result.skillMatch.pct}%</div>
+              <div className={`mt-1 text-[18px] font-black leading-none tracking-[-0.02em] ${skillMatchColor(result.skillMatch.pct, isDesert)}`}>{result.skillMatch.pct}%</div>
               <div className="text-[10px] text-gray-600 tracking-[0.16em]">SKILL XFR</div>
             </>
           )}
@@ -126,7 +139,7 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
                       {result.field}
                     </span>
                     {result.isHighDemandLatMove && (
-                      <span className="border border-amber-500/35 bg-amber-950/20 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] text-amber-300/90">
+                      <span className={`border px-1.5 py-0.5 text-[10px] font-bold tracking-[0.18em] ${isDesert ? 'border-amber-600/50 bg-amber-100/60 text-amber-800' : 'border-amber-500/35 bg-amber-950/20 text-amber-300/90'}`}>
                         HIGH DEMAND LATMOVE MOS
                       </span>
                     )}
@@ -178,14 +191,14 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
 
                   {result.matchingCertIds && result.matchingCertIds.length > 0 && (
                     <div className="mt-4">
-                      <div className="mb-2 text-[11px] font-bold tracking-[0.24em] text-amber-500/70">
+                      <div className={`mb-2 text-[11px] font-bold tracking-[0.24em] ${isDesert ? 'text-amber-700' : 'text-amber-500/70'}`}>
                         RELEVANT CERTIFICATIONS
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {result.matchingCertIds.map(id => (
                           <span
                             key={id}
-                            className="rounded-sm border border-amber-500/20 bg-amber-950/30 px-2 py-0.5 font-mono text-[10px] text-amber-400/80"
+                            className={`rounded-sm border px-2 py-0.5 font-mono text-[10px] ${isDesert ? 'border-amber-600/40 bg-amber-100/60 text-amber-800' : 'border-amber-500/20 bg-amber-950/30 text-amber-400/80'}`}
                           >
                             {CERT_BY_ID[id]?.label ?? id}
                           </span>

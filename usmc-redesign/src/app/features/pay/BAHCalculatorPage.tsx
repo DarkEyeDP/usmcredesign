@@ -1,4 +1,5 @@
 ﻿import { useRef, useMemo, useState, useEffect } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import type { ReactNode } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
@@ -295,8 +296,15 @@ const PURCHASE_SLICES = [
   { label: 'HOA / Reserve Fund', pct: 0.03, color: '#f97316', legendColor: 'bg-orange-400' },
 ];
 
-function DonutChart({ rate, mode }: { rate: number; mode: BreakdownMode }) {
-  const slices = mode === 'rent' ? RENT_SLICES : PURCHASE_SLICES;
+function DonutChart({ rate, mode, isDesert }: { rate: number; mode: BreakdownMode; isDesert?: boolean }) {
+  const rawSlices = mode === 'rent' ? RENT_SLICES : PURCHASE_SLICES;
+  const slices = isDesert
+    ? rawSlices.map(s => ({
+        ...s,
+        color: s.color === '#4ade80' ? '#15803d' : s.color,
+        legendColor: s.legendColor === 'bg-green-400' ? 'bg-green-700' : s.legendColor,
+      }))
+    : rawSlices;
   const segments = slices.map((s) => ({ ...s, amount: Math.round(rate * s.pct) }));
   const conicStops = segments.reduce<string[]>((acc, s, i) => {
     const start = segments.slice(0, i).reduce((sum, seg) => sum + seg.pct * 100, 0);
@@ -341,6 +349,9 @@ function DonutChart({ rate, mode }: { rate: number; mode: BreakdownMode }) {
 
 export function BAHCalculatorPage() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
+  const greenText = isDesert ? 'text-green-700' : 'text-green-400';
   const [query, setQuery] = useState(() => readStoredBahLookup().query);
   const [selectedMha, setSelectedMha] = useState(() => readStoredBahLookup().selectedMha);
   const [payGrade, setPayGrade] = useState<BahPayGrade>(() => readStoredBahLookup().payGrade);
@@ -858,8 +869,8 @@ export function BAHCalculatorPage() {
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="mb-2 flex items-end gap-2"
                   >
-                    <span className="text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter text-green-400">{formatCurrency(displayRate)}</span>
-                    <span className="pb-2 text-lg font-bold text-green-500">/mo</span>
+                    <span className={`text-[clamp(2.2rem,4vw,3rem)] font-black leading-none tracking-tighter ${greenText}`}>{formatCurrency(displayRate)}</span>
+                    <span className={`pb-2 text-lg font-bold ${greenText}`}>/mo</span>
                   </motion.div>
                 </AnimatePresence>
                 <div className="mb-1 text-sm font-bold tracking-wide text-white">
@@ -887,7 +898,7 @@ export function BAHCalculatorPage() {
                   ))}
                 </div>
                 <div className="p-6">
-                  <DonutChart rate={displayRate} mode={breakdownMode} />
+                  <DonutChart rate={displayRate} mode={breakdownMode} isDesert={isDesert} />
                 </div>
               </div>
             </div>
@@ -905,12 +916,12 @@ export function BAHCalculatorPage() {
                   <ArrowRight className="h-4 w-4 flex-shrink-0 text-gray-600" />
                   <div className="min-w-0">
                     <div className="text-[10px] tracking-widest text-gray-600">FUTURE</div>
-                    <div className="text-xl font-black text-green-400">{formatCurrency(displayRate)}</div>
+                    <div className={`text-xl font-black ${greenText}`}>{formatCurrency(displayRate)}</div>
                     <div className="truncate text-[10px] text-gray-700">{displayLocation.n}</div>
                   </div>
                   <div className="flex-shrink-0 border-l border-white/10 pl-6">
                     <div className="text-[10px] tracking-widest text-gray-600">DIFFERENCE</div>
-                    <div className={`text-2xl font-black ${locationDelta > 0 ? 'text-green-400' : locationDelta < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                    <div className={`text-2xl font-black ${locationDelta > 0 ? greenText : locationDelta < 0 ? 'text-red-400' : 'text-gray-400'}`}>
                       {locationDelta > 0 ? '+' : ''}{formatCurrency(locationDelta)}
                     </div>
                     <div className="text-[10px] text-gray-600">/mo</div>
@@ -1017,7 +1028,7 @@ export function BAHCalculatorPage() {
                               </div>
                               <div className="text-[10px] font-mono text-gray-600">{mha}</div>
                             </div>
-                            <span className={`text-xs font-black ${isActive ? 'text-green-400' : 'text-gray-400'}`}>
+                            <span className={`text-xs font-black ${isActive ? greenText : 'text-gray-400'}`}>
                               {formatCurrency(rate)}
                             </span>
                           </button>
@@ -1051,7 +1062,7 @@ export function BAHCalculatorPage() {
                             </div>
                             <div className="text-[10px] font-mono text-gray-600">{mha}</div>
                           </div>
-                          <span className={`text-xs font-black ${isActive ? 'text-green-400' : 'text-gray-400'}`}>
+                          <span className={`text-xs font-black ${isActive ? greenText : 'text-gray-400'}`}>
                             {formatCurrency(rate)}
                           </span>
                         </button>
@@ -1141,7 +1152,7 @@ export function BAHCalculatorPage() {
                             {isSelected ? (
                               <span className="text-xs font-bold tracking-widest text-gray-600">SELECTED</span>
                             ) : (
-                              <span className={`inline-flex items-center gap-1 text-sm font-bold ${delta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              <span className={`inline-flex items-center gap-1 text-sm font-bold ${delta > 0 ? greenText : 'text-red-400'}`}>
                                 {delta > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                                 {formatCurrency(Math.abs(delta))} <span className="text-xs opacity-70">/mo</span>
                               </span>
@@ -1219,13 +1230,13 @@ export function BAHCalculatorPage() {
                               <span className="ml-2 text-[10px] font-bold tracking-wider text-red-500">YOU</span>
                             )}
                           </td>
-                          <td className={`py-2.5 pr-4 text-sm ${isYou ? 'font-bold text-green-400' : 'text-gray-300'}`}>
+                          <td className={`py-2.5 pr-4 text-sm ${isYou ? `font-bold ${greenText}` : 'text-gray-300'}`}>
                             {formatCurrency(withRate)}
                           </td>
-                          <td className={`py-2.5 pr-4 text-sm ${isYou ? 'font-bold text-green-400' : 'text-gray-300'}`}>
+                          <td className={`py-2.5 pr-4 text-sm ${isYou ? `font-bold ${greenText}` : 'text-gray-300'}`}>
                             {formatCurrency(withoutRate)}
                           </td>
-                          <td className="py-2.5 text-right text-sm font-bold text-green-400">
+                          <td className={`py-2.5 text-right text-sm font-bold ${greenText}`}>
                             {formatCurrency(withRate - withoutRate)}
                           </td>
                         </tr>

@@ -1284,7 +1284,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   >
                     <div className={`border px-4 py-3 shadow-2xl backdrop-blur-sm ${
                       refreshNotice.tone === 'success'
-                        ? 'border-green-600/40 bg-green-950/90 text-green-200'
+                        ? (isDesert ? 'border-green-700/60 bg-green-100/60 text-green-800' : 'border-green-600/40 bg-green-950/90 text-green-200')
                         : refreshNotice.tone === 'error'
                           ? 'border-red-600/40 bg-red-950/90 text-red-200'
                           : 'border-white/16 bg-black/90 text-gray-200'
@@ -1547,7 +1547,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                                 </span>
                               )}
                               {msg.isNew && (
-                                <span className="text-[10px] text-green-400 font-bold tracking-widest">NEW!</span>
+                                <span className={`text-[10px] font-bold tracking-widest ${isDesert ? 'text-green-700' : 'text-green-400'}`}>NEW!</span>
                               )}
                               {msg.unread && !isSelected && (
                                 <span className="text-[10px] text-red-400 font-bold tracking-widest">UNREAD</span>
@@ -1787,7 +1787,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       </div>
                     )}
                     {selectedMsg.isNew && (
-                      <span className="text-[10px] text-green-400 font-bold tracking-widest md:flex-shrink-0">NEW!</span>
+                      <span className={`text-[10px] font-bold tracking-widest md:flex-shrink-0 ${isDesert ? 'text-green-700' : 'text-green-400'}`}>NEW!</span>
                     )}
                     <span className="text-[12px] text-red-500 font-bold tracking-widest md:flex-shrink-0">
                       MARADMIN {selectedMsg.number}

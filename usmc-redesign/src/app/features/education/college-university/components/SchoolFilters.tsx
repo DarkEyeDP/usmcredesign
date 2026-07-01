@@ -127,7 +127,7 @@ export function SchoolFilters({
       </div>
 
       {isBrowseMode && (
-        <p className="text-[10px] text-amber-500/70">
+        <p className={`text-[10px] ${isDesert ? 'text-amber-700' : 'text-amber-500/70'}`}>
           Browse mode — searching by filters only. Add a school name to narrow results further.
         </p>
       )}

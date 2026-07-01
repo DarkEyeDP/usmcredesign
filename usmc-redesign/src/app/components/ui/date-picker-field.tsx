@@ -2,6 +2,7 @@
 import { CalendarDots, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Calendar } from './calendar';
 import { ScrollArea } from './scroll-area';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -43,6 +44,8 @@ export function DatePickerField({
   minYear = 1980,
   maxYear = currentYear + 10,
 }: DatePickerFieldProps) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<'day' | 'month-year'>('day');
   const [viewMonth, setViewMonth] = useState<Date>(() => {
@@ -111,7 +114,7 @@ export function DatePickerField({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-[300px] border border-white/12 bg-[#09090c] p-3 text-white shadow-2xl">
+        <div className="absolute left-0 top-full z-50 mt-1 w-[300px] border border-white/12 bg-usmc-bg-surface p-3 shadow-2xl">
           {mode === 'day' ? (
             <>
               <div className="mb-2 flex items-center justify-between">
@@ -175,7 +178,7 @@ export function DatePickerField({
                         onClick={() => setPickerYear(year)}
                         className={`w-full border-b border-white/[0.06] px-3 py-2 text-left text-sm transition-colors last:border-b-0 ${
                           pickerYear === year
-                            ? 'bg-red-950/40 text-white'
+                            ? isDesert ? 'bg-red-900/15 text-red-900' : 'bg-red-950/40 text-white'
                             : 'text-gray-400 hover:bg-white/[0.05] hover:text-white'
                         }`}
                       >
@@ -192,7 +195,7 @@ export function DatePickerField({
                       onClick={() => handleMonthPick(monthIndex)}
                       className={`border px-2 py-3 text-xs font-bold transition-colors ${
                         viewMonth.getMonth() === monthIndex && viewMonth.getFullYear() === pickerYear
-                          ? 'border-red-600 bg-red-950/40 text-white'
+                          ? isDesert ? 'border-red-700/60 bg-red-900/15 text-red-900' : 'border-red-600 bg-red-950/40 text-white'
                           : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
                       }`}
                     >

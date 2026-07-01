@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import { X, Plus, TrendUp } from '@phosphor-icons/react';
 import { TimelineGrid } from './timeline';
 import type { ScenarioSummary } from '../types';
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function ScenarioPlanner({ scenarios, yearWidth }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const [activeScenario, setActiveScenario] = useState(scenarios[0]?.id ?? '');
   const [scenarioName, setScenarioName] = useState('');
 
@@ -136,12 +139,12 @@ export function ScenarioPlanner({ scenarios, yearWidth }: Props) {
                   </td>
                   <td className="py-3 pr-4 text-[11px] font-mono text-white/70">{s.retirementDate}</td>
                   <td className="py-3 pr-4 text-[11px] font-mono text-white/70">{s.totalYears}</td>
-                  <td className="py-3 pr-4 text-[12px] font-mono font-bold text-green-400">{s.monthlyRetirementPay}</td>
+                  <td className={`py-3 pr-4 text-[12px] font-mono font-bold ${isDesert ? 'text-green-700' : 'text-green-400'}`}>{s.monthlyRetirementPay}</td>
                   <td className="py-3 pr-4 text-[12px] font-mono font-bold" style={{ color: s.color }}>{s.totalEducationBenefits}</td>
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-2">
                       <span className="text-[12px] font-mono font-bold text-white/90">{s.estNetWorth}</span>
-                      <TrendUp className="w-3.5 h-3.5 text-green-400/60" />
+                      <TrendUp className={`w-3.5 h-3.5 ${isDesert ? 'text-green-700/60' : 'text-green-400/60'}`} />
                     </div>
                   </td>
                 </tr>

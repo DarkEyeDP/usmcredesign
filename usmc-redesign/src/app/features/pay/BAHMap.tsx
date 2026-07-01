@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTheme } from '@/app/features/theme/ThemeContext';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -79,6 +80,8 @@ function arcPoints(from: [number, number], to: [number, number], n = 60): L.LatL
 }
 
 export function BAHMap({ markers, minRate, maxRate, onSelect }: Props) {
+  const { theme } = useTheme();
+  const isDesert = theme === 'desert';
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const leafletMarkersRef = useRef<L.Marker[]>([]);
@@ -271,7 +274,7 @@ export function BAHMap({ markers, minRate, maxRate, onSelect }: Props) {
             )}
             {hovered.name}
           </div>
-          <div className="text-xl font-black text-green-400">
+          <div className={`text-xl font-black ${isDesert ? 'text-green-700' : 'text-green-400'}`}>
             ${hovered.rate.toLocaleString()}{' '}
             <span className="text-sm font-bold text-green-600">/mo</span>
           </div>
