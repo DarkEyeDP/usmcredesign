@@ -30,6 +30,49 @@ type BahPayGrade = (typeof BAH_PAY_GRADES)[number];
 type DependencyStatus = 'with' | 'without';
 type GradeTab = 'enlisted' | 'warrant' | 'officer';
 
+const BAH_FAQ_ITEMS = [
+  {
+    q: 'What is BAH?',
+    a: 'Basic Allowance for Housing (BAH) is a monthly, non-taxable housing benefit paid to eligible active-duty service members. It is designed to cover median rental costs for housing appropriate to the member\'s pay grade and family size in the area where they serve. Marines living off-base or in privatized housing receive BAH in lieu of government quarters.',
+  },
+  {
+    q: 'How is BAH calculated for Marines?',
+    a: 'BAH is determined by three factors: your pay grade (E-1 through O-10 or W-1 through W-5), your dependency status (with or without dependents), and your duty station\'s Military Housing Area (MHA). The Department of Defense surveys local rental markets annually and sets rates to cover the 80th percentile of median housing costs in each MHA. Rates are updated each January 1.',
+  },
+  {
+    q: 'What is a Military Housing Area (MHA)?',
+    a: 'A Military Housing Area (MHA) is a geographic region used by the DoD to set BAH rates based on local housing market costs. Each major military installation is assigned an MHA code. For example, Camp Lejeune Marines are in MHA NC178, Camp Pendleton is CA038, MCAS Miramar is CA024, Marine Corps Base Quantico is VA296, MCAS 29 Palms is CA032, MCAS Beaufort is SC258, and Marine Corps Base Hawaii is HI408.',
+  },
+  {
+    q: 'How do I look up my BAH rate?',
+    a: 'Use the BAH Calculator above: enter your duty station (by base name, city, or ZIP code), select your pay grade, and choose your dependency status. The tool instantly displays your rate using official DoD data. You can also enter a current duty station alongside a future one to see your PCS BAH change side by side.',
+  },
+  {
+    q: 'Is BAH taxable?',
+    a: 'No. BAH is completely non-taxable and does not count as gross income for federal or state income tax purposes. This makes the effective value of BAH higher than a comparable taxable salary increase would be.',
+  },
+  {
+    q: 'What happens to my BAH when I PCS?',
+    a: 'When you PCS, your BAH rate changes to reflect housing costs at your new duty station. Marines PCSing from a high-cost area like San Diego (CA038) to a lower-cost area like Yuma (AZ016) will generally see a decrease, while the reverse move typically brings an increase. Use the "Current Duty Station" and "Future Duty Station" fields above to see your exact BAH change before you move.',
+  },
+  {
+    q: 'What is the difference between BAH with dependents and BAH without dependents?',
+    a: 'Marines with qualifying dependents (spouse, child, or other legal dependent) receive a higher BAH rate than those without dependents. The difference varies by location and pay grade — use the dependency difference panel in the calculator to see the exact monthly gap for your current duty station. A Marine who marries mid-tour should notify their command immediately, as the dependency rate applies retroactively to the date of the qualifying event.',
+  },
+  {
+    q: 'Does BAH cover all of my rent or mortgage?',
+    a: 'BAH is calibrated to cover the 80th percentile of local median rental costs for appropriate housing by pay grade. In practice, junior enlisted may find rents in high-cost markets like San Diego or Hawaii exceed their BAH. Any BAH not spent on housing is yours to keep. The housing budget donut chart in the calculator above shows a typical rent or purchase allocation for your rate.',
+  },
+  {
+    q: 'What are the 2026 BAH rates at major Marine Corps installations?',
+    a: '2026 BAH rates vary significantly by location. Marines stationed at Camp Lejeune (MHA NC178), Camp Pendleton (CA038), MCAS Miramar (CA024), MCRD San Diego (CA038), Marine Corps Base Quantico (VA296), Marine Corps Base Hawaii (HI408), MCB Camp Butler Okinawa, MCAS Beaufort (SC258), MCAS Cherry Point (NC177), MCAS New River (NC178), Marine Corps Air Ground Combat Center 29 Palms (CA032), and MCAS Yuma (AZ016) all have different rates. Use the calculator above to look up exact monthly rates for any of these locations by pay grade.',
+  },
+  {
+    q: 'When do 2026 BAH rates take effect?',
+    a: '2026 BAH rates took effect on January 1, 2026 and remain in effect through December 31, 2026. New rates are announced in December and take effect the following January 1. Marines who were already receiving BAH do not need to take any action — their pay is updated automatically at the start of the new year.',
+  },
+] as const;
+
 const GRADE_GROUPS: Record<GradeTab, BahPayGrade[]> = {
   enlisted: ['E-1', 'E-2', 'E-3', 'E-4', 'E-5', 'E-6', 'E-7', 'E-8', 'E-9'],
   warrant: ['W-1', 'W-2', 'W-3', 'W-4', 'W-5'],
@@ -314,6 +357,7 @@ export function BAHCalculatorPage() {
   const [currentSearch, setCurrentSearch] = useState(() => readStoredBahLookup().currentSearch);
   const [isCurrentSearchFocused, setIsCurrentSearchFocused] = useState(false);
   const [breakdownMode, setBreakdownMode] = useState<BreakdownMode>('rent');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const compareRef = useRef<HTMLDivElement>(null);
   const currentSearchRef = useRef<HTMLDivElement>(null);
@@ -460,41 +504,44 @@ export function BAHCalculatorPage() {
           },
           {
             '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: [
+            '@type': 'HowTo',
+            name: 'How to Look Up Your 2026 BAH Rate',
+            description: 'Use the Stay Marine BAH Calculator to find your Basic Allowance for Housing rate for any Marine Corps duty station in seconds.',
+            step: [
               {
-                '@type': 'Question',
-                name: 'What is BAH?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: 'Basic Allowance for Housing (BAH) is a monthly allowance paid to U.S. military members to offset the cost of housing when government quarters are not provided. It is based on pay grade, dependency status, and the duty station location.',
-                },
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Enter your duty station',
+                text: 'Type your base name, city, or ZIP code into the duty station search field. The tool supports all Military Housing Areas (MHAs) in the 2026 DoD BAH rate set, including Camp Lejeune, Camp Pendleton, MCAS Miramar, 29 Palms, Quantico, MCAS Beaufort, and Marine Corps Base Hawaii.',
               },
               {
-                '@type': 'Question',
-                name: 'How is BAH calculated?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: 'BAH is determined by pay grade, dependency status (with or without dependents), and the Military Housing Area (MHA) of the duty station. Rates are set annually by the Department of Defense effective January 1.',
-                },
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Select your pay grade',
+                text: 'Choose your pay grade from E-1 through O-10, including warrant officer grades W-1 through W-5.',
               },
               {
-                '@type': 'Question',
-                name: 'Is BAH taxable?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: 'No. BAH is a non-taxable housing allowance and is not included in gross income for federal income tax purposes.',
-                },
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Choose your dependency status',
+                text: "Select 'With Dependents' if you have a qualifying dependent (spouse, child, etc.) or 'Without Dependents' otherwise.",
               },
               {
-                '@type': 'Question',
-                name: 'When do BAH rates change?',
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: 'BAH rates are updated annually and take effect on January 1 each year. The 2026 rates became effective January 1, 2026.',
-                },
+                '@type': 'HowToStep',
+                position: 4,
+                name: 'View your monthly BAH rate',
+                text: 'Your 2026 BAH rate is displayed instantly along with a housing budget breakdown. Use the Compare Locations section to see how your rate stacks up against other duty stations — helpful for PCS planning.',
               },
             ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: BAH_FAQ_ITEMS.map(({ q, a }) => ({
+              '@type': 'Question',
+              name: q,
+              acceptedAnswer: { '@type': 'Answer', text: a },
+            })),
           },
         ]}
       />
@@ -1110,7 +1157,7 @@ export function BAHCalculatorPage() {
           </section>
 
           {/* ── Row 4: ALL-GRADES RATE TABLE full width ── */}
-          <section className="min-w-0 border border-white/12 bg-black">
+          <section className="min-w-0 border border-white/12 bg-black" id="all-grades">
             <div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.04] px-5 py-4">
               <div className="flex h-6 w-6 items-center justify-center border border-white/35 text-sm font-bold text-red-500">5</div>
               <div>
@@ -1187,6 +1234,41 @@ export function BAHCalculatorPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </section>
+
+          {/* ── FAQ ── */}
+          <section className="min-w-0 border border-white/12 bg-black">
+            <div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.04] px-5 py-4">
+              <div className="flex h-6 w-6 items-center justify-center border border-white/35 text-sm font-bold text-red-500">6</div>
+              <span className="text-sm font-bold tracking-widest text-gray-400">BAH FREQUENTLY ASKED QUESTIONS</span>
+            </div>
+            <div className="divide-y divide-white/8">
+              {BAH_FAQ_ITEMS.map((item, i) => (
+                <div key={i}>
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
+                  >
+                    <span className="text-sm font-bold text-gray-200">{item.q}</span>
+                    <ChevronRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {openFaq === i && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <p className="px-6 pb-5 text-sm leading-relaxed text-gray-500">{item.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
             </div>
           </section>
         </div>
