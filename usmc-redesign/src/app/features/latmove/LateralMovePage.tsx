@@ -342,9 +342,57 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
   return (
     <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
-        title="Marine Lateral Move Tool"
-        description="Find Marine Corps lateral move opportunities by MOS. Search available MOS changes, review requirements, and explore career transition options for active-duty Marines."
+        title="Marine Corps Lateral Move Tool | USMC MOS Change Matcher"
+        description="Find Marine Corps lateral move (lat move) opportunities matched to your ASVAB scores, rank, years of service, clearance, and current MOS. Browse all available MOS changes with requirements, skill transfers, and career notes — built from official NAVMC 1200.1L data."
+        keywords="Marine Corps lateral move, USMC lat move, Marine MOS change, USMC MOS lateral move tool, Marine Corps MOS change requirements, USMC lat move eligibility, Marine Corps career change MOS, lat move ASVAB scores, Marine Corps MOS list"
         path="/lateral-move"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'Marine Corps Lateral Move Tool',
+            url: 'https://stay-marine.com/lateral-move',
+            description: 'Match active-duty Marines to lateral move MOS opportunities based on ASVAB line scores, rank, years of service, security clearance, and current MOS. Built from NAVMC 1200.1L data.',
+            applicationCategory: 'UtilitiesApplication',
+            operatingSystem: 'Web',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+            provider: { '@type': 'Organization', name: 'Stay Marine', url: 'https://stay-marine.com' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://stay-marine.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Lateral Move Tool', item: 'https://stay-marine.com/lateral-move' },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: 'How to Find Marine Corps Lateral Move Opportunities',
+            description: 'Use the Stay Marine Lateral Move Tool to discover which USMC MOS fields you are eligible to move into based on your scores, rank, and background.',
+            step: [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Enter your ASVAB line scores and service info',
+                text: 'Input your GT, MM, EL, and CL ASVAB line scores along with your current rank and PMOS. Each target MOS has minimum line score thresholds — the tool filters results to only show MOS fields your scores qualify for.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Add your background qualifications',
+                text: 'Optionally enter your security clearance level, color vision status, education, degree fields, certifications, and languages. These are used to surface additional skill transfers and flag requirements you already meet.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Review your matched MOS results',
+                text: 'Results are ranked by match strength. Each card shows the MOS title, minimum requirements, skill transfers from your background, and career notes. Use filters to narrow by requirement type.',
+              },
+            ],
+          },
+        ]}
       />
       {!isFullscreen && <Hero onExploreTool={handleExploreTool} />}
 

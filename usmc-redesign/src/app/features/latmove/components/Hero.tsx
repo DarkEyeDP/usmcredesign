@@ -50,7 +50,7 @@ export function Hero({ onExploreTool }: Props) {
           </div>
 
           <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
-            Find MOS opportunities based on your ASVAB line scores, rank, and years of service.
+            Find Marine Corps lateral move (lat move) opportunities matched to your ASVAB line scores, rank, years of service, security clearance, and current MOS. Built from official NAVMC 1200.1L data. Actual eligibility is determined by MMEA and current MARADMIN guidance.
           </p>
 
           <button
