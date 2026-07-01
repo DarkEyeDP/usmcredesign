@@ -1,4 +1,4 @@
-import { Globe, ExternalLink, Mail, Phone } from 'lucide-react';
+﻿import { Globe, ArrowSquareOut, Envelope, Phone } from '@phosphor-icons/react';
 import type { ContentSection } from '../maradminUtils';
 import { renderWithLinks, extractURLButtons } from '../maradminRenderUtils';
 import { renderContactEmail, extractContacts } from '../maradminContactUtils';
@@ -44,7 +44,7 @@ export function ContentDisplay({ sections }: { sections: ContentSection[] }) {
                   {urlButtons.map((btn, bi) => (
                     <a key={bi} href={btn.url} target="_blank" rel="noopener noreferrer"
                        className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-600/40 text-red-500 text-[11px] font-bold tracking-widest hover:bg-red-900/10 transition-colors">
-                      <Globe className="w-3 h-3" /> {btn.label} <ExternalLink className="w-2.5 h-2.5" />
+                      <Globe className="w-3 h-3" /> {btn.label} <ArrowSquareOut className="w-2.5 h-2.5" />
                     </a>
                   ))}
                 </div>
@@ -61,7 +61,7 @@ export function ContentDisplay({ sections }: { sections: ContentSection[] }) {
                       </div>
                       {c.email && (
                         <div className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
-                          <Mail className="w-3 h-3" /> {renderContactEmail(c.email)}
+                          <Envelope className="w-3 h-3" /> {renderContactEmail(c.email)}
                         </div>
                       )}
                       {c.comm && (

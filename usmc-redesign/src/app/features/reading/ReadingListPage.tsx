@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useDeferredValue, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useDeferredValue, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ArrowUpRight, Book, BookCopy, ChevronDown, ChevronLeft, ChevronRight, FileText, LayoutGrid, List, Search, ShoppingCart, Star, X } from 'lucide-react';
+import { ArrowUpRight, Book, Books, CaretDown, CaretLeft, CaretRight, FileText, SquaresFour, List, MagnifyingGlass, ShoppingCart, Star, X } from '@phosphor-icons/react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { readingShelves, type ReadingBook, type ReadingShelfId } from './readingListData';
 import marineReadingHero from '@/app/assets/reading/marine-reading-hero.webp';
@@ -107,7 +107,7 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
             className="absolute right-4 top-4 z-20 p-1 text-gray-600 transition-colors hover:text-white"
             aria-label="Close"
           >
-            <X className="h-4 w-4" />
+            <X weight="bold" className="h-4 w-4" />
           </button>
 
           <div className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden sm:flex-row">
@@ -162,12 +162,12 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
                 {hasPdfLink && (
                   <a href={book.href} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 border border-white/16 px-4 py-2.5 text-[11px] font-bold tracking-[0.18em] text-gray-200 transition-colors hover:border-red-500/40 hover:text-red-300">
-                    <BookCopy className="h-4 w-4" />Open PDF<ArrowUpRight className="h-4 w-4" />
+                    <Books className="h-4 w-4" />Open PDF<ArrowUpRight className="h-4 w-4" />
                   </a>
                 )}
                 {isPdf && !book.href && (
                   <span className="inline-flex items-center gap-2 border border-white/10 px-4 py-2.5 text-[11px] font-bold tracking-[0.18em] text-gray-600">
-                    <BookCopy className="h-4 w-4" />PDF Coming Soon
+                    <Books className="h-4 w-4" />PDF Coming Soon
                   </span>
                 )}
               </div>
@@ -177,12 +177,12 @@ function BookDetailModal({ book, shelfLabel, index, total, onClose, onPrev, onNe
           <div className="relative z-10 flex flex-shrink-0 items-center justify-between border-t border-white/10 px-6 py-3">
             <button onClick={onPrev ?? undefined} disabled={!onPrev}
               className="flex items-center gap-1 text-[12px] font-mono tracking-widest transition-colors disabled:text-gray-800 text-gray-500 hover:text-gray-300">
-              <ChevronLeft className="w-3 h-3" /> PREV
+              <CaretLeft className="w-3 h-3" /> PREV
             </button>
             <span className="text-[11px] font-mono text-gray-700">{index + 1} / {total}</span>
             <button onClick={onNext ?? undefined} disabled={!onNext}
               className="flex items-center gap-1 text-[12px] font-mono tracking-widest transition-colors disabled:text-gray-800 text-gray-500 hover:text-gray-300">
-              NEXT <ChevronRight className="w-3 h-3" />
+              NEXT <CaretRight className="w-3 h-3" />
             </button>
           </div>
         </motion.div>
@@ -285,11 +285,11 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
         book.href ? (
           <a href={book.href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
             className={`inline-flex items-center gap-1.5 whitespace-nowrap border border-white/16 text-gray-200 transition-colors hover:border-red-500/40 hover:text-red-300 font-bold tracking-[0.18em] ${compact ? 'px-2.5 py-1.5 text-[10px]' : 'px-3 py-2 text-[11px]'}`}>
-            <BookCopy className={compact ? 'h-3 w-3' : 'h-4 w-4'} /><span>Open PDF</span><ArrowUpRight className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
+            <Books className={compact ? 'h-3 w-3' : 'h-4 w-4'} /><span>Open PDF</span><ArrowUpRight className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
           </a>
         ) : (
           <span className={`inline-flex items-center gap-1.5 whitespace-nowrap border border-white/10 text-gray-600 font-bold tracking-[0.18em] ${compact ? 'px-2.5 py-1.5 text-[10px]' : 'px-3 py-2 text-[11px]'}`}>
-            <BookCopy className={compact ? 'h-3 w-3' : 'h-4 w-4'} /><span>PDF Coming Soon</span>
+            <Books className={compact ? 'h-3 w-3' : 'h-4 w-4'} /><span>PDF Coming Soon</span>
           </span>
         )
       )}
@@ -301,7 +301,7 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
       onClick={onSelect}
       className="group cursor-pointer border-b border-white/10 bg-black/50 transition-colors hover:bg-white/[0.02]"
     >
-      {/* ── Mobile layout ── */}
+      {/* ── Mobile AppWindow ── */}
       <div className="md:hidden px-4 py-4">
         {/* Cover + metadata side by side */}
         <div className="flex gap-3">
@@ -359,7 +359,7 @@ function BookCard({ book, shelfLabel, isFavorite, onToggleFavorite, onSelect }: 
         </div>
       </div>
 
-      {/* ── Desktop layout ── */}
+      {/* ── Desktop AppWindow ── */}
       <div className="hidden md:grid gap-3 px-5 py-4 md:grid-cols-[88px_minmax(0,2.7fr)_minmax(150px,0.72fr)_minmax(180px,0.82fr)_minmax(210px,0.9fr)_40px] md:items-start">
         <div className="flex justify-start">{coverEl}</div>
 
@@ -533,7 +533,7 @@ export function ReadingListPage() {
     ? 'SAVED'
     : (activeShelfData?.kicker ?? null);
 
-  // ── Modal navigation ───────────────────────────────────────────────────────
+  // ── Modal Navigation ───────────────────────────────────────────────────────
   const selectedEntry = selection ? selection.list[selection.index] : null;
   const canPrev = selection && selection.index > 0;
   const canNext = selection && selection.index < selection.list.length - 1;
@@ -626,8 +626,8 @@ export function ReadingListPage() {
 
           <div className="flex flex-1 flex-col justify-center px-4 py-6 sm:px-8">
             <div className="mb-2 flex items-center gap-2 font-mono text-[12px] tracking-wider text-gray-600">
-              <button onClick={() => navigate('/')} className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">HOME</button>
-              <ChevronRight className="h-3 w-3" />
+              <button onClick={() => navigate('/')} className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">Home</button>
+              <CaretRight className="h-3 w-3" />
               <span className="text-red-500">READING LIST</span>
               <span className="border border-red-500 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold tracking-[0.2em]" style={{ color: '#ffffff' }}>2026</span>
             </div>
@@ -691,7 +691,7 @@ export function ReadingListPage() {
         {/* Search + sort + view toggle + section label */}
         <div className="flex flex-col gap-3 px-4 py-3 sm:px-8 lg:flex-row lg:items-center">
           <div className="relative w-full min-w-0 lg:max-w-md lg:flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
+            <MagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -699,8 +699,8 @@ export function ReadingListPage() {
               className="w-full border border-white/12 bg-black px-11 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-red-500/70"
             />
             {query && (
-              <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-600 transition-colors hover:text-white" aria-label="Clear search">
-                <X className="h-3.5 w-3.5" />
+              <button onClick={() => setQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-600 transition-colors hover:text-white" aria-label="Clear Search">
+                <X weight="bold" className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -718,7 +718,7 @@ export function ReadingListPage() {
                 <option value="author-az">Author A–Z</option>
                 <option value="type">Type (books first)</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+              <CaretDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
             </div>
 
             {/* View toggle */}
@@ -735,7 +735,7 @@ export function ReadingListPage() {
                 aria-label="Grid view"
                 className={`p-1.5 transition-colors ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
               >
-                <LayoutGrid className="h-3.5 w-3.5" />
+                <SquaresFour className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -852,7 +852,7 @@ export function ReadingListPage() {
 
             {filteredShelves.length === 0 && (
               <section className="border border-white/12 bg-black/70 px-6 py-12 text-center">
-                <p className="text-lg font-black tracking-wide text-white">No titles matched that search.</p>
+                <p className="text-lg font-black tracking-wide text-white">No titles matched that Search.</p>
                 <p className="mt-2 text-sm text-gray-400">Try a broader keyword or jump back to all shelves.</p>
               </section>
             )}
@@ -892,7 +892,7 @@ export function ReadingListPage() {
 
             {filteredShelves.length === 0 && (
               <section className="border border-white/12 bg-black/70 px-6 py-12 text-center">
-                <p className="text-lg font-black tracking-wide text-white">No titles matched that search.</p>
+                <p className="text-lg font-black tracking-wide text-white">No titles matched that Search.</p>
                 <p className="mt-2 text-sm text-gray-400">Try a broader keyword or jump back to all shelves.</p>
               </section>
             )}

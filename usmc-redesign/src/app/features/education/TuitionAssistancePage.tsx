@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
+﻿import { useState, type ReactNode } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ChevronDown, ExternalLink, Clock, AlertTriangle, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
+import { CaretRight, CaretDown, ArrowSquareOut, Clock, Warning, CheckCircle, FileText, GraduationCap } from '@phosphor-icons/react';
 
 const taTabs = ['OVERVIEW', 'ELIGIBILITY', 'HOW TO APPLY', 'GRADE REQUIREMENTS', 'RECOUPMENT'];
 
@@ -148,7 +148,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
         className="flex w-full items-center justify-between bg-white/[0.04] px-6 py-4 text-left hover:bg-white/[0.07] transition-colors"
       >
         <span className="text-[13px] font-bold text-gray-200 tracking-wide pr-4">{q}</span>
-        <ChevronDown className={`h-4 w-4 flex-shrink-0 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <CaretDown className={`h-4 w-4 flex-shrink-0 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -177,6 +177,8 @@ export function TuitionAssistancePage() {
         description="Marine Corps Tuition Assistance (TA) program guide — eligibility requirements, $4,500 annual limit, how to apply through Marine Online, grade requirements, and recoupment rules."
         path="/education/tuition-assistance"
       />
+
+
       <div className="px-8 py-8">
         <div className="mb-8 flex flex-col gap-3 border-b border-white/12 -mx-8 px-8 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center overflow-x-auto">
@@ -201,7 +203,7 @@ export function TuitionAssistancePage() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 self-start pb-3 text-[12px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors md:self-auto"
           >
-            SUBMIT A TA REQUEST (MYEDUCATION) <ExternalLink className="w-3 h-3" />
+            SUBMIT A TA REQUEST (MYEDUCATION) <ArrowSquareOut className="w-3 h-3" />
           </a>
         </div>
       </div>
@@ -277,7 +279,7 @@ export function TuitionAssistancePage() {
                       </div>
                       {i < arr.length - 1 && (
                         <div className="flex justify-center py-0.5 sm:block sm:py-0">
-                          <ChevronRight className="w-4 h-4 text-red-600 rotate-90 sm:rotate-0 sm:mx-1" />
+                          <CaretRight className="w-4 h-4 text-red-600 rotate-90 sm:rotate-0 sm:mx-1" />
                         </div>
                       )}
                     </div>
@@ -330,7 +332,7 @@ export function TuitionAssistancePage() {
                         <div className="text-xs text-gray-600">{link.sub}</div>
                       </div>
                     </div>
-                    <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                    <CaretRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                   </a>
                 ))}
 
@@ -347,7 +349,7 @@ export function TuitionAssistancePage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white text-[11px] font-bold tracking-widest hover:bg-red-700 transition-colors w-full justify-center"
                     >
-                      GO TO MYEDUCATION <ExternalLink className="w-3 h-3" />
+                      GO TO MYEDUCATION <ArrowSquareOut className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
@@ -371,7 +373,7 @@ export function TuitionAssistancePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
               {eligibilityAll.map((item, i) => (
                 <div key={i} className="flex items-start gap-3 border border-white/12 bg-black px-4 py-4 hover:border-white/25 transition-colors">
-                  <CheckCircle2 className="w-4 h-4 text-red-500/70 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-4 h-4 text-red-500/70 flex-shrink-0 mt-0.5" />
                   <span className="text-[13px] text-gray-300 leading-relaxed">{item}</span>
                 </div>
               ))}
@@ -461,7 +463,7 @@ export function TuitionAssistancePage() {
                     'A voluntary or involuntary withdrawal occurred from any course',
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-3 bg-amber-950/10 border border-amber-500/15 px-4 py-3 hover:border-amber-500/30 transition-colors">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-500/60 flex-shrink-0 mt-0.5" />
+                      <Warning className="w-3.5 h-3.5 text-amber-500/60 flex-shrink-0 mt-0.5" />
                       <span className="text-[13px] text-gray-400 leading-relaxed">{item}</span>
                     </div>
                   ))}
@@ -518,7 +520,7 @@ export function TuitionAssistancePage() {
                   {[
                     { icon: Clock, label: 'Submit Request', value: 'No more than 60 days before class start', accent: 'border-white/12' },
                     { icon: Clock, label: 'Command Approval', value: 'At least 48 hours before class start', accent: 'border-white/12' },
-                    { icon: AlertTriangle, label: 'FY Blackout Period', value: 'No processing Sep 15–30 (year-end closeout)', accent: 'border-amber-500/20' },
+                    { icon: Warning, label: 'FY Blackout Period', value: 'No processing Sep 15–30 (year-end closeout)', accent: 'border-amber-500/20' },
                     { icon: FileText, label: 'Grade Submission', value: 'Grades due to NETPDC within 30 days of term end', accent: 'border-white/12' },
                   ].map((item, i) => (
                     <div key={i} className={`border ${item.accent} bg-black px-4 py-4 flex items-start gap-3 hover:bg-white/[0.03] transition-colors`}>
@@ -543,7 +545,7 @@ export function TuitionAssistancePage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white text-[11px] font-bold tracking-widest hover:bg-red-700 transition-colors w-full justify-center"
                 >
-                  GO TO MYEDUCATION <ExternalLink className="w-3 h-3" />
+                  GO TO MYEDUCATION <ArrowSquareOut className="w-3 h-3" />
                 </a>
               </div>
             </div>
@@ -593,21 +595,21 @@ export function TuitionAssistancePage() {
                   <div className="text-[12px] font-bold text-gray-400 tracking-[0.2em] mb-3 pb-2 border-b border-white/10">UNDERGRADUATE</div>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="text-[12px] font-bold text-green-400">GPA 2.5+</div>
                         <div className="text-[12px] text-gray-500">Full TA access (up to 2 courses)</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-400/70 flex-shrink-0 mt-0.5" />
+                      <Warning className="w-3.5 h-3.5 text-amber-400/70 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="text-[12px] font-bold text-amber-400/80">GPA 2.0–2.49</div>
                         <div className="text-[12px] text-gray-500">Limited to 1 course next term</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <Warning className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="text-[12px] font-bold text-red-400">GPA below 2.0</div>
                         <div className="text-[12px] text-gray-500">TA suspended</div>
@@ -619,14 +621,14 @@ export function TuitionAssistancePage() {
                   <div className="text-[12px] font-bold text-gray-400 tracking-[0.2em] mb-3 pb-2 border-b border-white/10">GRADUATE</div>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                      <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="text-[12px] font-bold text-green-400">GPA 3.0+</div>
                         <div className="text-[12px] text-gray-500">Full TA access (up to 2 courses)</div>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <Warning className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="text-[12px] font-bold text-red-400">GPA below 3.0</div>
                         <div className="text-[12px] text-gray-500">Limited to 1 course next term</div>
@@ -645,7 +647,7 @@ export function TuitionAssistancePage() {
               </div>
               <div className="border border-amber-500/20 bg-amber-950/10 px-5 py-5 mb-4">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <Warning className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                   <div className="space-y-3 text-[13px] text-gray-400 leading-relaxed">
                     <p>You have <strong className="text-amber-400">up to 6 months</strong> from the term end date to convert an "I" grade to a passing grade. The school's deadline takes precedence if it is shorter.</p>
                     <p>You <strong className="text-white">cannot submit any new TA requests</strong> until the Incomplete is fully resolved — no exceptions.</p>
@@ -687,7 +689,7 @@ export function TuitionAssistancePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {recoupmentTriggers.map((item, i) => (
                     <div key={i} className="flex items-start gap-3 border border-red-900/30 bg-red-950/10 px-4 py-3 hover:border-red-700/40 transition-colors">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-500/70 flex-shrink-0 mt-0.5" />
+                      <Warning className="w-3.5 h-3.5 text-red-500/70 flex-shrink-0 mt-0.5" />
                       <span className="text-[13px] text-gray-300 leading-relaxed">{item}</span>
                     </div>
                   ))}

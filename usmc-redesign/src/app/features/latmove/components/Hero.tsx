@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronsDown } from 'lucide-react';
+﻿import { CaretRight, CaretDoubleDown } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 
@@ -32,8 +32,8 @@ export function Hero({ onExploreTool }: Props) {
         <div className="flex-1 flex flex-col justify-center px-8 py-6">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-            <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-            <ChevronRight className="w-3 h-3" />
+            <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+            <CaretRight className="w-3 h-3" />
             <span className="text-red-500">LATERAL MOVE</span>
           </div>
 
@@ -59,7 +59,7 @@ export function Hero({ onExploreTool }: Props) {
             className="inline-flex w-fit items-center gap-2 text-left text-[13px] text-red-500 font-bold tracking-widest transition-colors hover:text-red-400 focus:outline-none focus-visible:text-red-400"
           >
             EXPLORE WHAT YOU COULD PURSUE NEXT IN THE MARINE CORPS
-            <ChevronsDown className="w-3.5 h-3.5 flex-shrink-0" />
+            <CaretDoubleDown weight="bold" className="w-3.5 h-3.5 flex-shrink-0" />
           </button>
         </div>
       </div>

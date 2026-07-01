@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router';
 import Clarity from '@microsoft/clarity';
 import { motion } from 'motion/react';
@@ -24,6 +24,7 @@ import { DegreePlannerPage } from '@/app/features/education/DegreePlannerPage';
 import { CollegeUniversityPage } from '@/app/features/education/CollegeUniversityPage';
 import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
+import { CareerPathPage } from '@/app/features/career/CareerPathPage';
 import { isFullscreenCapablePath } from './routeUtils';
 import { ThemeProvider } from '@/app/features/theme/ThemeContext';
 
@@ -122,6 +123,12 @@ export default function App() {
                   onToggleFullscreen={() => setIsFullscreen(f => !f)}
                 />
               </LatMoveErrorBoundary>
+            } />
+            <Route path="/career-path" element={
+              <CareerPathPage
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={() => setIsFullscreen(f => !f)}
+              />
             } />
             <Route path="/stay-marine" element={<StayMarinePage />} />
             <Route path="/news" element={<NewsPage />} />

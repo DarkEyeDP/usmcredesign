@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
+﻿import { motion, AnimatePresence } from 'motion/react';
+import { CaretRight, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { Link } from 'react-router';
 import { CLEARANCE_LABELS, colorVisionLabel } from '../types';
 import { SKILL_LABELS } from '../db/mos-skills';
@@ -31,14 +31,14 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
   function qualificationTone(status: 'met' | 'unmet' | 'unknown') {
     if (status === 'unmet') {
       return {
-        icon: <AlertCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-red-600' : 'text-red-400'}`} />,
+        icon: <WarningCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-red-600' : 'text-red-400'}`} />,
         textClassName: `text-[13px] leading-relaxed ${isDesert ? 'text-red-700' : 'text-red-200'}`,
       };
     }
 
     if (status === 'unknown') {
       return {
-        icon: <AlertCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-yellow-600' : 'text-yellow-500'}`} />,
+        icon: <WarningCircle className={`mt-0.5 h-3 w-3 flex-shrink-0 ${isDesert ? 'text-yellow-600' : 'text-yellow-500'}`} />,
         textClassName: `text-[13px] leading-relaxed ${isDesert ? 'text-yellow-700' : 'text-yellow-200'}`,
       };
     }
@@ -53,7 +53,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
     <AnimatePresence initial={false}>
       {result && (
         <motion.div
-          layout
+          AppWindow
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
@@ -214,7 +214,7 @@ export function ResultCardDetail({ result, resultNumber, activeSide }: Props) {
                       to="/pay-benefits/bonuses"
                       className={`mt-3 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] transition-colors ${isDesert ? 'text-red-700 hover:text-red-800' : 'text-red-400 hover:text-red-300'}`}
                     >
-                      OPEN BONUS TOOL <ChevronRight className="h-3 w-3" />
+                      OPEN BONUS TOOL <CaretRight className="h-3 w-3" />
                     </Link>
                   </div>
                 )}

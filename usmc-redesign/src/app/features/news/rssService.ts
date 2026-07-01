@@ -1,4 +1,4 @@
-import type { NewsArticleBlock, NewsArticleDetail, NewsArticleLink, NewsItem } from './types';
+﻿import type { NewsArticleBlock, NewsArticleDetail, NewsArticleLink, NewsItem } from './types';
 
 const JINA_READER_URL = 'https://r.jina.ai/';
 
@@ -343,7 +343,7 @@ function shouldSkipReaderLine(line: string): boolean {
     /^Subscribe to\b/i.test(line) ||
     /^(Related Stories|Load More|Helpful Links|Popular|Legal & Administrative)$/i.test(line) ||
     /^Choose which .+ products you want/i.test(line) ||
-    // defense.gov / war.gov navigation menus (appear mid-page in Jina Reader output)
+    // defense.gov / war.gov Navigation menus (appear mid-page in Jina Reader output)
     /^Press Products\b.+\b(Releases|Advisories)/i.test(line) ||
     /^Newsroom\b.+\bNews Stories\b/i.test(line) ||
     /^Multimedia\b.+\bPhoto Collections/i.test(line) ||

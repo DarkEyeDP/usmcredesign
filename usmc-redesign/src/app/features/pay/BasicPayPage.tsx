@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 import { motion, animate, useMotionValue, useTransform } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, ExternalLink, Info } from 'lucide-react';
+import { CaretRight, ArrowSquareOut, Info } from '@phosphor-icons/react';
 import {
   formatStoredDate,
   getEffectiveYearsOfService,
@@ -14,6 +14,7 @@ import {
   type PayCategory,
 } from './payTables2026';
 import { readStoredPayOverviewSettings } from './payOverviewStorage';
+import { getRankInsigniaPath } from '@/app/components/ui/RankInsignia';
 
 const payCategories: PayCategory[] = ['enlisted', 'warrant', 'officer'];
 
@@ -207,16 +208,16 @@ export function BasicPayPage() {
                 onClick={() => navigate('/')}
                 className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0"
               >
-                HOME
+                House
               </button>
-              <ChevronRight className="w-3 h-3" />
+              <CaretRight className="w-3 h-3" />
               <button
                 onClick={() => navigate('/pay-benefits')}
                 className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0"
               >
                 BENEFITS
               </button>
-              <ChevronRight className="w-3 h-3" />
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">BASIC PAY</span>
             </div>
 
@@ -312,7 +313,7 @@ export function BasicPayPage() {
               rel="noreferrer"
               className="flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
             >
-              {activeTableLink.label} <ExternalLink className="w-3 h-3" />
+              {activeTableLink.label} <ArrowSquareOut className="w-3 h-3" />
             </a>
           </div>
         </div>
@@ -420,9 +421,15 @@ export function BasicPayPage() {
         <div className="mt-8 border border-white/12">
           <div className="p-6">
             <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-3">SAVED PROFILE</div>
-            <div className="text-[13px] text-red-500 font-bold tracking-widest mb-4">
-              {savedSettings.payRank} | {effectiveYearsOfService} YEARS | {payCategoryLabels[savedSettings.payCategory].toUpperCase()}
-              {formattedAfadbd ? ` | AFADBD ${formattedAfadbd.toUpperCase()}` : ''}
+            <div className="flex items-center gap-3 mb-4">
+              {(() => {
+                const path = getRankInsigniaPath(savedSettings.payRank, savedSettings.payRankAbbr);
+                return path ? <img src={path} alt={savedSettings.payRankAbbr ?? savedSettings.payRank} className="w-9 h-9 object-contain flex-none" draggable={false} /> : null;
+              })()}
+              <div className="text-[13px] text-red-500 font-bold tracking-widest">
+                {savedSettings.payRank}{savedSettings.payRankAbbr ? ` · ${savedSettings.payRankAbbr}` : ''} | {effectiveYearsOfService} YEARS | {payCategoryLabels[savedSettings.payCategory].toUpperCase()}
+                {formattedAfadbd ? ` | AFADBD ${formattedAfadbd.toUpperCase()}` : ''}
+              </div>
             </div>
             <div className="text-sm text-gray-300 leading-relaxed mb-4">
               Your pay overview selection is carried into this page so you can compare it against the full chart.
@@ -462,7 +469,7 @@ export function BasicPayPage() {
                 className="flex w-full items-center justify-between border border-white/12 px-4 py-3 text-left text-sm font-bold tracking-wide text-gray-300 hover:border-white/30 hover:text-white transition-colors"
               >
                 {activeTableLink.label}
-                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                <ArrowSquareOut className="w-3 h-3 flex-shrink-0" />
               </a>
               <button
                 onClick={() => navigate('/pay-benefits')}

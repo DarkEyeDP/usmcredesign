@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+﻿import { useState } from 'react';
+import { X } from '@phosphor-icons/react';
 import { AUDIENCES } from '../maradminAudienceUtils';
 import type { CustomView } from '../maradminStorage';
 import { ALL_MARADMIN_TAGS } from '../maradminUtils';
@@ -44,7 +44,7 @@ export function CreateViewModal({ initialValues, onSave, onCancel }: CreateViewM
         <div className="flex items-center justify-between">
           <div className="text-[11px] font-bold tracking-[0.2em] text-red-500">{isEditing ? 'EDIT CUSTOM VIEW' : 'NEW CUSTOM VIEW'}</div>
           <button onClick={onCancel} className="text-gray-600 hover:text-white transition-colors">
-            <X className="w-4 h-4" />
+            <X weight="bold" className="w-4 h-4" />
           </button>
         </div>
 
@@ -87,7 +87,7 @@ export function CreateViewModal({ initialValues, onSave, onCancel }: CreateViewM
                 <span key={k} className="flex items-center gap-1 px-2.5 py-1 bg-red-950/30 border border-red-600/40 text-red-400 text-[11px] font-bold">
                   {k}
                   <button onClick={() => setKeywords(prev => prev.filter(kw => kw !== k))} className="hover:text-white transition-colors">
-                    <X className="w-3 h-3" />
+                    <X weight="bold" className="w-3 h-3" />
                   </button>
                 </span>
               ))}

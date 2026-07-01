@@ -1,10 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { getRankInsigniaPath } from '@/app/components/ui/RankInsignia';
 import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
 import heroBanner from '@/app/assets/hero-3.webp';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router';
-import { ChevronLeft, ChevronRight, Calculator, CalendarDays, ExternalLink, Info, Shield, TrendingUp, DollarSign, X } from 'lucide-react';
+import { CaretLeft, CaretRight, Calculator, CalendarDots, ArrowSquareOut, Info, Shield, TrendUp, CurrencyDollar, X } from '@phosphor-icons/react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/app/components/ui/dialog';
 import { Calendar } from '@/app/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
@@ -53,14 +54,29 @@ const benefits = [
 ];
 
 const tools = [
-  { icon: TrendingUp, label: 'MILRETIRED.COM', desc: 'Compare all 50 states on taxes, cost of living, VA benefits, and retirement friendliness.', link: 'https://milretired.com' },
+  { icon: TrendUp, label: 'MILRETIRED.COM', desc: 'Compare all 50 states on taxes, cost of living, VA benefits, and retirement friendliness.', link: 'https://milretired.com' },
   { icon: Shield, label: 'SGLI', desc: "Servicemembers' Group Life Insurance details and coverage.", link: null },
-  { icon: TrendingUp, label: 'THRIFT SAVINGS PLAN', desc: 'Plan for retirement with the TSP and resources.', link: null },
-  { icon: DollarSign, label: 'FINANCIAL COUNSELING', desc: 'Get help from accredited financial counselors.', link: null },
-  { icon: DollarSign, label: 'MONEY MATTERS', desc: 'Financial readiness tips and training.', link: null },
+  { icon: TrendUp, label: 'THRIFT SAVINGS PLAN', desc: 'Plan for retirement with the TSP and resources.', link: null },
+  { icon: CurrencyDollar, label: 'FINANCIAL COUNSELING', desc: 'Get help from accredited financial counselors.', link: null },
+  { icon: CurrencyDollar, label: 'MONEY MATTERS', desc: 'Financial readiness tips and training.', link: null },
 ];
 
 const payCategories: PayCategory[] = ['enlisted', 'warrant', 'officer'];
+
+const ENLISTED_GRADE_OPTIONS: { payGrade: string; abbr?: string }[] = [
+  { payGrade: 'E-1' },
+  { payGrade: 'E-2' },
+  { payGrade: 'E-3' },
+  { payGrade: 'E-4' },
+  { payGrade: 'E-5' },
+  { payGrade: 'E-6' },
+  { payGrade: 'E-7' },
+  { payGrade: 'E-8', abbr: 'MSgt' },
+  { payGrade: 'E-8', abbr: '1stSgt' },
+  { payGrade: 'E-9', abbr: 'MGySgt' },
+  { payGrade: 'E-9', abbr: 'SgtMaj' },
+  { payGrade: 'E-9', abbr: 'SgtMajMC' },
+];
 
 const payCategoryLabels: Record<PayCategory, string> = {
   enlisted: 'Enlisted',
@@ -147,7 +163,7 @@ export function PayBenefitsPage() {
   const [afadbdPickerMode, setAfadbdPickerMode] = useState<'day' | 'month-year'>('day');
   const [afadbdViewMonth, setAfadbdViewMonth] = useState(() => parseStoredDate(readStoredPayOverviewSettings().afadbd) ?? new Date(2010, 0, 1));
   const [afadbdPickerYear, setAfadbdPickerYear] = useState(() => (parseStoredDate(readStoredPayOverviewSettings().afadbd) ?? new Date(2010, 0, 1)).getFullYear());
-  const { payCategory, payRank, yearsOfService, includeBas, afadbd } = storedSettings;
+  const { payCategory, payRank, payRankAbbr, yearsOfService, includeBas, afadbd } = storedSettings;
   const effectiveYearsOfService = getEffectiveYearsOfService(yearsOfService, afadbd);
   const afadbdDate = useMemo(() => parseStoredDate(afadbd), [afadbd]);
   const formattedAfadbd = formatStoredDate(afadbd);
@@ -194,6 +210,7 @@ export function PayBenefitsPage() {
       ...current,
       payCategory: category,
       payRank: PAY_TABLES_2026[category].ranks[0],
+      payRankAbbr: undefined,
     }));
   }
 
@@ -208,7 +225,7 @@ export function PayBenefitsPage() {
 
     // Radix can occasionally leave body pointer-events disabled after nested
     // dialog/popover interactions. Reset it whenever this page is active and
-    // no modal surface should be blocking navigation.
+    // no modal surface should be blocking Navigation.
     if (!selectorOpen && !afadbdPickerOpen) {
       document.body.style.pointerEvents = '';
     }
@@ -379,8 +396,8 @@ export function PayBenefitsPage() {
           <div className="flex-1 flex flex-col justify-center px-8 py-6">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
+              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">BENEFITS</span>
             </div>
             <div className="flex items-start gap-4">
@@ -429,8 +446,14 @@ export function PayBenefitsPage() {
           {/* Pay Overview */}
           <div className="p-6 border-r border-white/12">
             <div className="text-[13px] text-gray-500 font-bold tracking-[0.2em] mb-3">PAY OVERVIEW</div>
-            <div className="text-[13px] text-red-500 font-bold tracking-widest mb-4">
-              {payRank} | {payDetails.bracket.label.toUpperCase()} YEARS OF SERVICE
+            <div className="flex items-center gap-3 mb-4">
+              {(() => {
+                const path = getRankInsigniaPath(payRank, payRankAbbr);
+                return path ? <img src={path} alt={payRankAbbr ?? payRank} className="w-9 h-9 object-contain flex-none" draggable={false} /> : null;
+              })()}
+              <div className="text-[13px] text-red-500 font-bold tracking-widest">
+                {payRank}{payRankAbbr ? ` · ${payRankAbbr}` : ''} | {payDetails.bracket.label.toUpperCase()} YEARS OF SERVICE
+              </div>
             </div>
             <div className="mb-4">
               <div className="text-[13px] text-gray-600 tracking-wider mb-1">2026 MONTHLY BASIC PAY</div>
@@ -557,7 +580,7 @@ export function PayBenefitsPage() {
                 rel="noreferrer"
                 className="flex items-center gap-1.5 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
               >
-                LOG IN TO MYPAY <ExternalLink className="w-3 h-3" />
+                LOG IN TO MYPAY <ArrowSquareOut className="w-3 h-3" />
               </a>
             </div>
           </div>
@@ -576,7 +599,7 @@ export function PayBenefitsPage() {
                         <div className="text-sm text-gray-300 group-hover:text-white transition-colors">{topic.label}</div>
                         <div className="text-xs text-gray-600">{topic.desc}</div>
                       </div>
-                      <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                      <CaretRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     </Link>
                   );
                 }
@@ -588,7 +611,7 @@ export function PayBenefitsPage() {
                         <div className="text-sm text-gray-300 group-hover:text-white transition-colors">{topic.label}</div>
                         <div className="text-xs text-gray-600">{topic.desc}</div>
                       </div>
-                      <ExternalLink className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                      <ArrowSquareOut className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     </a>
                   );
                 }
@@ -613,7 +636,7 @@ export function PayBenefitsPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em]">FEATURED BENEFITS</div>
           <button className="flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-            VIEW ALL BENEFITS <ChevronRight className="w-3 h-3" />
+            VIEW ALL BENEFITS <CaretRight className="w-3 h-3" />
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -632,7 +655,7 @@ export function PayBenefitsPage() {
                 <div className="text-sm font-bold text-white tracking-wide mb-1 group-hover:text-red-400 transition-colors">{b.label}</div>
                 <p className="text-[13px] text-gray-500 leading-relaxed mb-2 flex-1">{b.desc}</p>
                 {b.link
-                  ? <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest text-red-500 group-hover:text-red-400 transition-colors">EXPLORE <ChevronRight className="w-2.5 h-2.5" /></span>
+                  ? <span className="inline-flex items-center gap-1 text-[9px] font-bold tracking-widest text-red-500 group-hover:text-red-400 transition-colors">EXPLORE <CaretRight className="w-2.5 h-2.5" /></span>
                   : <span className="inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
                 }
               </>
@@ -670,7 +693,7 @@ export function PayBenefitsPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="text-[13px] font-bold text-gray-300 tracking-[0.2em]">TOOLS & RESOURCES</div>
           <button className="flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-            VIEW ALL TOOLS <ChevronRight className="w-3 h-3" />
+            VIEW ALL TOOLS <CaretRight className="w-3 h-3" />
           </button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-0 border border-white/12">
@@ -750,19 +773,33 @@ export function PayBenefitsPage() {
             <div className="mb-6">
               <div className="text-[12px] font-bold tracking-[0.2em] text-gray-500 mb-3">PAY GRADE</div>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                {payTable.ranks.map((rank) => (
-                  <button
-                    key={rank}
-                    onClick={() => setStoredSettings((current) => ({ ...current, payRank: rank }))}
-                    className={`border px-4 py-3 text-sm font-bold tracking-wide transition-colors ${
-                      payRank === rank
-                        ? selectedBtn
-                        : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
-                    }`}
-                  >
-                    {rank}
-                  </button>
-                ))}
+                {(payCategory === 'enlisted' ? ENLISTED_GRADE_OPTIONS : payTable.ranks.map(r => ({ payGrade: r, abbr: undefined }))).map((entry) => {
+                  const insigniaPath = getRankInsigniaPath(entry.payGrade, entry.abbr);
+                  const isSelected = entry.abbr
+                    ? payRank === entry.payGrade && payRankAbbr === entry.abbr
+                    : payRank === entry.payGrade && !payRankAbbr;
+                  return (
+                    <button
+                      key={`${entry.payGrade}-${entry.abbr ?? ''}`}
+                      onClick={() => setStoredSettings((current) => ({ ...current, payRank: entry.payGrade, payRankAbbr: entry.abbr }))}
+                      className={`border px-2 py-3 text-sm font-bold tracking-wide transition-colors flex flex-col items-center gap-1 ${
+                        isSelected
+                          ? selectedBtn
+                          : 'border-white/10 bg-white/[0.02] text-gray-400 hover:border-white/30 hover:text-white'
+                      }`}
+                    >
+                      {insigniaPath && (
+                        <img src={insigniaPath} alt={entry.abbr ?? entry.payGrade} className="w-8 h-8 object-contain" draggable={false} />
+                      )}
+                      {entry.abbr ? (
+                        <>
+                          <span className="text-[11px]">{entry.abbr}</span>
+                          <span className="text-[9px] opacity-50">{entry.payGrade}</span>
+                        </>
+                      ) : entry.payGrade}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -814,7 +851,7 @@ export function PayBenefitsPage() {
                     onClick={() => setStoredSettings((current) => ({ ...current, afadbd: null }))}
                     className="flex items-center gap-1 text-xs font-bold tracking-widest text-gray-400 hover:text-white transition-colors"
                   >
-                    <X className="w-3 h-3" /> CLEAR
+                    <X weight="bold" className="w-3 h-3" /> CLEAR
                   </button>
                 )}
               </div>
@@ -830,7 +867,7 @@ export function PayBenefitsPage() {
                   className="flex min-w-[220px] items-center justify-between border border-white/12 bg-black px-4 py-3 text-left text-sm text-white hover:border-white/30 transition-colors"
                 >
                   <span>{formattedAfadbd ?? 'Select AFADBD'}</span>
-                  <CalendarDays className="w-4 h-4 text-red-400" />
+                  <CalendarDots className="w-4 h-4 text-red-400" />
                 </button>
                 <div className="text-sm text-gray-400">
                   {afadbd
@@ -851,7 +888,7 @@ export function PayBenefitsPage() {
                           onClick={() => changeAfadbdMonth(-1)}
                           className="flex h-8 w-8 items-center justify-center rounded-md border border-white/12 bg-white/[0.03] text-white hover:border-white/30 hover:bg-white/[0.08] transition-colors"
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <CaretLeft className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
@@ -865,7 +902,7 @@ export function PayBenefitsPage() {
                           onClick={() => changeAfadbdMonth(1)}
                           className="flex h-8 w-8 items-center justify-center rounded-md border border-white/12 bg-white/[0.03] text-white hover:border-white/30 hover:bg-white/[0.08] transition-colors"
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <CaretRight className="w-4 h-4" />
                         </button>
                       </div>
                       <Calendar
@@ -891,7 +928,7 @@ export function PayBenefitsPage() {
                           onClick={() => setAfadbdPickerMode('day')}
                           className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-gray-400 hover:text-white transition-colors"
                         >
-                          <ChevronLeft className="w-3 h-3" /> BACK
+                          <CaretLeft className="w-3 h-3" /> BACK
                         </button>
                         <div className="text-sm font-bold text-white">Choose Month for {afadbdPickerYear}</div>
                         <div className="w-10" />

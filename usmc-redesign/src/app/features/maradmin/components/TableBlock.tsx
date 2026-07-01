@@ -1,4 +1,4 @@
-import { ChevronsLeftRight, PartyPopper, Search, X } from 'lucide-react';
+﻿import { ArrowsHorizontal, Confetti, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type UIEvent } from 'react';
 import { CelebrationOverlay } from './CelebrationOverlay';
 import type { DetectedTable } from '../maradminUtils';
@@ -190,10 +190,10 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                 aria-label="Celebrate"
                 title="Celebrate"
               >
-                <PartyPopper className="h-3.5 w-3.5" />
+                <Confetti className="h-3.5 w-3.5" />
               </button>
               <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                <MagnifyingGlass className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                 <input
                   type="text"
                   value={query}
@@ -208,7 +208,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600 transition-colors hover:text-gray-400"
                     aria-label="Clear filter"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X weight="bold" className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
@@ -247,7 +247,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
         )}
         {scrollHints.hasOverflow && scrollHints.canScrollRight && !scrollHints.canScrollLeft && (
           <div className="pointer-events-none absolute right-2 top-2 z-40 flex h-5 w-8 items-center justify-center border border-white/10 bg-black/70 text-gray-400 md:hidden">
-            <ChevronsLeftRight className="h-3.5 w-3.5" aria-hidden="true" />
+            <ArrowsHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
           </div>
         )}
         <div ref={scrollAreaRef} className="maradmin-table-scroll relative overflow-x-auto" onScroll={syncStickyHeader}>
@@ -299,7 +299,7 @@ export function TableBlock({ table }: { table: DetectedTable }) {
             aria-label="Celebrate this row"
             title="Celebrate"
           >
-            <PartyPopper className="h-3.5 w-3.5" />
+            <Confetti className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>

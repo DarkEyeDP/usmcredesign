@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Menu } from 'lucide-react';
-import { SiteLogo } from '@/app/components/layout/SiteLogo';
+import { List } from '@phosphor-icons/react';
+import { SiteLogo } from '@/app/components/Layout/SiteLogo';
 import {
   Sheet,
   SheetClose,
@@ -74,9 +74,9 @@ export function Header({ isLoggedIn, onToggleLogin: _onToggleLogin, isExpanded, 
               <button
                 type="button"
                 className="flex h-11 w-11 items-center justify-center border border-white/14 bg-white/[0.03] text-gray-300 transition-colors hover:border-white/30 hover:text-white"
-                aria-label="Open site navigation"
+                aria-label="Open site Navigation"
               >
-                <Menu className="h-5 w-5" />
+                <List className="h-5 w-5" />
               </button>
             </SheetTrigger>
             <SheetContent side="right" className="border-l border-white/12 bg-black p-0 text-white flex flex-col">

@@ -1,7 +1,7 @@
-import { ChevronRight, CheckCircle, ArrowRightLeft, Shield, Briefcase } from 'lucide-react';
+﻿import { CaretRight, CheckCircle, ArrowsLeftRight, Shield, Briefcase } from '@phosphor-icons/react';
 
 const aboutItems = [
-  { icon: ArrowRightLeft, label: 'EXPAND YOUR SKILLS',  desc: 'Gain new expertise and broaden your career opportunities.' },
+  { icon: ArrowsLeftRight, label: 'EXPAND YOUR SKILLS',  desc: 'Gain new expertise and broaden your career opportunities.' },
   { icon: Shield,         label: 'STAY MISSION READY',  desc: 'Fill critical roles and continue making an impact.' },
   { icon: Briefcase,      label: 'GROW YOUR FUTURE',    desc: 'Build the foundation for long-term success in and out of the Corps.' },
 ];
@@ -49,7 +49,7 @@ export function AboutSection() {
           })}
         </div>
         <button className="mt-5 flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-          LEARN MORE <ChevronRight className="w-3 h-3" />
+          LEARN MORE <CaretRight className="w-3 h-3" />
         </button>
       </div>
 
@@ -68,7 +68,7 @@ export function AboutSection() {
           ))}
         </div>
         <button className="mt-5 flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-          VIEW FULL REQUIREMENTS <ChevronRight className="w-3 h-3" />
+          VIEW FULL REQUIREMENTS <CaretRight className="w-3 h-3" />
         </button>
       </div>
 
@@ -82,7 +82,7 @@ export function AboutSection() {
               className="w-full flex items-center justify-between py-3 border-b border-white/10 last:border-0 text-left group"
             >
               <span className="text-sm text-gray-400 group-hover:text-white transition-colors">{link}</span>
-              <ChevronRight className="w-3 h-3 text-red-600/60 flex-shrink-0" />
+              <CaretRight className="w-3 h-3 text-red-600/60 flex-shrink-0" />
             </button>
           ))}
         </div>

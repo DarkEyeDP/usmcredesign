@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { X } from 'lucide-react';
+import { X } from '@phosphor-icons/react';
 import { GridPulses } from './GridPulses';
 import type { HeroVideo } from './types';
 
@@ -106,7 +106,7 @@ export function VideoPlayer({ video, onClose, avoidHeader = false }: VideoPlayer
               className="text-gray-600 hover:text-white transition-colors p-1"
               aria-label="Close video"
             >
-              <X className="w-4 h-4" />
+              <X weight="bold" className="w-4 h-4" />
             </button>
           </div>
 

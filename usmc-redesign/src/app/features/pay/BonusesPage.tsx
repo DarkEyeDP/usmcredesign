@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ChevronDown, ChevronRight, ExternalLink, Info, RefreshCw, Star, Target } from 'lucide-react';
+import { CaretDown, CaretRight, ArrowSquareOut, Info, ArrowClockwise, Star, Target } from '@phosphor-icons/react';
 import { DatePickerField } from '@/app/components/ui/date-picker-field';
 import {
   calculateSrbp,
@@ -268,16 +268,16 @@ export function BonusesPage() {
                 onClick={() => navigate('/')}
                 className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400"
               >
-                HOME
+                House
               </button>
-              <ChevronRight className="h-3 w-3" />
+              <CaretRight className="h-3 w-3" />
               <button
                 onClick={() => navigate('/pay-benefits')}
                 className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400"
               >
                 BENEFITS
               </button>
-              <ChevronRight className="h-3 w-3" />
+              <CaretRight className="h-3 w-3" />
               <span className="text-red-500">BONUSES</span>
             </div>
 
@@ -327,7 +327,7 @@ export function BonusesPage() {
         </div>
       </div>
 
-      {/* ── Main layout ── */}
+      {/* ── Main AppWindow ── */}
       <div className="relative px-4 py-8 sm:px-8">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.055]"
@@ -382,7 +382,7 @@ export function BonusesPage() {
                       <option value="E8">Master Sergeant / 1stSgt (E-8)</option>
                       <option value="E9">Sergeant Major (E-9)</option>
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                    <CaretDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                   </div>
                 </label>
 
@@ -446,7 +446,7 @@ export function BonusesPage() {
                         <option key={months} value={String(months)}>{months} months</option>
                       ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                    <CaretDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                   </div>
                   <FieldHint>36 months minimum; 60+ required for most kickers.</FieldHint>
                 </label>
@@ -487,7 +487,7 @@ export function BonusesPage() {
                       <option value="taxable">Subject to federal income tax</option>
                       <option value="tax-free">Tax-free combat zone</option>
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                    <CaretDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                   </div>
                 </label>
               </div>
@@ -511,7 +511,7 @@ export function BonusesPage() {
                     </div>
                   )}
                 </div>
-                <ChevronDown
+                <CaretDown
                   className={`h-4 w-4 flex-shrink-0 text-gray-500 transition-transform ${nmosOpen ? 'rotate-180' : ''}`}
                 />
               </button>
@@ -573,7 +573,7 @@ export function BonusesPage() {
                 onClick={handleReset}
                 className="flex items-center justify-center gap-2 border border-white/12 bg-black px-6 py-4 text-sm font-bold tracking-widest text-gray-400 transition-colors hover:border-white/25 hover:text-white sm:flex-none"
               >
-                <RefreshCw className="h-4 w-4" /> RESET
+                <ArrowClockwise className="h-4 w-4" /> RESET
               </button>
             </div>
           </form>
@@ -777,7 +777,7 @@ export function BonusesPage() {
                         className="flex w-full items-center justify-between border border-white/12 px-4 py-3 text-left text-xs font-bold tracking-wide text-gray-300 transition-colors hover:border-white/30 hover:text-white"
                       >
                         Official FY27 SRBP MARADMIN
-                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                        <ArrowSquareOut className="h-3 w-3 flex-shrink-0" />
                       </a>
                       <button
                         onClick={() => navigate('/pay-benefits')}
@@ -808,7 +808,7 @@ export function BonusesPage() {
                   className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
                 >
                   <span className="text-sm font-bold text-gray-200">{item.q}</span>
-                  <ChevronRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                  <CaretRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
                 </button>
                 <AnimatePresence initial={false}>
                   {openFaq === i && (

@@ -224,7 +224,7 @@ export function CollegeUniversityPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-4">
           <SchoolResultsList
             results={results}
             total={total}

@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+﻿import { SpinnerGap } from '@phosphor-icons/react';
 
 export function ContentSkeleton() {
   return (
@@ -14,7 +14,7 @@ export function ContentSkeleton() {
         </div>
       ))}
       <div className="flex items-center gap-2 text-gray-800 text-[11px] font-mono tracking-widest mt-2">
-        <Loader2 className="w-3 h-3 animate-spin" />
+        <SpinnerGap className="w-3 h-3 animate-spin" />
         FETCHING FULL MESSAGE…
       </div>
     </div>

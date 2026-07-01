@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+﻿import { CaretRight } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { SEOHead } from '@/app/components/SEOHead';
@@ -22,8 +22,8 @@ export function StayMarinePage() {
         }} />
         <div className="relative z-10 h-44 flex flex-col justify-center px-8">
           <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-            <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-            <ChevronRight className="w-3 h-3" />
+            <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+            <CaretRight className="w-3 h-3" />
             <span className="text-red-500">STAY MARINE</span>
           </div>
           <div className="flex items-start gap-4">
@@ -41,7 +41,7 @@ export function StayMarinePage() {
             Re-enlistment information, career planning, and incentives for committed Marines.
           </p>
           <button className="flex items-center gap-2 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors">
-            EXPLORE RE-ENLISTMENT OPTIONS <ChevronRight className="w-3 h-3" />
+            EXPLORE RE-ENLISTMENT OPTIONS <CaretRight className="w-3 h-3" />
           </button>
         </div>
       </div>

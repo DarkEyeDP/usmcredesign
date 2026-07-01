@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+﻿import { useEffect, useRef, useState } from 'react';
+import { CalendarDots, CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Calendar } from './calendar';
 import { ScrollArea } from './scroll-area';
 
@@ -107,7 +107,7 @@ export function DatePickerField({
         className="flex w-full items-center justify-between border border-white/16 bg-black px-4 py-3 text-left font-mono text-sm transition-colors hover:border-white/30 focus:outline-none focus:border-red-500/50"
       >
         <span className={displayLabel ? 'text-white' : 'text-gray-600'}>{displayLabel ?? placeholder}</span>
-        <CalendarDays className="h-4 w-4 flex-shrink-0 text-red-400" />
+        <CalendarDots className="h-4 w-4 flex-shrink-0 text-red-400" />
       </button>
 
       {open && (
@@ -120,7 +120,7 @@ export function DatePickerField({
                   onClick={() => changeMonth(-1)}
                   className="flex h-8 w-8 items-center justify-center border border-white/12 bg-white/[0.03] text-white transition-colors hover:border-white/30 hover:bg-white/[0.08]"
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <CaretLeft className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
@@ -134,7 +134,7 @@ export function DatePickerField({
                   onClick={() => changeMonth(1)}
                   className="flex h-8 w-8 items-center justify-center border border-white/12 bg-white/[0.03] text-white transition-colors hover:border-white/30 hover:bg-white/[0.08]"
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <CaretRight className="h-4 w-4" />
                 </button>
               </div>
               <Calendar
@@ -160,7 +160,7 @@ export function DatePickerField({
                   onClick={() => setMode('day')}
                   className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-gray-400 transition-colors hover:text-white"
                 >
-                  <ChevronLeft className="h-3 w-3" /> BACK
+                  <CaretLeft className="h-3 w-3" /> BACK
                 </button>
                 <div className="text-sm font-bold text-white">Choose Month for {pickerYear}</div>
                 <div className="w-10" />

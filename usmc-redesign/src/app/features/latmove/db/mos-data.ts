@@ -1,4 +1,4 @@
-import type { RequirementGroup } from './schema';
+﻿import type { RequirementGroup } from './schema';
 
 // ── Rank shorthand arrays ────────────────────────────────────────────────────
 // Future DB: these become rows in mos_rank_eligibility.

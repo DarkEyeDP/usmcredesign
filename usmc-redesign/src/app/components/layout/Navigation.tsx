@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router';
-import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { SidebarSimple } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { loggedInItems, loggedOutItems } from './navigationConfig';
 import { useTheme, THEMES, type Theme } from '@/app/features/theme/ThemeContext';
@@ -179,7 +179,7 @@ export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: Navigat
         className="absolute bottom-[68px] left-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center border border-white/16 text-gray-500 transition-colors hover:border-white/40 hover:text-white"
         aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
       >
-        {isExpanded ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        {isExpanded ? <SidebarSimple weight="bold" className="h-4 w-4" /> : <SidebarSimple weight="bold" className="h-4 w-4" />}
       </button>
     </motion.div>
     </>

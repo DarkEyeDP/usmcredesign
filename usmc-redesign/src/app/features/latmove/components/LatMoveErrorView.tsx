@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, RotateCcw } from 'lucide-react';
+﻿import { Warning, ArrowClockwise, ArrowCounterClockwise } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 
 interface Props {
@@ -64,7 +64,7 @@ export function LatMoveErrorView({
           </div>
           <div className="relative z-10 flex h-full flex-col justify-center px-8">
             <div className="mb-3 flex items-center gap-3 text-red-400">
-              <AlertTriangle className="h-5 w-5" />
+              <Warning className="h-5 w-5" />
               <span className="text-[12px] font-bold tracking-[0.3em]">ERROR REPORT</span>
             </div>
             <motion.h1
@@ -112,7 +112,7 @@ export function LatMoveErrorView({
                   onClick={onRetry}
                   className="inline-flex items-center justify-center gap-2 border border-red-500/50 bg-red-900/20 px-4 py-3 text-sm font-bold tracking-[0.16em] text-red-200 transition-colors hover:border-red-400 hover:bg-red-900/30"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <ArrowClockwise className="h-4 w-4" />
                   TRY AGAIN
                 </button>
               )}
@@ -122,7 +122,7 @@ export function LatMoveErrorView({
                   onClick={onReset}
                   className="inline-flex items-center justify-center gap-2 border border-white/14 bg-black/50 px-4 py-3 text-sm font-bold tracking-[0.16em] text-gray-200 transition-colors hover:border-white/35 hover:text-white"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <ArrowCounterClockwise className="h-4 w-4" />
                   RESET TOOL STATE
                 </button>
               )}

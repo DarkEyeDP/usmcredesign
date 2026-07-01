@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+﻿import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
-import { PanelLeftOpen } from 'lucide-react';
+import { SidebarSimple } from '@phosphor-icons/react';
 import { buildResults, sortResults } from './matching';
 import {
   EMPTY_RESULT_FILTERS,
@@ -421,7 +421,7 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
                 className="flex h-8 w-8 items-center justify-center border border-white/18 text-gray-500 transition-colors hover:border-white/40 hover:text-gray-200"
                 aria-label={isInfoPanelCollapsed ? 'Expand information panel' : 'Collapse information panel'}
               >
-                <PanelLeftOpen className={`h-4 w-4 transition-transform duration-300 ${isInfoPanelCollapsed ? 'rotate-90' : '-rotate-90'}`} />
+                <SidebarSimple weight="bold" className={`h-4 w-4 transition-transform duration-300 ${isInfoPanelCollapsed ? 'rotate-90' : '-rotate-90'}`} />
               </button>
             </div>
 
@@ -477,7 +477,7 @@ export function LateralMovePage({ isLoggedIn, isFullscreen = false, onToggleFull
                       <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500" />
                     </>
                   )}
-                  <PanelLeftOpen className="h-4 w-4" />
+                  <SidebarSimple weight="bold" className="h-4 w-4" />
                 </button>
                 <div className={`w-6 h-6 border flex items-center justify-center ${
                   isMissingRequiredInfo

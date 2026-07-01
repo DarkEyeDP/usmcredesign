@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ChevronDown, ChevronUp, CheckCircle, AlertCircle } from 'lucide-react';
+﻿import { motion, AnimatePresence } from 'motion/react';
+import { CaretRight, CaretDown, CaretUp, CheckCircle, WarningCircle } from '@phosphor-icons/react';
 import { Link } from 'react-router';
 import { CLEARANCE_LABELS, colorVisionLabel } from '../types';
 import { SKILL_LABELS } from '../db/mos-skills';
@@ -41,14 +41,14 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
   function qualificationTone(status: 'met' | 'unmet' | 'unknown') {
     if (status === 'unmet') {
       return {
-        icon: <AlertCircle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />,
+        icon: <WarningCircle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />,
         textClassName: 'text-[13px] text-red-200 leading-relaxed',
       };
     }
 
     if (status === 'unknown') {
       return {
-        icon: <AlertCircle className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />,
+        icon: <WarningCircle className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />,
         textClassName: 'text-[13px] text-yellow-200 leading-relaxed',
       };
     }
@@ -97,8 +97,8 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
         </div>
         <div className="flex justify-center">
           {isExpanded
-            ? <ChevronUp className="w-4 h-4 text-red-500" />
-            : <ChevronDown className="w-4 h-4 text-gray-600 group-hover:text-gray-400" />
+            ? <CaretUp className="w-4 h-4 text-red-500" />
+            : <CaretDown className="w-4 h-4 text-gray-600 group-hover:text-gray-400" />
           }
         </div>
       </button>
@@ -243,7 +243,7 @@ export function ResultRow({ result, resultNumber, isExpanded, onToggle }: Props)
                         to="/pay-benefits/bonuses"
                         className="mt-3 inline-flex items-center gap-2 text-[11px] font-bold tracking-[0.22em] text-red-400 transition-colors hover:text-red-300"
                       >
-                        OPEN BONUS TOOL <ChevronRight className="h-3 w-3" />
+                        OPEN BONUS TOOL <CaretRight className="h-3 w-3" />
                       </Link>
                     </div>
                   )}

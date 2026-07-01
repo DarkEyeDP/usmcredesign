@@ -11,9 +11,9 @@ import {
 import { useNavigate, useParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Search, Filter, ChevronRight, Printer, Bookmark, Maximize2, Minimize2,
-  ChevronLeft, ChevronDown, ChevronUp, Loader2, Mail, Phone, RefreshCw, Plus, X, Pencil, Share2, Link2, Check,
-} from 'lucide-react';
+  MagnifyingGlass, Funnel, CaretRight, Printer, Bookmark, ArrowsOut, ArrowsIn,
+  CaretLeft, CaretDown, CaretUp, SpinnerGap, Envelope, Phone, ArrowClockwise, Plus, X, Pencil, Share, Link,
+} from '@phosphor-icons/react';
 import { generateMARADMINPdf, maradminEmailBody } from './maradminPdf';
 import {
   fetchMARADMINFeed, fetchMARADMINArticle, syncMARADMINFeed, parseMARADMINText,
@@ -151,7 +151,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     setSearchIndexVersion(v => v + 1);
   }, []);
 
-  // Debounce search query to avoid thrashing MiniSearch on every keystroke.
+  // Debounce Search query to avoid thrashing MiniSearch on every keystroke.
   useEffect(() => {
     const id = window.setTimeout(() => setDebouncedQuery(searchQuery), 150);
     return () => window.clearTimeout(id);
@@ -677,7 +677,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     return () => container.removeEventListener('scroll', onScroll);
   }, []);
 
-  // When the user types a search query, load all available MARADMINs so search is comprehensive.
+  // When the user types a Search query, load all available MARADMINs so Search is comprehensive.
   useEffect(() => {
     const q = debouncedQuery.trim();
     if (!q) { searchLoadStartedRef.current = false; return; }
@@ -985,7 +985,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
     <div className={`print-maradmin-root ${isFullscreen ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen pb-20 md:pb-0'} bg-black`}>
       <SEOHead
         title="MARADMIN Messages"
-        description="Browse and search Marine Administrative Messages (MARADMINs). Full-text search, filter by audience, and read official USMC policy and administrative messages."
+        description="Browse and Search Marine Administrative Messages (MARADMINs). Full-text search, filter by audience, and read official USMC policy and administrative messages."
         path="/messages"
       />
 
@@ -1017,8 +1017,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
           <div className="flex-1 flex flex-col justify-center px-8 py-6">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
+              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">MARADMINS</span>
             </div>
 
@@ -1097,7 +1097,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 className="px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors flex-shrink-0"
                 aria-label="New custom view"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus weight="bold" className="w-3.5 h-3.5" />
               </button>
             </div>
             {onToggleFullscreen && (
@@ -1106,7 +1106,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 className={`hidden md:block flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
                 aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
-                {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                {isFullscreen ? <ArrowsIn weight="bold" className="w-4 h-4" /> : <ArrowsOut weight="bold" className="w-4 h-4" />}
               </button>
             )}
           </div>
@@ -1172,7 +1172,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               className="px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors flex-shrink-0"
               aria-label="New custom view"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus weight="bold" className="w-3.5 h-3.5" />
             </button>
           </div>
           {onToggleFullscreen && (
@@ -1181,7 +1181,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               className={`hidden md:block flex-shrink-0 px-4 py-3 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
               aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
             >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              {isFullscreen ? <ArrowsIn weight="bold" className="w-4 h-4" /> : <ArrowsOut weight="bold" className="w-4 h-4" />}
             </button>
           )}
         </div>
@@ -1198,7 +1198,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
         {/* ── LEFT SIDEBAR — message list ───────────────────────────────── */}
         <div className={`print-hide ${mobileView === 'detail' ? 'hidden md:flex' : 'flex'} md:flex flex-col ${isFullscreen ? '' : 'md:sticky md:self-start md:top-20 md:h-[calc(100vh-80px)]'} border-r border-white/12 bg-black/60 md:overflow-hidden`}>
 
-          {/* Mobile sticky header — tabs + search pinned to top; desktop handled by the sticky panel */}
+          {/* Mobile sticky header — tabs + Search pinned to top; desktop handled by the sticky panel */}
           <div className="sticky top-20 z-20 flex flex-col bg-black/95 backdrop-blur-sm md:contents">
 
           {/* Mobile-only tabs row */}
@@ -1256,15 +1256,15 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               className="flex-shrink-0 px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors"
               aria-label="New custom view"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus weight="bold" className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* Search + filter bar */}
+          {/* Search + Filter bar */}
           <div className="flex-shrink-0 border-b border-white/12">
             <div className="relative px-5 py-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
+                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" />
                 <input
                   type="text"
                   placeholder="Search by number, keyword, or subject..."
@@ -1308,7 +1308,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 aria-label={bulkActionsOpen ? 'Hide actions' : 'Show actions'}
                 aria-expanded={bulkActionsOpen}
               >
-                {bulkActionsOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {bulkActionsOpen ? <CaretUp className="w-3.5 h-3.5" /> : <CaretDown className="w-3.5 h-3.5" />}
               </button>
 
               <AnimatePresence initial={false}>
@@ -1330,8 +1330,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                             : 'border-white/16 text-gray-500 hover:border-white/40'
                         }`}
                       >
-                        <Filter className="w-3 h-3" />
-                        FILTER
+                        <Funnel className="w-3 h-3" />
+                        Filter
                         {activeFilterCount > 0 && (
                           <span className={`ml-0.5 ${isDesert ? 'bg-red-800/70 text-red-100' : 'bg-red-600 text-white'} text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none`}>
                             {activeFilterCount}
@@ -1347,7 +1347,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                         }`}
                         aria-label="Refresh MARADMIN feed"
                       >
-                        <RefreshCw className={`w-3 h-3 ${feedRefreshing ? 'animate-spin' : ''}`} />
+                        <ArrowClockwise className={`w-3 h-3 ${feedRefreshing ? 'animate-spin' : ''}`} />
                         REFRESH
                       </button>
                       <button
@@ -1360,7 +1360,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                         }`}
                         aria-label="Mark all unread MARADMINs as read"
                       >
-                        <Mail className="w-3 h-3 flex-shrink-0" />
+                        <Envelope className="w-3 h-3 flex-shrink-0" />
                         MARK ALL READ
                       </button>
                     </div>
@@ -1380,7 +1380,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                       </span>
                       {activeFilterCount > 0 && (
                         <span className="flex items-center gap-1 text-[10px] font-bold tracking-widest text-red-500">
-                          <Filter className="w-2.5 h-2.5 flex-shrink-0 -translate-y-px" />
+                          <Funnel className="w-2.5 h-2.5 flex-shrink-0 -translate-y-px" />
                           {activeFilterCount} FILTER{activeFilterCount !== 1 ? 'S' : ''} ACTIVE
                         </span>
                       )}
@@ -1563,7 +1563,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                               >
                                 <Bookmark className={`w-3 h-3 ${msg.saved ? 'fill-current' : ''}`} />
                               </button>
-                              {isSelected && <ChevronRight className="w-3 h-3 text-red-500 flex-shrink-0" />}
+                              {isSelected && <CaretRight className="w-3 h-3 text-red-500 flex-shrink-0" />}
                             </div>
                           </div>
                           <div className="pl-3.5">
@@ -1579,7 +1579,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 })}
                 {archiveLoading && (
                   <div className="flex justify-center py-4">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-700" />
+                    <SpinnerGap className="w-3.5 h-3.5 animate-spin text-gray-700" />
                   </div>
                 )}
               </div>
@@ -1595,13 +1595,13 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     onClick={() => setEditingView(customViews.find(v => v.id === activeTab)!)}
                     className="flex items-center gap-1 text-[11px] font-mono text-gray-600 hover:text-gray-300 transition-colors"
                   >
-                    <Pencil className="w-2.5 h-2.5" /> EDIT
+                    <Pencil weight="bold" className="w-2.5 h-2.5" /> EDIT
                   </button>
                   <button
                     onClick={() => deleteCustomView(activeTab)}
                     className="flex items-center gap-1 text-[11px] font-mono text-gray-600 hover:text-red-500 transition-colors"
                   >
-                    <X className="w-2.5 h-2.5" /> DELETE
+                    <X weight="bold" className="w-2.5 h-2.5" /> DELETE
                   </button>
                 </>
               )}
@@ -1674,7 +1674,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
               className="flex-shrink-0 px-3 py-3 text-gray-700 hover:text-gray-400 transition-colors"
               aria-label="New custom view"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus weight="bold" className="w-3.5 h-3.5" />
             </button>
           </div>{/* end mobile tabs row */}
 
@@ -1686,19 +1686,19 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 onClick={() => setMobileView('list')}
                 className="md:hidden flex items-center gap-1 text-[12px] font-mono text-gray-500 hover:text-white transition-colors mr-2"
               >
-                <ChevronLeft className="w-3 h-3" /> LIST
+                <CaretLeft className="w-3 h-3" /> LIST
               </button>
               <button
                 onClick={goToPrev} disabled={currentIdx <= 0}
                 className="flex items-center gap-1 text-[12px] font-mono tracking-widest disabled:text-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
               >
-                <ChevronLeft className="w-3 h-3" /> PREV
+                <CaretLeft className="w-3 h-3" /> PREV
               </button>
               <button
                 onClick={goToNext} disabled={currentIdx >= filteredMessages.length - 1}
                 className="flex items-center gap-1 text-[12px] font-mono tracking-widest disabled:text-gray-800 text-gray-500 hover:text-gray-300 transition-colors"
               >
-                NEXT <ChevronRight className="w-3 h-3" />
+                NEXT <CaretRight className="w-3 h-3" />
               </button>
               </div>
 
@@ -1712,13 +1712,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                     aria-label="Share message"
                   >
                     {shareGenerating
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : linkCopied
-                        ? <span className="flex items-center gap-1 text-emerald-600">
-                            <Check className="w-4 h-4" />
-                            <span className="text-[9px] font-mono tracking-widest">COPIED</span>
-                          </span>
-                        : <Share2 className="w-4 h-4" />
+                      ? <SpinnerGap className="w-4 h-4 animate-spin" />
+                      : <Share weight="bold" className="w-4 h-4" />
                     }
                   </button>
                   <AnimatePresence>
@@ -1734,14 +1729,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                           onClick={handleCopyLink}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
                         >
-                          <Link2 className="w-3.5 h-3.5 flex-shrink-0" />
+                          <Link weight="bold" className="w-3.5 h-3.5 flex-shrink-0" />
                           COPY LINK
                         </button>
                         <button
                           onClick={handleShareEmail}
                           className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
                         >
-                          <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                          <Envelope className="w-3.5 h-3.5 flex-shrink-0" />
                           SHARE VIA EMAIL
                         </button>
                         {isMobileDevice && (
@@ -1762,7 +1757,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   className="text-gray-700 hover:text-gray-400 transition-colors"
                   aria-label="Print message"
                 >
-                  <Printer className="w-4 h-4" />
+                  <Printer weight="bold" className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => selectedMsg && toggleSaved(selectedMsg.number)}
@@ -1827,13 +1822,8 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                   aria-label="Share message"
                 >
                   {shareGenerating
-                    ? <Loader2 className="w-4 h-4 animate-spin" />
-                    : linkCopied
-                      ? <span className="flex items-center gap-1 text-emerald-600">
-                          <Check className="w-4 h-4" />
-                          <span className="text-[9px] font-mono tracking-widest">COPIED</span>
-                        </span>
-                      : <Share2 className="w-4 h-4" />
+                    ? <SpinnerGap className="w-4 h-4 animate-spin" />
+                    : <Share weight="bold" className="w-4 h-4" />
                   }
                 </button>
                 <AnimatePresence>
@@ -1849,14 +1839,14 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                         onClick={handleCopyLink}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
                       >
-                        <Link2 className="w-3.5 h-3.5 flex-shrink-0" />
+                        <Link weight="bold" className="w-3.5 h-3.5 flex-shrink-0" />
                         COPY LINK
                       </button>
                       <button
                         onClick={handleShareEmail}
                         className="w-full flex items-center gap-2.5 px-3 py-2 text-[11px] font-mono text-gray-400 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
                       >
-                        <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                        <Envelope className="w-3.5 h-3.5 flex-shrink-0" />
                         SHARE VIA EMAIL
                       </button>
                       {isMobileDevice && (
@@ -1877,7 +1867,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                 className="text-gray-700 hover:text-gray-400 transition-colors"
                 aria-label="Print message"
               >
-                <Printer className="w-4 h-4" />
+                <Printer weight="bold" className="w-4 h-4" />
               </button>
               <button
                 onClick={() => selectedMsg && toggleSaved(selectedMsg.number)}
@@ -1944,7 +1934,7 @@ export function MARADMINPage({ isFullscreen = false, onToggleFullscreen }: Props
                                 </div>
                                 {c.email && (
                                   <div className="inline-flex items-center gap-1.5 text-[12px] text-red-400 hover:text-red-300 transition-colors">
-                                    <Mail className="w-3 h-3" /> {renderContactEmail(c.email)}
+                                    <Envelope className="w-3 h-3" /> {renderContactEmail(c.email)}
                                   </div>
                                 )}
                                 {c.comm && (

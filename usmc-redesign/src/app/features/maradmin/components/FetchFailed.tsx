@@ -1,4 +1,4 @@
-import { RefreshCw, ExternalLink } from 'lucide-react';
+﻿import { ArrowClockwise, ArrowSquareOut } from '@phosphor-icons/react';
 
 interface FetchFailedProps {
   url: string;
@@ -18,7 +18,7 @@ export function FetchFailed({ url, onRetry }: FetchFailedProps) {
             onClick={onRetry}
             className="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-gray-300 text-[11px] font-bold tracking-widest hover:border-white/40 hover:text-white transition-colors"
           >
-            <RefreshCw className="w-3 h-3" /> TRY AGAIN
+            <ArrowClockwise className="w-3 h-3" /> TRY AGAIN
           </button>
         )}
         <a
@@ -27,7 +27,7 @@ export function FetchFailed({ url, onRetry }: FetchFailedProps) {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-4 py-2 border border-red-600/40 text-red-500 text-[11px] font-bold tracking-widest hover:bg-red-900/10 transition-colors"
         >
-          READ ON MARINES.MIL <ExternalLink className="w-3 h-3" />
+          READ ON MARINES.MIL <ArrowSquareOut className="w-3 h-3" />
         </a>
       </div>
     </div>

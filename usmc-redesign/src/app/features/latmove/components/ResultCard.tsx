@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+﻿import { motion } from 'motion/react';
+import { CaretDown, CaretUp } from '@phosphor-icons/react';
 import { clearanceRequirementAbbreviation, colorVisionAbbreviation } from '../types';
 import type { ResultItem } from '../types';
 import { useTheme } from '@/app/features/theme/ThemeContext';
@@ -54,7 +54,7 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
 
   return (
     <motion.div
-      layout
+      AppWindow
       animate={isActive ? {
         borderColor: [
           'rgba(239,68,68,0.25)',
@@ -86,7 +86,7 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
           : 'inset 0 0 0 1px rgba(239,68,68,0.12), 0 0 22px rgba(127,29,29,0.16)',
       }}
       transition={{
-        layout: { duration: 0.28 },
+        AppWindow: { duration: 0.28 },
         borderColor: { duration: 0.08 },
         backgroundColor: { duration: 0.08 },
         boxShadow: { duration: 0.08 },
@@ -187,8 +187,8 @@ export function ResultCard({ result, resultNumber, isActive, onToggle }: Props) 
           </div>
           <div className={`flex items-center justify-center ${isActive ? 'text-red-400' : 'text-gray-600'}`}>
             {isActive
-              ? <ChevronUp className="w-4 h-4 text-red-500" />
-              : <ChevronDown className="w-4 h-4" />
+              ? <CaretUp className="w-4 h-4 text-red-500" />
+              : <CaretDown className="w-4 h-4" />
             }
           </div>
         </div>

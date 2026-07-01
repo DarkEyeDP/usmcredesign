@@ -201,6 +201,53 @@ features/education/
 
 ---
 
+## Cloudflare Workers & External Services — Cross-Machine Setup
+
+**Rule:** Any time a new Cloudflare Worker (or other external service) is added to the project, document it in this section immediately. Every machine that clones or pulls this repo must complete the setup steps below before that feature will work locally.
+
+Workers are deployed to Cloudflare's infrastructure — they are not local to any one machine. But `.env.local` is gitignored and must be configured on each machine manually.
+
+### Active Workers
+
+| Worker | Directory | Deployed URL | Env var for local dev |
+|--------|-----------|--------------|----------------------|
+| `news-metrics` | `workers/news-metrics/` | `https://news-metrics.darkeyegraphics.workers.dev` | `VITE_NEWS_METRICS_URL` |
+| `school-search` | `workers/school-search/` | `https://school-search.darkeyegraphics.workers.dev` | `VITE_SCHOOL_SEARCH_WORKER_URL` |
+
+### `.env.local` — required on every machine
+
+Create `usmc-redesign/.env.local` with all of the following (copy from `.env.production` as a baseline):
+
+```env
+VITE_NEWS_METRICS_URL=https://news-metrics.darkeyegraphics.workers.dev
+VITE_SCHOOL_SEARCH_WORKER_URL=https://school-search.darkeyegraphics.workers.dev
+```
+
+If a key is missing the feature silently no-ops — no error is thrown. If something stops working on a new machine, a missing `.env.local` key is the first thing to check.
+
+### Deploying a worker
+
+Workers only need to be deployed when their source code changes. Deploy from any machine:
+
+```bash
+cd usmc-redesign/workers/<worker-name>
+npx wrangler deploy
+```
+
+`wrangler` must be authenticated (`npx wrangler login`) on the machine running the deploy.
+
+### Adding a new worker — checklist
+
+When you add a new Cloudflare Worker or any other external service that the frontend calls:
+
+1. Create the worker directory under `workers/` with a `wrangler.toml`.
+2. Add `ALLOWED_ORIGINS` in `wrangler.toml` to include localhost ports and the production domain.
+3. Add the env var to `.env.local`, `.env.production`, and `.env.example`.
+4. Add a row to the **Active Workers** table above.
+5. Document what happens when the env var is absent (error vs. silent no-op).
+
+---
+
 ## Theme Compliance — Always design for all three themes
 
 Every new component or page must work correctly in BLACKOUT, WOODLAND, and DESERT. Never design only for the dark themes and fix desert later.

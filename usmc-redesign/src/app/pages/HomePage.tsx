@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router';
+﻿import { useNavigate } from 'react-router';
 import { useState, useEffect, useRef } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, DollarSign, GraduationCap, ArrowRightLeft, ExternalLink, Newspaper, MessageSquare } from 'lucide-react';
+import { CaretRight, CurrencyDollar, GraduationCap, ArrowsLeftRight, ArrowSquareOut, Newspaper, Chat } from '@phosphor-icons/react';
 import { HeroSection } from '@/app/features/hero';
-import { SiteLogo } from '@/app/components/layout/SiteLogo';
+import { SiteLogo } from '@/app/components/Layout/SiteLogo';
 import { useNewsItems } from '@/app/features/news';
 import recruitImage from '@/app/assets/hero-3.webp';
 import actionImage from '@/app/assets/hero-5.webp';
@@ -58,15 +58,15 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
   const newsPanel = pressReleases.slice(0, 3);
 
   const leftServices = [
-    { icon: DollarSign, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
+    { icon: CurrencyDollar, label: 'PAY & BENEFITS', desc: 'Manage pay, allowances and benefits.', path: '/pay-benefits' },
     { icon: GraduationCap, label: 'EDUCATION', desc: 'Tuition assistance, TA guidance, and education planning.', path: '/education' },
     { icon: Newspaper, label: 'LATEST NEWS', desc: 'Track official news stories and press releases.', path: '/news' },
   ];
 
   const rightServices = [
-    { icon: DollarSign, label: 'BONUS TOOL', desc: 'Estimate SRB and continuation pay opportunities.', path: '/pay-benefits/bonuses' },
-    { icon: MessageSquare, label: 'MARADMINS', desc: 'Search Marine administrative messages and references.', path: '/messages' },
-    { icon: ArrowRightLeft, label: 'LATERAL MOVE', desc: 'Compare MOS options and find matching opportunities.', path: '/lateral-move' },
+    { icon: CurrencyDollar, label: 'BONUS TOOL', desc: 'Estimate SRB and continuation pay opportunities.', path: '/pay-benefits/bonuses' },
+    { icon: Chat, label: 'MARADMINS', desc: 'Search Marine administrative messages and references.', path: '/messages' },
+    { icon: ArrowsLeftRight, label: 'LATERAL MOVE', desc: 'Compare MOS options and find matching opportunities.', path: '/lateral-move' },
   ];
 
   const mobileServices = [
@@ -219,7 +219,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
               onClick={() => navigate('/messages')}
               className="text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors flex items-center gap-1 ml-auto"
             >
-              SEARCH MARADMINS <ChevronRight className="w-3 h-3" />
+              Search MARADMINS <CaretRight className="w-3 h-3" />
             </button>
           </div>
         </div>
@@ -238,14 +238,14 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
                   disabled={newsLoading || opItems.length === 0}
                   className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors disabled:opacity-30"
                 >
-                  <ChevronRight className="w-3 h-3 text-gray-500 rotate-180" />
+                  <CaretRight className="w-3 h-3 text-gray-500 rotate-180" />
                 </button>
                 <button
                   onClick={opNext}
                   disabled={newsLoading || opItems.length === 0}
                   className="w-6 h-6 border border-white/16 flex items-center justify-center hover:border-white/40 transition-colors disabled:opacity-30"
                 >
-                  <ChevronRight className="w-3 h-3 text-gray-500" />
+                  <CaretRight className="w-3 h-3 text-gray-500" />
                 </button>
               </div>
             </div>
@@ -309,7 +309,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
                 rel="noopener noreferrer"
                 className="mt-3 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1"
               >
-                FULL STORY <ExternalLink className="w-3 h-3" />
+                FULL STORY <ArrowSquareOut className="w-3 h-3" />
               </a>
             ) : (
               <div className="mt-3 h-5" />
@@ -353,7 +353,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
               onClick={() => navigate('/news')}
               className="mt-4 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 flex items-center gap-1"
             >
-              VIEW ALL NEWS <ChevronRight className="w-3 h-3" />
+              VIEW ALL NEWS <CaretRight className="w-3 h-3" />
             </button>
           </div>
 
@@ -373,7 +373,7 @@ export function HomePage({ isFullscreen = false, onToggleFullscreen }: HomePageP
                     className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left hover:text-red-400 transition-colors group"
                   >
                     <span className="text-sm text-gray-300 tracking-wide group-hover:text-red-400 transition-colors">{r.label}</span>
-                    <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
+                    <CaretRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors" />
                   </a>
                 ) : (
                   <div key={i} className="w-full flex items-center justify-between py-3 border-b border-white/12 text-left">

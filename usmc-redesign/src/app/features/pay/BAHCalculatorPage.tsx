@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+﻿import { useRef, useMemo, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,12 +7,12 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
-  ChevronRight,
+  CaretRight,
   Info,
   MapPin,
-  Search,
+  MagnifyingGlass,
   X,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import {
   BAH_EFFECTIVE_DATE,
   BAH_LOCATIONS,
@@ -389,7 +389,7 @@ export function BAHCalculatorPage() {
       timers.push(
         setTimeout(() => {
           fetch(
-            `https://nominatim.openstreetmap.org/search?q=${q}&countrycodes=us&format=json&limit=1`,
+            `https://nominatim.openstreetmap.org/Search?q=${q}&countrycodes=us&format=json&limit=1`,
             { headers: { 'User-Agent': 'StayMarine-BAHCalculator/1.0' } },
           )
             .then((r) => r.json())
@@ -572,16 +572,16 @@ export function BAHCalculatorPage() {
                 onClick={() => navigate('/')}
                 className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400"
               >
-                HOME
+                House
               </button>
-              <ChevronRight className="h-3 w-3" />
+              <CaretRight className="h-3 w-3" />
               <button
                 onClick={() => navigate('/pay-benefits')}
                 className="border-0 bg-transparent p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400"
               >
                 BENEFITS
               </button>
-              <ChevronRight className="h-3 w-3" />
+              <CaretRight className="h-3 w-3" />
               <span className="text-red-500">BAH LOOKUP</span>
             </div>
 
@@ -653,7 +653,7 @@ export function BAHCalculatorPage() {
                   <span className="ml-1.5 border border-white/10 px-1 py-0.5 text-[9px] font-bold tracking-wider text-gray-700">OPTIONAL</span>
                 </FieldLabel>
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                  <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
                   <input
                     value={currentSearch}
                     onChange={(e) => setCurrentSearch(e.target.value)}
@@ -668,7 +668,7 @@ export function BAHCalculatorPage() {
                       onClick={() => { setCurrentMha(null); setCurrentSearch(''); }}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 transition-colors hover:text-gray-300"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X weight="bold" className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
@@ -705,7 +705,7 @@ export function BAHCalculatorPage() {
               <div ref={searchRef} className="relative">
                 <FieldLabel>FUTURE DUTY STATION</FieldLabel>
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                  <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
@@ -1076,7 +1076,7 @@ export function BAHCalculatorPage() {
               <div className="mb-4" ref={compareRef}>
                 <FieldLabel>ADD A LOCATION</FieldLabel>
                 <div className="relative max-w-sm">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
+                  <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-600" />
                   <input
                     value={compareSearch}
                     onChange={(event) => setCompareSearch(event.target.value)}
@@ -1252,7 +1252,7 @@ export function BAHCalculatorPage() {
                     className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
                   >
                     <span className="text-sm font-bold text-gray-200">{item.q}</span>
-                    <ChevronRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                    <CaretRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
                   </button>
                   <AnimatePresence initial={false}>
                     {openFaq === i && (

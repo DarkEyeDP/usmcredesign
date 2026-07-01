@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronDown, Filter, LayoutGrid, Rows3, Maximize2, Minimize2, Search, X } from 'lucide-react';
+import { CaretDown, Funnel, SquaresFour, Rows, ArrowsOut, ArrowsIn, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 import {
   CLEARANCE_LABELS,
@@ -338,7 +338,7 @@ export function ResultsPanel({
             {/* Search + fullscreen */}
             <div className="flex items-center gap-3">
               <label className="relative flex-1 min-w-0">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+                <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
                 <input
                   value={filters.searchQuery}
                   onChange={event => onFiltersChange({ ...filters, searchQuery: event.target.value })}
@@ -350,9 +350,9 @@ export function ResultsPanel({
                     type="button"
                     onClick={() => onFiltersChange({ ...filters, searchQuery: '' })}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 transition-colors hover:text-red-400"
-                    aria-label="Clear search"
+                    aria-label="Clear Search"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X weight="bold" className="h-3.5 w-3.5" />
                   </button>
                 )}
               </label>
@@ -368,7 +368,7 @@ export function ResultsPanel({
                   }`}
                   aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 >
-                  {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                  {isFullscreen ? <ArrowsIn weight="bold" className="w-3.5 h-3.5" /> : <ArrowsOut weight="bold" className="w-3.5 h-3.5" />}
                 </button>
               )}
             </div>
@@ -384,7 +384,7 @@ export function ResultsPanel({
                     : 'border-white/16 bg-black/60 text-gray-500 hover:border-white/40 hover:text-gray-300'
                 }`}
               >
-                <Filter className="w-3.5 h-3.5" />
+                <Funnel className="w-3.5 h-3.5" />
                 FILTERS{activeFilterCount > 0 ? ` ${activeFilterCount}` : ''}
               </button>
 
@@ -396,7 +396,7 @@ export function ResultsPanel({
                     viewMode === 'cards' ? 'bg-red-900/15 text-white' : 'text-gray-500 hover:text-gray-300'
                   }`}
                 >
-                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <SquaresFour className="w-3.5 h-3.5" />
                   CARDS
                 </button>
                 <button
@@ -406,7 +406,7 @@ export function ResultsPanel({
                     viewMode === 'list' ? 'bg-red-900/15 text-white' : 'text-gray-500 hover:text-gray-300'
                   }`}
                 >
-                  <Rows3 className="w-3.5 h-3.5" />
+                  <Rows className="w-3.5 h-3.5" />
                   LIST
                 </button>
               </div>
@@ -426,7 +426,7 @@ export function ResultsPanel({
                     <option value="mos">MOS</option>
                     <option value="title">Title</option>
                   </select>
-                  <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600 pointer-events-none" />
+                  <CaretDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-600 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -456,7 +456,7 @@ export function ResultsPanel({
                 onClick={() => onFiltersChange(EMPTY_RESULT_FILTERS)}
                 className="flex items-center gap-1.5 border border-white/14 px-3 py-1.5 text-[12px] font-bold tracking-[0.18em] text-gray-500 transition-colors hover:border-white/40 hover:text-white"
               >
-                CLEAR <X className="h-3 w-3" />
+                CLEAR <X weight="bold" className="h-3 w-3" />
               </button>
             </div>
 
@@ -478,7 +478,7 @@ export function ResultsPanel({
                     onClick={() => setIsMosPickerOpen(open => !open)}
                     className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] text-gray-500 transition-colors hover:text-gray-300"
                   >
-                    <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isMosPickerOpen ? 'rotate-180 text-red-400' : ''}`} />
+                    <CaretDown className={`h-3.5 w-3.5 transition-transform ${isMosPickerOpen ? 'rotate-180 text-red-400' : ''}`} />
                     EXCLUDE MOS FROM CURRENT RESULTS
                   </button>
                   <motion.div
@@ -673,7 +673,7 @@ export function ResultsPanel({
               onClick={onLoadMore}
               className="flex items-center gap-2 px-8 py-3 border border-white/16 text-gray-400 text-[13px] font-bold tracking-widest hover:border-white/40 hover:text-white transition-colors"
             >
-              LOAD MORE RESULTS ({remaining} remaining) <ChevronDown className="w-3.5 h-3.5" />
+              LOAD MORE RESULTS ({remaining} remaining) <CaretDown className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

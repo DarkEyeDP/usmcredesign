@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+﻿import { CaretRight } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 
@@ -46,8 +46,8 @@ export function PrivacyPolicyPage() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 px-8 py-8 min-h-[190px]">
           <div>
             <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
+              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">PRIVACY POLICY</span>
             </div>
             <motion.h1

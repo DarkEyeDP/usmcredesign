@@ -5,6 +5,7 @@ export const PAY_SETTINGS_STORAGE_KEY = 'pay-benefits:overview-settings:v1';
 export type StoredPayOverviewSettings = {
   payCategory: PayCategory;
   payRank: string;
+  payRankAbbr?: string;
   yearsOfService: number;
   includeBas: boolean;
   afadbd: string | null;
@@ -51,6 +52,7 @@ export function readStoredPayOverviewSettings(): StoredPayOverviewSettings {
     return {
       payCategory,
       payRank,
+      payRankAbbr: typeof parsed.payRankAbbr === 'string' ? parsed.payRankAbbr : undefined,
       yearsOfService: clampYearsOfService(Number(parsed.yearsOfService ?? defaults.yearsOfService)),
       includeBas: Boolean(parsed.includeBas),
       afadbd: typeof parsed.afadbd === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(parsed.afadbd) ? parsed.afadbd : null,

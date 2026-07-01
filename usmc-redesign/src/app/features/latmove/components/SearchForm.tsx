@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronRight, ChevronDown, Lock, X, Plus, PanelLeftClose } from 'lucide-react';
+import { CaretRight, CaretDown, Lock, X, Plus, SidebarSimple } from '@phosphor-icons/react';
 import { RANK_OPTIONS, CLEARANCE_OPTIONS, EDUCATION_OPTIONS, EDUCATION_HAS_DEGREE, DLPT_LANGUAGE_OPTIONS, DLPT_LEVELS } from '../types';
 import type { LanguageEntry } from '../types';
 import { CERT_LIBRARY, CERT_BY_ID, CERT_CATEGORIES } from '../db/cert-library';
@@ -179,7 +179,7 @@ export function SearchForm({
           className="flex h-8 w-8 items-center justify-center border border-white/18 text-gray-500 transition-colors hover:border-white/40 hover:text-gray-200"
           aria-label="Collapse information panel"
         >
-          <PanelLeftClose className="h-4 w-4 md:rotate-0 rotate-90" />
+          <SidebarSimple weight="bold" className="h-4 w-4 md:rotate-0 rotate-90" />
         </button>
       </div>
 
@@ -240,7 +240,7 @@ export function SearchForm({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
+          <CaretDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
         </div>
         {hasSubmitAttempt && !rank && (
           <div className="mt-2 text-[11px] font-mono text-red-400">Current rank is required.</div>
@@ -285,7 +285,7 @@ export function SearchForm({
             disabled={!amosInput.trim() || amos.length >= 6}
             className="px-3 py-2.5 border border-white/16 text-gray-500 hover:text-white hover:border-white/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus weight="bold" className="w-3.5 h-3.5" />
           </button>
         </div>
         {amos.length > 0 && (
@@ -301,7 +301,7 @@ export function SearchForm({
                   onClick={() => setAmos(amos.filter(a => a !== code))}
                   className="text-red-600 hover:text-red-400 transition-colors"
                 >
-                  <X className="w-2.5 h-2.5" />
+                  <X weight="bold" className="w-2.5 h-2.5" />
                 </button>
               </span>
             ))}
@@ -324,7 +324,7 @@ export function SearchForm({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
+          <CaretDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
         </div>
       </div>
 
@@ -382,7 +382,7 @@ export function SearchForm({
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
+          <CaretDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
         </div>
         {EDUCATION_HAS_DEGREE.has(education) && (
           <>
@@ -441,7 +441,7 @@ export function SearchForm({
                       onClick={() => setDegreeFields(degreeFields.filter(fieldId => fieldId !== id))}
                       className="text-red-600 transition-colors hover:text-red-400"
                     >
-                      <X className="h-2.5 w-2.5" />
+                      <X weight="bold" className="h-2.5 w-2.5" />
                     </button>
                   </span>
                 ))}
@@ -507,7 +507,7 @@ export function SearchForm({
               <span key={id} className="flex items-center gap-1 px-2 py-1 bg-red-900/15 border border-red-900/30 text-red-400 text-xs font-mono">
                 {CERT_BY_ID[id]?.label ?? id}
                 <button type="button" onClick={() => setCertifications(certifications.filter(c => c !== id))} className="text-red-600 hover:text-red-400 transition-colors">
-                  <X className="w-2.5 h-2.5" />
+                  <X weight="bold" className="w-2.5 h-2.5" />
                 </button>
               </span>
             ))}
@@ -597,7 +597,7 @@ export function SearchForm({
                 disabled={!langInput.trim()}
                 className="h-[52px] px-3 border border-white/16 text-gray-500 hover:text-white hover:border-white/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus weight="bold" className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -608,7 +608,7 @@ export function SearchForm({
               <span key={l.language} className="flex items-center gap-1 px-2 py-1 bg-red-900/15 border border-red-900/30 text-red-400 text-xs font-mono">
                 {l.language} L:{l.listening}/R:{l.reading}
                 <button type="button" onClick={() => setLanguages(languages.filter(x => x.language !== l.language))} className="text-red-600 hover:text-red-400 transition-colors">
-                  <X className="w-2.5 h-2.5" />
+                  <X weight="bold" className="w-2.5 h-2.5" />
                 </button>
               </span>
             ))}
@@ -624,7 +624,7 @@ export function SearchForm({
           onClick={handleSubmit}
         >
           {isLoggedIn ? 'UPDATE RESULTS' : 'FIND MY OPTIONS'}
-          <ChevronRight className="w-3.5 h-3.5" />
+          <CaretRight className="w-3.5 h-3.5" />
         </motion.button>
         <button
           type="button"

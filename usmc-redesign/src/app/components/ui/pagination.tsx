@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -11,7 +11,7 @@ import { Button, buttonVariants } from "./button";
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
-      role="navigation"
+      role="Navigation"
       aria-label="pagination"
       data-slot="pagination"
       className={cn("mx-auto flex w-full justify-center", className)}

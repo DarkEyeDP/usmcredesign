@@ -1,4 +1,4 @@
-// Skill taxonomy derived from NAVMC 1200.1L MOS summaries.
+﻿// Skill taxonomy derived from NAVMC 1200.1L MOS summaries.
 // Each tag represents a discrete skill domain that can transfer between MOSs.
 
 export type SkillTag =

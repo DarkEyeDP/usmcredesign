@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useRef, type KeyboardEvent } from 'react';
-import { ChevronRight, ExternalLink, Newspaper, Radio, FileText, Bookmark, Search, X } from 'lucide-react';
+﻿import { useState, useMemo, useEffect, useRef, type KeyboardEvent } from 'react';
+import { CaretRight, ArrowSquareOut, Newspaper, Broadcast, FileText, Bookmark, MagnifyingGlass, X } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
@@ -37,7 +37,7 @@ function AttachmentList({ attachments, compact = false }: { attachments: NewsAtt
             </div>
             <div className="text-[10px] font-mono tracking-widest text-gray-600 uppercase">{att.type}</div>
           </div>
-          <ExternalLink className="w-3 h-3 text-gray-600 group-hover/att:text-red-500 flex-shrink-0 transition-colors" />
+          <ArrowSquareOut className="w-3 h-3 text-gray-600 group-hover/att:text-red-500 flex-shrink-0 transition-colors" />
         </a>
       ))}
     </div>
@@ -85,11 +85,11 @@ function SourceBadge({ source, filled = false }: { source: NewsItem['source']; f
   }
   return filled ? (
     <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider text-white bg-blue-600 border border-blue-500 px-2 py-0.5">
-      <Radio className="w-2.5 h-2.5" /> PRESS RELEASE
+      <Broadcast className="w-2.5 h-2.5" /> PRESS RELEASE
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider text-blue-400 border border-blue-500/50 bg-blue-900/20 px-2 py-0.5">
-      <Radio className="w-2.5 h-2.5" /> PRESS RELEASE
+      <Broadcast className="w-2.5 h-2.5" /> PRESS RELEASE
     </span>
   );
 }
@@ -160,7 +160,7 @@ function FeaturedHero({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
             )}
           </span>
           <span className="text-[11px] font-bold text-red-500 tracking-widest flex items-center gap-1 group-hover:text-red-400 transition-colors">
-            READ ARTICLE <ChevronRight className="w-3 h-3" />
+            READ ARTICLE <CaretRight className="w-3 h-3" />
           </span>
           <button
             type="button"
@@ -230,7 +230,7 @@ function NewsCard({ item, isBookmarked, onBookmark, onOpen }: CardProps) {
         )}
         <div className="flex items-center justify-between mt-2 pt-3 border-t border-white/8">
           <p className="text-xs text-gray-600 leading-relaxed line-clamp-1 flex-1 mr-2">{item.description}</p>
-          <ChevronRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0" />
+          <CaretRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0" />
         </div>
       </div>
     </article>
@@ -334,8 +334,8 @@ export function NewsPage() {
 
           <div className="flex-1 flex flex-col justify-center px-8 py-6">
             <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
+              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">NEWS</span>
             </div>
             <div className="flex items-start gap-4">
@@ -409,7 +409,7 @@ export function NewsPage() {
         {/* Search bar — below tabs */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
+            <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-600" />
             <input
               ref={searchInputRef}
               type="text"
@@ -424,10 +424,10 @@ export function NewsPage() {
               <button
                 type="button"
                 onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
-                aria-label="Clear search"
+                aria-label="Clear Search"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white"
               >
-                <X className="h-3.5 w-3.5" />
+                <X weight="bold" className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
@@ -448,7 +448,7 @@ export function NewsPage() {
               </span>
             </div>
             {!searching && searchResults.length === 0 ? (
-              <div className="py-16 text-center text-sm text-gray-600">No articles matched your search.</div>
+              <div className="py-16 text-center text-sm text-gray-600">No articles matched your Search.</div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {searchResults.map(item => (
@@ -500,7 +500,7 @@ export function NewsPage() {
               {savedItems.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime()).map(item => (
                 <motion.div
                   key={item.id}
-                  layout
+                  AppWindow
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.92, transition: { duration: 0.2 } }}
@@ -552,7 +552,7 @@ export function NewsPage() {
               rel="noopener noreferrer"
               className="mt-8 inline-flex items-center gap-1 text-sm text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
             >
-              VIEW ALL ON MARINES.MIL <ExternalLink className="w-3 h-3" />
+              VIEW ALL ON MARINES.MIL <ArrowSquareOut className="w-3 h-3" />
             </a>
           </>
         )}

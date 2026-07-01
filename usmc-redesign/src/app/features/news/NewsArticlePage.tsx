@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
-import { ArrowLeft, Bookmark, CalendarDays, ChevronLeft, ChevronRight, ExternalLink, FileText, Newspaper, Radio } from 'lucide-react';
+import { ArrowLeft, Bookmark, CalendarDots, CaretLeft, CaretRight, ArrowSquareOut, FileText, Newspaper, Broadcast } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { SpearWatermark } from '@/app/components/tactical/SpearWatermark';
@@ -69,7 +69,7 @@ function SourceBadge({ source }: { source: NewsItem['source'] }) {
 
   return (
     <span className="inline-flex items-center gap-1.5 border border-blue-500/50 bg-blue-900/20 px-2.5 py-1 text-[11px] font-bold tracking-wider text-blue-400">
-      <Radio className="h-3 w-3" /> PRESS RELEASE
+      <Broadcast className="h-3 w-3" /> PRESS RELEASE
     </span>
   );
 }
@@ -138,7 +138,7 @@ export function NewsArticlePage() {
     [allItems, articleSlug],
   );
 
-  // Compute the navigation list using the same filter that was active on the news page.
+  // Compute the Navigation list using the same filter that was active on the news page.
   // Falls back to all items when navigating directly (no state).
   const navList = useMemo(() => {
     if (fromFilter === 'all') return allItems;
@@ -288,10 +288,10 @@ export function NewsArticlePage() {
         <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
           <div className="flex flex-1 flex-col justify-center px-8 py-6">
             <div className="mb-2 flex items-center gap-2 text-[12px] font-mono tracking-wider text-gray-600">
-              <Link to="/" className="hover:text-gray-400">HOME</Link>
-              <ChevronRight className="h-3 w-3" />
+              <Link to="/" className="hover:text-gray-400">Home</Link>
+              <CaretRight className="h-3 w-3" />
               <Link to="/news" className="hover:text-gray-400">NEWS</Link>
-              <ChevronRight className="h-3 w-3" />
+              <CaretRight className="h-3 w-3" />
               <span className="text-red-500">ARTICLE</span>
             </div>
 
@@ -314,7 +314,7 @@ export function NewsArticlePage() {
                 </h1>
                 <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-mono tracking-wider text-gray-500">
                   <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="h-3.5 w-3.5 text-red-500" /> {formatDate(publishedAt).toUpperCase()}
+                    <CalendarDots className="h-3.5 w-3.5 text-red-500" /> {formatDate(publishedAt).toUpperCase()}
                   </span>
                   {item.author && <span>{item.author.toUpperCase()}</span>}
                   {detail?.wordCount && detail.wordCount > 0 && (
@@ -381,7 +381,7 @@ export function NewsArticlePage() {
             })}
           </div>
 
-          {/* Prev / Next navigation */}
+          {/* Prev / Next Navigation */}
           {(prevItem || nextItem) && (
             <nav className="mt-10 border-t border-white/10 pt-8 grid grid-cols-2 gap-3">
               {prevItem ? (
@@ -391,7 +391,7 @@ export function NewsArticlePage() {
                   className="group border border-white/12 bg-black p-4 hover:border-white/30 transition-colors"
                 >
                   <div className="mb-2 flex items-center gap-1.5 text-[10px] font-mono tracking-[0.2em] text-gray-600">
-                    <ChevronLeft className="h-3 w-3" /> PREVIOUS
+                    <CaretLeft className="h-3 w-3" /> PREVIOUS
                   </div>
                   <div className="text-sm font-bold leading-snug text-gray-300 line-clamp-2 group-hover:text-red-400 transition-colors">
                     {prevItem.title}
@@ -406,7 +406,7 @@ export function NewsArticlePage() {
                   className="group border border-white/12 bg-black p-4 hover:border-white/30 transition-colors text-right"
                 >
                   <div className="mb-2 flex items-center justify-end gap-1.5 text-[10px] font-mono tracking-[0.2em] text-gray-600">
-                    NEXT <ChevronRight className="h-3 w-3" />
+                    NEXT <CaretRight className="h-3 w-3" />
                   </div>
                   <div className="text-sm font-bold leading-snug text-gray-300 line-clamp-2 group-hover:text-red-400 transition-colors">
                     {nextItem.title}
@@ -427,7 +427,7 @@ export function NewsArticlePage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-red-500 transition-colors hover:text-red-400"
             >
-              {getSourceLabel(item)} <ExternalLink className="h-3.5 w-3.5" />
+              {getSourceLabel(item)} <ArrowSquareOut className="h-3.5 w-3.5" />
             </a>
             <button
               type="button"
@@ -457,7 +457,7 @@ export function NewsArticlePage() {
                   >
                     <FileText className="h-4 w-4 flex-shrink-0 text-red-500" />
                     <span className="min-w-0 flex-1 truncate">{att.label}</span>
-                    <ExternalLink className="h-3 w-3 flex-shrink-0 text-gray-600" />
+                    <ArrowSquareOut className="h-3 w-3 flex-shrink-0 text-gray-600" />
                   </a>
                 ))}
                 {detailLinks.map((link, index) => (
@@ -470,7 +470,7 @@ export function NewsArticlePage() {
                   >
                     <FileText className="h-4 w-4 flex-shrink-0 text-red-500" />
                     <span className="min-w-0 flex-1 truncate">{link.label}</span>
-                    <ExternalLink className="h-3 w-3 flex-shrink-0 text-gray-600" />
+                    <ArrowSquareOut className="h-3 w-3 flex-shrink-0 text-gray-600" />
                   </a>
                 ))}
               </div>

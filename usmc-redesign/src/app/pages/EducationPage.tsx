@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ChevronRight, Layout, Award } from 'lucide-react';
+import { CaretRight, AppWindow, Medal } from '@phosphor-icons/react';
 import { useNewsItems } from '@/app/features/news';
-import { SiteLogo } from '@/app/components/layout/SiteLogo';
+import { SiteLogo } from '@/app/components/Layout/SiteLogo';
 import { SEOHead } from '@/app/components/SEOHead';
 import cemeLogo from '@/app/assets/ceme-logo.png';
 import mcwarLogo from '@/app/assets/mcwar-logo.png';
@@ -147,6 +147,8 @@ export function EducationPage() {
         description="Marine Corps education benefits explained — Tuition Assistance (TA), college programs, certifications, and career development resources for active-duty Marines."
         path="/education"
       />
+
+
       {/* Three-column content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-white/12 px-8 py-8">
         {/* Education Pathways */}
@@ -204,7 +206,7 @@ export function EducationPage() {
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-7 h-7 border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${linked ? 'border-white/16 group-hover:border-white/30' : 'border-white/8'}`}>
-                      <Award className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
+                      <Medal className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
                     </div>
                     <div>
                       <div className={`text-[13px] font-medium transition-colors ${linked ? 'text-gray-200 group-hover:text-white' : 'text-gray-600'}`}>{b.label}</div>
@@ -212,7 +214,7 @@ export function EducationPage() {
                     </div>
                   </div>
                   {linked
-                    ? <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                    ? <CaretRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     : <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   }
                 </a>
@@ -251,7 +253,7 @@ export function EducationPage() {
                 >
                   <div className="flex items-start gap-3">
                     <div className={`w-7 h-7 border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${linked ? 'border-white/16 group-hover:border-white/30' : 'border-white/8'}`}>
-                      <Layout className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
+                      <AppWindow className={`w-3 h-3 transition-colors ${linked ? 'text-red-600/60 group-hover:text-red-500' : 'text-white/20'}`} />
                     </div>
                     <div>
                       <div className={`text-[13px] font-medium transition-colors ${linked ? 'text-gray-200 group-hover:text-white' : 'text-gray-600'}`}>{t.label}</div>
@@ -259,7 +261,7 @@ export function EducationPage() {
                     </div>
                   </div>
                   {linked
-                    ? <ChevronRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
+                    ? <CaretRight className="w-3 h-3 text-gray-700 group-hover:text-red-500 transition-colors flex-shrink-0" />
                     : <span className="text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5 flex-shrink-0">COMING SOON</span>
                   }
                 </a>
@@ -314,7 +316,7 @@ export function EducationPage() {
                 </div>
                 <div className="text-[13px] font-bold tracking-wide mb-1 leading-tight text-white">{p.label}</div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-2">{p.desc}</p>
-                <span className={featuredProgramCtaClassName}>VISIT SITE <ChevronRight className="w-2.5 h-2.5" /></span>
+                <span className={featuredProgramCtaClassName}>VISIT SITE <CaretRight className="w-2.5 h-2.5" /></span>
               </motion.a>
             );
           })}
@@ -353,7 +355,7 @@ export function EducationPage() {
                         className="group text-sm font-bold text-white hover:text-red-400 transition-colors text-left leading-snug flex items-start justify-between gap-2 w-full"
                       >
                         <span>{item.title}</span>
-                        <ChevronRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
+                        <CaretRight className="w-3 h-3 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
                       </a>
                     </div>
                   ))
@@ -366,7 +368,7 @@ export function EducationPage() {
             onClick={() => navigate('/news')}
             className="mt-4 flex items-center gap-1 text-[13px] text-red-500 font-bold tracking-widest hover:text-red-400 transition-colors"
           >
-            VIEW ALL NEWS <ChevronRight className="w-3 h-3" />
+            VIEW ALL NEWS <CaretRight className="w-3 h-3" />
           </button>
         </div>
 

@@ -1,4 +1,4 @@
-// MOS summary descriptions sourced from NAVMC 1200.1L (7 Mar 25).
+﻿// MOS summary descriptions sourced from NAVMC 1200.1L (7 Mar 25).
 // Each entry is the "a. Summary" section condensed to the core duty/skill statement.
 export const MOS_DESCRIPTIONS: Record<string, string> = {
   // ── ADMIN / INTEL ──────────────────────────────────────────────────────────
@@ -161,15 +161,15 @@ export const MOS_DESCRIPTIONS: Record<string, string> = {
 
   // ── AVIONICS ───────────────────────────────────────────────────────────────
   '6314': 'UAS Avionics/Maintenance Technicians install, remove, inspect, test, maintain, and repair UAS systems components and ancillary equipment, and perform launch, recovery, and flight line operations at organizational maintenance level.',
-  '6316': 'KC-130 Aircraft Communications/Navigation Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications and navigation systems, including deceptive electronic countermeasures systems.',
-  '6317': 'F/A-18 Aircraft Communications/Navigation/Radar Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, radar, and DECM systems at the organizational maintenance level.',
-  '6323': 'CH-53 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, electrical, and DECM systems at the organizational maintenance level.',
-  '6324': 'U/AH-1 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, electrical, and DECM systems at the organizational maintenance level.',
-  '6326': 'MV-22 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, electrical, and DECM systems at the organizational maintenance level.',
-  '6332': 'AV-8B Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, radar, electrical, and DECM systems at the organizational maintenance level.',
+  '6316': 'KC-130 Aircraft Communications/Navigation Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications and Navigation systems, including deceptive electronic countermeasures systems.',
+  '6317': 'F/A-18 Aircraft Communications/Navigation/Radar Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, radar, and DECM systems at the organizational maintenance level.',
+  '6323': 'CH-53 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, electrical, and DECM systems at the organizational maintenance level.',
+  '6324': 'U/AH-1 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, electrical, and DECM systems at the organizational maintenance level.',
+  '6326': 'MV-22 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, electrical, and DECM systems at the organizational maintenance level.',
+  '6332': 'AV-8B Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, radar, electrical, and DECM systems at the organizational maintenance level.',
   '6336': 'KC-130 Aircraft Electrical Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft electrical systems at the organizational maintenance level.',
   '6337': 'F/A-18 Aircraft Electrical Systems Technicians install, remove, inspect, test, maintain, and repair installed aircraft electrical systems at the organizational maintenance level.',
-  '6338': 'F-35 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, navigation, radar, electrical, and DECM systems at the organizational maintenance level.',
+  '6338': 'F-35 Aircraft Avionics Technicians install, remove, inspect, test, maintain, and repair installed aircraft communications, Navigation, radar, electrical, and DECM systems at the organizational maintenance level.',
   '6423': 'Aviation Electronic Micro/Miniature Component and Cable Repair Technicians inspect, test, maintain, and repair modules, cards, printed-circuit boards, cables, and miniature and micro-miniature components at the intermediate maintenance level.',
   '6432': 'Aircraft Electrical/Instrument/Flight Control Systems Technicians inspect, test, maintain, and repair components and subassemblies constituting complete aircraft electrical and flight control systems at the intermediate maintenance level.',
   '6469': 'RTCASS Technicians inspect, test, maintain, repair, and analyze airborne weapon replaceable assemblies, shop replaceable assemblies, and automatic test equipment failures beyond normal fault isolation procedures at the intermediate maintenance level.',

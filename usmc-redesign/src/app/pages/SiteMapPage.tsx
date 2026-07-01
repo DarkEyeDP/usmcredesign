@@ -1,4 +1,4 @@
-import { ChevronRight, ExternalLink } from 'lucide-react';
+﻿import { CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 
@@ -8,7 +8,7 @@ const sitemapSections = [
     items: [
       { title: 'Home', path: '/', desc: 'Landing page, hero content, and featured access points.' },
       { title: 'News', path: '/news', desc: 'Official news stories and press release feed aggregation.' },
-      { title: 'MARADMINs', path: '/messages', desc: 'Marine administrative message search and detail view.' },
+      { title: 'MARADMINs', path: '/messages', desc: 'Marine administrative message Search and detail view.' },
     ],
   },
   {
@@ -54,8 +54,8 @@ export function SiteMapPage() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 px-8 py-8 min-h-[190px]">
           <div>
             <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
+              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">Home</button>
+              <CaretRight className="w-3 h-3" />
               <span className="text-red-500">SITEMAP</span>
             </div>
             <motion.h1
@@ -106,7 +106,7 @@ export function SiteMapPage() {
                           {item.desc}
                         </p>
                       </div>
-                      <ExternalLink className="w-4 h-4 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
+                      <ArrowSquareOut className="w-4 h-4 text-gray-600 group-hover:text-red-500 transition-colors flex-shrink-0 mt-0.5" />
                     </div>
                   </button>
                 ))}

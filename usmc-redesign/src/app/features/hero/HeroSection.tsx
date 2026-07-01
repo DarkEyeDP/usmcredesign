@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Maximize2, Minimize2 } from 'lucide-react';
+import { Play, ArrowsOut, ArrowsIn } from '@phosphor-icons/react';
 import { GridPulses } from './GridPulses';
 import { GridNodes } from './GridNodes';
 import { VideoPlayer } from './VideoPlayer';
@@ -50,7 +50,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
   const activeVideo = (slide.videoId ? getVideoById(slide.videoId) : undefined) ?? getDefaultVideo();
 
   return (
-    <div className="relative h-[52svh] min-h-[420px] overflow-hidden md:h-screen md:min-h-0" style={{ contain: 'layout style paint' }}>
+    <div className="relative h-[52svh] min-h-[420px] overflow-hidden md:h-screen md:min-h-0" style={{ contain: 'AppWindow style paint' }}>
 
       {/* Sliding images — cinematic dissolve cross-fade */}
       <AnimatePresence mode="sync" initial={false}>
@@ -141,7 +141,7 @@ export function HeroSection({ isFullscreen = false, onToggleFullscreen }: HeroSe
           className={`hidden lg:flex absolute bottom-4 right-4 z-20 items-center justify-center w-7 h-7 transition-colors ${isFullscreen ? 'text-red-500 hover:text-red-400' : 'text-gray-700 hover:text-gray-400'}`}
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          {isFullscreen ? <ArrowsIn weight="bold" className="w-4 h-4" /> : <ArrowsOut weight="bold" className="w-4 h-4" />}
         </button>
       )}
 
