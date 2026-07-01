@@ -21,6 +21,13 @@
   </url>
 
   <url>
+    <loc>https://stay-marine.com/career-path</loc>
+    <changefreq>monthly</changefreq>
+    <lastmod>2026-07-01</lastmod>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://stay-marine.com/pay-benefits</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

@@ -409,9 +409,57 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
   return (
     <div className={isFullscreen ? 'h-screen flex flex-col overflow-hidden' : 'min-h-screen pb-5 md:pb-0'} style={{ background: 'var(--usmc-bg-page)' }}>
       <SEOHead
-        title="Career Path"
-        description="Visualize your Marine Corps career — plan duty stations, promotions, family milestones, education, and financial goals on one interactive timeline."
+        title="USMC Career Path Planner | Marine Corps Timeline Tool"
+        description="Plan your entire Marine Corps career on one interactive timeline — duty stations, promotions, family milestones, education, and financial goals. Visualize your USMC career path from enlistment to retirement."
+        keywords="Marine Corps career planner, USMC career path, Marine Corps timeline tool, Marine duty station planner, USMC promotion timeline, Marine Corps career planning tool, Marine career milestones, USMC retirement planning, Marine Corps service planner"
         path="/career-path"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'USMC Career Path Planner',
+            url: 'https://stay-marine.com/career-path',
+            description: 'Interactive Marine Corps career timeline tool for planning duty stations, promotions, family milestones, education events, and financial goals across an entire USMC career.',
+            applicationCategory: 'UtilitiesApplication',
+            operatingSystem: 'Web',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+            provider: { '@type': 'Organization', name: 'Stay Marine', url: 'https://stay-marine.com' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://stay-marine.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Career Path Planner', item: 'https://stay-marine.com/career-path' },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: 'How to Plan Your Marine Corps Career Timeline',
+            description: 'Use the Stay Marine Career Path Planner to map out your entire USMC career — from duty stations and promotions to family events, education, and financial goals — all on one interactive timeline.',
+            step: [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Set up your Marine profile',
+                text: 'Enter your enlistment date, current rank, MOS, and EAS. The planner uses this to anchor your timeline and populate your current promotion automatically.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Add duty stations, promotions, and life events',
+                text: 'Plot past and future duty stations, add projected promotions, record family milestones like marriage and children, plan education, and set financial goals. Each event appears on your timeline as a visual block or marker.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Visualize and plan your career',
+                text: 'Switch between year, month, and day views to zoom in on specific periods. Save multiple timeline scenarios to compare career paths — such as different reenlistment options or lateral move timing.',
+              },
+            ],
+          },
+        ]}
       />
 
       {/* ── Hero + Profile — hidden in fullscreen ────────────────── */}
