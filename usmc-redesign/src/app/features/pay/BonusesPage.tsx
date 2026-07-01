@@ -17,6 +17,49 @@ import {
 
 const STORAGE_KEY = 'pay-benefits:srbp-settings:v1';
 
+const SRBP_FAQ_ITEMS = [
+  {
+    q: 'What is the SRBP (Selective Retention Bonus Program)?',
+    a: 'The Selective Retention Bonus Program (SRBP) is a Marine Corps cash incentive designed to retain experienced active-duty enlisted Marines in critical MOS fields. Eligible Marines who reenlist receive a lump-sum bonus based on their PMOS, pay grade, reenlistment zone, and contract length. The FY27 SRB Program is authorized by MARADMIN 023/26, signed January 22, 2026, and covers Marines with an Expiration of Current Contract (ECC) from October 1, 2026 through September 30, 2027.',
+  },
+  {
+    q: 'Who is eligible for the FY27 Marine Corps SRBP?',
+    a: 'Eligibility for the FY27 SRB requires: (1) an ECC falling between October 1, 2026 and September 30, 2027; (2) holding a PMOS listed in the authorized FY27 bonus tables; (3) reenlisting on or after the release of MARADMIN 023/26 (January 22, 2026); and (4) being a regular component first-term or career Marine. Zones A through F are authorized, though each has different grade and MOS restrictions. Some MOS have additional grade limits — always consult your career planner and the official MARADMIN to confirm your specific eligibility.',
+  },
+  {
+    q: 'What are SRBP zones and how are they determined?',
+    a: 'SRB zones are based on total years of active military service on the date of reenlistment, calculated using the Armed Forces Active-Duty Base Date (per MARADMIN 023/26, para 7.f). Zone A: 17 months to 6 years. Zone B: 6 to 10 years. Zone C: 10 to 14 years. Zone D: 14 to 18 years. Zone E: 18 to 20 years. Zone F: 20 to 24 years. Zones D through F have very limited PMOS eligibility. Marines with exactly the maximum years for a given zone on the date of reenlistment may still qualify for that zone if they have not previously received a bonus in it.',
+  },
+  {
+    q: 'How is the Marine Corps reenlistment bonus calculated?',
+    a: 'The FY27 SRBP uses published flat-rate dollar amounts — not a formula based on base pay. The pre-tax bonus amount is determined by your reenlistment zone, your grade on the date of reenlistment, and your PMOS (as listed in the MARADMIN tables). Reenlistment for at least 48 months of additional obligated service is required to receive the full flat-rate amount. Kickers (which add a fixed dollar amount on top) are only available on contracts of 60 months or more of additional obligated service. If you reenlist before your ECC, your obligated months may be prorated, which can affect your bonus amount.',
+  },
+  {
+    q: 'What are SRBP kickers and how do they increase my bonus?',
+    a: 'The FY27 SRBP offers seven kickers — fixed dollar amounts added on top of the base PMOS bonus for Marines who meet specific additional requirements. The seven kickers are: (1) Aircraft Maintenance Kicker ($5,000–$15,000, E-7 and below, aviation PMOS with qualifying NMOS such as 6016 CDI, 6017 CDQAR, or 6018 QAR); (2) Aircraft Readiness Kicker ($8,000–$24,000, E-7 and below, aviation PMOS, qualifying NMOS, and authorized MCC); (3) 84-Month Lateral Move Kicker ($50,000, Zone A, E-5 and below, into select PMOSs); (4) 72-Month Mid-Career LM Kicker ($35,000, Zone B, E-7 and below, into select PMOSs); (5) 24-Month FMF Infantry Kicker ($7,000, first-term E-5 and below in 0311/0313/0321/0331/0341/0352 with qualifying MCC); (6) 36-Month FMF Infantry Kicker ($30,000, same eligibility, higher MCC commitment); (7) Air Traffic Control Kicker ($40,000, Zone A only, 7257 PMOS with ATC NMOS 7252/7253/7254). All kickers require 60 months of additional obligated service. Marines eligible for multiple kickers may only receive one — the tool highlights the best available option.',
+  },
+  {
+    q: 'Which MOS qualify for the FY27 SRBP?',
+    a: 'The FY27 SRBP covers a wide range of critical Marine Corps MOS fields including infantry (0311, 0321, 0331, 0341, 0352), reconnaissance (0321, 0372), intelligence (0211, 0231, 0241, 0261), signals (2621, 2631, 2641, 2651), communications (0627, 0631, 0671), aviation maintenance (61xx, 62xx, 63xx series), air traffic control (7240, 7257), cyber/EW (5939, 5974, 5979), and others. The complete zone-by-zone tables are in MARADMIN 023/26. Use the SRBP Estimator above — it includes the full FY27 eligible MOS list and will automatically determine if your MOS qualifies.',
+  },
+  {
+    q: 'Is the Marine Corps SRBP taxable?',
+    a: 'Yes, SRB payments are generally subject to federal income tax and are treated as supplemental wages. However, if you are physically present in a designated tax-free combat zone on the date you reenlist and sign your reenlistment documents, your SRB is paid tax-free — regardless of when the payment is actually disbursed. Because SRBP payments are made in the FY of your ECC (which may be months after you sign), the determining factor is where you are when you sign, not where you are when the money arrives. Select "Tax-free combat zone" in the estimator only if you will physically be in a qualifying combat zone on your reenlistment signing date. State income tax treatment varies — consult a tax advisor or your installation\'s personal financial counselor.',
+  },
+  {
+    q: 'When is the SRBP paid?',
+    a: 'Per MARADMIN 023/26, SRB payments are made in the fiscal year of your ECC — not at the time you sign your reenlistment contract. Marines who reenlist ahead of their ECC lock in their bonus eligibility but receive payment in the appropriate FY. If a Marine does not receive their payment within their designated retention FY, they have the option to submit for separation within 90 days of that FY concluding. Lateral move bonuses are paid only after successful completion of formal PMOS training and award of the new PMOS, not at reenlistment signing.',
+  },
+  {
+    q: 'Can I get a bonus for switching MOS (lateral move)?',
+    a: 'Yes. Two mechanisms exist. First, LM-designated PMOSs in the bonus tables (marked "LM" in the MARADMIN) pay a flat-rate bonus to Marines who execute a lateral move reenlistment into that PMOS — paid after completing PMOS training, not at signing. Marines who fail to complete LM PMOS training receive no bonus. Second, Zone A Marines executing an LM into select PMOSs may earn the $50,000 84-month LM Kicker, and Zone B Marines executing an LM into select PMOSs may earn the $35,000 72-month Mid-Career LM Kicker, both in addition to any PMOS bonus. Enter your target MOS in the "Lateral Move MOS" field in the estimator to see if it qualifies.',
+  },
+  {
+    q: 'What is the lifetime SRBP career limit?',
+    a: 'Per MARADMIN 023/26 para 7.e, no Marine may exceed $360,000 in total career SRB payments. Previous SRB payments count against this ceiling. For example, a Zone A Sergeant who LMs into 0211 on an 84-month contract receives $101,000 and would only be eligible for up to $259,000 in future bonuses. Additionally, Marines selected to First Sergeant are not eligible to receive a PMOS bonus after the release of the selection MARADMIN. The FY27 BSSRB (Broken Service SRB) program is suspended — prior service Marines reenlisting back into the active component with less than a 4-year break in service are not eligible for a BSSRB.',
+  },
+] as const;
+
 const defaultValues: SrbpFormValues = {
   pebd: '',
   rank: '',
@@ -92,6 +135,7 @@ export function BonusesPage() {
   const [values, setValues] = useState<SrbpFormValues>(() => readStoredValues());
   const [resultState, setResultState] = useState<SrbpCalculationState>({ status: 'idle' });
   const [nmosOpen, setNmosOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
@@ -129,9 +173,73 @@ export function BonusesPage() {
   return (
     <div className="min-h-screen bg-black pb-5 md:pb-0">
       <SEOHead
-        title="Marine Corps Bonus Calculator"
-        description="Calculate your Marine Corps Selective Reenlistment Bonus (SRBP). Enter your MOS, rank, PEBD, and contract length to estimate your reenlistment bonus payout."
+        title="FY27 Marine Corps SRBP Calculator | Reenlistment Bonus Estimator"
+        description="Estimate your FY27 Marine Corps Selective Retention Bonus Program (SRBP) payout. Enter your MOS, rank, PEBD, ECC, and contract length — the tool calculates your base bonus, prorated amount, and best available kicker using official FY27 MARADMIN data."
+        keywords="Marine Corps SRBP, Marine Corps reenlistment bonus, USMC reenlistment bonus calculator, FY27 SRBP, Selective Retention Bonus Program, Marine Corps bonus MOS, SRBP kicker, SRBP zones, Marine Corps bonus 2026 2027, USMC bonus by MOS, Marine reenlistment pay"
         path="/pay-benefits/bonuses"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'FY27 Marine Corps SRBP Bonus Calculator',
+            url: 'https://stay-marine.com/pay-benefits/bonuses',
+            description: 'Estimate your FY27 Selective Retention Bonus Program payout based on MOS, pay grade, reenlistment zone, contract length, and kicker eligibility.',
+            applicationCategory: 'FinanceApplication',
+            operatingSystem: 'Web',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+            provider: { '@type': 'Organization', name: 'Stay Marine', url: 'https://stay-marine.com' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://stay-marine.com/' },
+              { '@type': 'ListItem', position: 2, name: 'Pay & Benefits', item: 'https://stay-marine.com/pay-benefits' },
+              { '@type': 'ListItem', position: 3, name: 'Bonus Tool', item: 'https://stay-marine.com/pay-benefits/bonuses' },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'HowTo',
+            name: 'How to Estimate Your Marine Corps FY27 SRBP Bonus',
+            description: 'Use the Stay Marine SRBP Estimator to calculate your reenlistment bonus in four steps.',
+            step: [
+              {
+                '@type': 'HowToStep',
+                position: 1,
+                name: 'Enter your identity and dates',
+                text: 'Enter your PEBD, current rank, PMOS, and current ECC. Your PEBD determines your reenlistment zone (A, B, C, or D) and the ECC must fall within the authorized FY27 window.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 2,
+                name: 'Fill in contract details',
+                text: 'Select your planned reenlistment date (on or after January 22, 2026), choose a reenlistment length (48 months minimum for the base bonus; 60 months minimum to unlock kickers), and optionally enter a lateral move MOS, MCC, and tax status.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 3,
+                name: 'Add NMOS qualifications (if applicable)',
+                text: 'If you hold qualifying additional MOS codes — such as CDI (6016), CDQAR (6017), QAR (6018), or ATC ratings (7252–7254) — select them to unlock aircraft maintenance, readiness, or ATC kicker eligibility.',
+              },
+              {
+                '@type': 'HowToStep',
+                position: 4,
+                name: 'Review your SRBP estimate',
+                text: 'The tool shows your base bonus, prorated amount, all available kickers with the best option highlighted, and a pre- and post-tax estimate range using official FY27 MARADMIN multipliers.',
+              },
+            ],
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: SRBP_FAQ_ITEMS.map(({ q, a }) => ({
+              '@type': 'Question',
+              name: q,
+              acceptedAnswer: { '@type': 'Answer', text: a },
+            })),
+          },
+        ]}
       />
       {/* ── Hero ── */}
       <div className="relative overflow-hidden pt-20">
@@ -683,6 +791,41 @@ export function BonusesPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* ── FAQ ── */}
+        <div className="relative mt-10 border border-white/12 bg-black">
+          <div className="flex items-center gap-3 border-b border-white/10 bg-white/[0.04] px-5 py-4">
+            <div className="flex h-6 w-6 items-center justify-center border border-white/35 text-sm font-bold text-red-500">5</div>
+            <span className="text-sm font-bold tracking-widest text-gray-400">SRBP FREQUENTLY ASKED QUESTIONS</span>
+          </div>
+          <div className="divide-y divide-white/8">
+            {SRBP_FAQ_ITEMS.map((item, i) => (
+              <div key={i}>
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-white/[0.03]"
+                >
+                  <span className="text-sm font-bold text-gray-200">{item.q}</span>
+                  <ChevronRight className={`h-4 w-4 flex-shrink-0 text-red-500 transition-transform ${openFaq === i ? 'rotate-90' : ''}`} />
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-gray-500">{item.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
