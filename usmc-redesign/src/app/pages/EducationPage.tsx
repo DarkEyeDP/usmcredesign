@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { CaretRight, AppWindow, Medal } from '@phosphor-icons/react';
 import { useNewsItems } from '@/app/features/news';
-import { SiteLogo } from '@/app/components/Layout/SiteLogo';
+import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { SEOHead } from '@/app/components/SEOHead';
 import cemeLogo from '@/app/assets/ceme-logo.png';
 import mcwarLogo from '@/app/assets/mcwar-logo.png';

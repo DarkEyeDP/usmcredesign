@@ -4,7 +4,7 @@ import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
 import { CaretRight, CurrencyDollar, GraduationCap, ArrowsLeftRight, ArrowSquareOut, Newspaper, Chat } from '@phosphor-icons/react';
 import { HeroSection } from '@/app/features/hero';
-import { SiteLogo } from '@/app/components/Layout/SiteLogo';
+import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import { useNewsItems } from '@/app/features/news';
 import recruitImage from '@/app/assets/hero-3.webp';
 import actionImage from '@/app/assets/hero-5.webp';

@@ -2,7 +2,7 @@
 import { motion } from 'motion/react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { List } from '@phosphor-icons/react';
-import { SiteLogo } from '@/app/components/Layout/SiteLogo';
+import { SiteLogo } from '@/app/components/layout/SiteLogo';
 import {
   Sheet,
   SheetClose,
