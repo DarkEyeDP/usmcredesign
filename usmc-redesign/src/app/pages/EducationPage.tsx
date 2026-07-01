@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 import { ChevronRight, Layout, Award } from 'lucide-react';
@@ -10,9 +10,6 @@ import mcwarLogo from '@/app/assets/mcwar-logo.png';
 import commandStaffLogo from '@/app/assets/command-staff-logo.jpeg';
 import ewsLogo from '@/app/assets/ews-logo.jpeg';
 import cdetLogo from '@/app/assets/cdet-logo.jpg';
-
-const tabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
-const inactiveTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
 const pathwaySteps = [
   { label: 'ENLISTMENT', desc: 'Start your journey' },
@@ -129,7 +126,6 @@ const events = [
 
 export function EducationPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('OVERVIEW');
   const { newsItems, pressReleases, loading: newsLoading } = useNewsItems();
 
   const eduNews = useMemo(() => {
@@ -145,85 +141,12 @@ export function EducationPage() {
   }, [newsItems, pressReleases]);
 
   return (
-    <div className="min-h-screen bg-black pb-5 md:pb-0">
+    <>
       <SEOHead
         title="Education Benefits"
         description="Marine Corps education benefits explained — Tuition Assistance (TA), college programs, certifications, and career development resources for active-duty Marines."
         path="/education"
       />
-      {/* Hero */}
-      <div className="relative pt-20 overflow-hidden border-b border-white/12">
-        <div className="absolute inset-0 hero-bg" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
-          backgroundSize: '40px 40px'
-        }} />
-
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
-          {/* Info overlay card */}
-          <div className="absolute top-5 right-8 border border-white/10 bg-black/50 px-5 py-3 text-right hidden lg:block">
-            <div className="text-[12px] font-black text-white tracking-widest">CONTINUOUS LEARNING<span className="text-red-600">.</span></div>
-            <div className="text-[12px] font-black text-white tracking-widest mb-2">LIFELONG IMPACT<span className="text-red-600">.</span></div>
-            <div className="w-6 h-px bg-red-600 ml-auto mb-2" />
-            <div className="text-[11px] text-gray-500 tracking-wider">INVEST IN YOURSELF<span className="text-red-600">.</span></div>
-            <div className="text-[11px] text-gray-500 tracking-wider">INVEST IN THE MISSION<span className="text-red-600">.</span></div>
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center px-8 py-6">
-            <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-red-500">EDUCATION</span>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="mt-1 h-14 w-1 flex-shrink-0 bg-red-600 sm:h-20" />
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
-                className="page-hero-title mb-2"
-              >
-                EDUCATION<span className="text-red-600">.</span>
-              </motion.h1>
-            </div>
-            <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
-              Knowledge strengthens leaders. Advance your military career and prepare for life beyond the uniform with world-class education opportunities.
-            </p>
-          </div>
-
-          {/* Tabs — flush at bottom so active underline sits on the hero border */}
-          <div className="flex items-center px-8 -mb-px overflow-x-auto">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab;
-              const isInactive = inactiveTabs.has(tab);
-
-              return (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    if (tab === 'TA EDUCATION') navigate('/education/tuition-assistance');
-                    else if (tab === 'DEGREE PLANNER') navigate('/education/degree-planner');
-                    else if (!isInactive) setActiveTab(tab);
-                  }}
-                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
-                    isActive
-                      ? 'text-white'
-                      : isInactive
-                        ? 'text-gray-700/70'
-                        : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {tab}
-                  {isActive && (
-                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="eduTabLine" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Three-column content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-white/12 px-8 py-8">
         {/* Education Pathways */}
@@ -485,6 +408,6 @@ export function EducationPage() {
           <span className="mt-4 inline-block text-[9px] font-bold tracking-widest text-white/20 border border-white/10 px-2 py-0.5">COMING SOON</span>
         </div>
       </div>
-    </div>
+    </>
   );
 }

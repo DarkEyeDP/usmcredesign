@@ -209,6 +209,25 @@ textarea:disabled {
   }
 }
 
+/* Force dark/blackout color values inside overlays that must always appear dark,
+   regardless of the active theme (e.g. book detail modal over a photo). */
+.desert .modal-dark {
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --usmc-text-primary: #ffffff;
+  --usmc-bg-base: #000000;
+  --usmc-bg-surface: #09090c;
+  --usmc-bg-page: #050508;
+}
+
 /* Disable default focus outline, replace with tactical style */
 *:focus {
   outline: none;

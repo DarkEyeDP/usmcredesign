@@ -19,12 +19,20 @@ This is a React SPA using **react-router v7** (`BrowserRouter` + `Routes`/`Route
 | Messages / MARADMIN | `/messages` | `MARADMINPage` | `features/maradmin/` |
 | Pay & Benefits | `/pay-benefits` | `PayBenefitsPage` | `features/pay/` |
 | Basic Pay | `/pay-benefits/basic-pay` | `BasicPayPage` | `features/pay/` |
+| BAH Calculator | `/pay-benefits/bah` | `BAHCalculatorPage` | `features/pay/` |
 | Bonuses | `/pay-benefits/bonuses` | `BonusesPage` | `features/pay/` |
-| Education | `/education` | `EducationPage` | `pages/` |
+| Education (layout) | `/education/*` | `EducationLayout` | `features/education/` |
+| Education Overview | `/education` | `EducationPage` | `pages/` |
 | Tuition Assistance | `/education/tuition-assistance` | `TuitionAssistancePage` | `features/education/` |
+| Degree Planner | `/education/degree-planner` | `DegreePlannerPage` | `features/education/` |
+| College & University | `/education/college-university` | `CollegeUniversityPage` | `features/education/` |
+| Reading List | `/reading-list` | `ReadingListPage` | `features/reading/` |
 | Lateral Move | `/lateral-move` | `LateralMovePage` | `features/latmove/` |
 | Stay Marine | `/stay-marine` | `StayMarinePage` | `pages/` |
 | News | `/news` | `NewsPage` | `features/news/` |
+| News Article | `/news/:articleSlug` | `NewsArticlePage` | `features/news/` |
+
+**Education routes use a nested layout:** All `/education/*` routes share `EducationLayout` as a parent `<Route>` (with `<Outlet />`). The layout renders a persistent hero with animated title/subtitle, breadcrumbs, and a tab bar. Child pages render inside the `<Outlet>` — they do not render their own hero. When adding a new education sub-tab, add its route meta to `ROUTE_META` in `EducationLayout.tsx`, add it to `TABS`/`TAB_ROUTES`, and add the `<Route>` as a child of the education `<Route>` in `App.tsx`.
 
 **Production note:** The host server must redirect all requests to `index.html` (standard SPA fallback). Vite dev server handles this automatically.
 
@@ -51,6 +59,13 @@ src/
         VideoPlayer.tsx              — YouTube player modal component
         HeroSection.tsx              — assembles the full hero section
         index.ts                     — re-exports HeroSection
+      education/                     — Education section (nested layout + sub-pages)
+        EducationLayout.tsx          — shared hero + tab bar + <Outlet> for all /education/* routes
+        DegreePlannerPage.tsx        — degree planner orchestrator
+        CollegeUniversityPage.tsx    — school search orchestrator
+        TuitionAssistancePage.tsx    — TA overview page
+        degree-planner/              — degree planner data layer + components
+        college-university/          — school search data layer + components
       latmove/                       — Lateral Move tool
         LateralMovePage.tsx
         components/                  — latmove-specific UI components
@@ -63,6 +78,7 @@ src/
         PayBenefitsPage.tsx
         BasicPayPage.tsx
         BonusesPage.tsx
+        BAHCalculatorPage.tsx        — BAH calculator
         srbpCalculator.ts            — FY27 SRBP calculation logic
         srbpData.ts                  — SRBP bonus tables + kicker eligibility data
         payTables2026.ts             — 2026 basic pay tables
@@ -135,27 +151,53 @@ features/<feature-name>/
 - **Existing file approaching 300+ lines:** split it before adding more.
 - **Any time a single file contains types + constants + helpers + components:** that file needs to be split.
 
-### Example: degree-planner (reference implementation)
+### Example: education feature (reference implementation)
 
 ```
 features/education/
+  EducationLayout.tsx            — shared nested layout: persistent hero, tab bar, <Outlet />
   DegreePlannerPage.tsx          — ~290 lines, state + computed + handlers only
+  CollegeUniversityPage.tsx      — school search orchestrator: filters, results, detail, compare
+  TuitionAssistancePage.tsx      — TA overview, eligibility, approval steps
   degree-planner/
     types.ts                     — 8 types/interfaces
     constants.ts                 — DEGREE_CREDITS, FUNDING_META, GRADE_POINTS, etc.
     storage.ts                   — STORAGE_KEY + loadSaved()
     utils.ts                     — genId, fiscalYear, courseTACost, fundingClass, etc.
+    degreePlannerPdf.ts          — PDF export logic
     components/
       NumericInput.tsx           — reusable controlled input with isFocused sync
       SectionHeader.tsx          — numbered section label
-      DegreeGoalSection.tsx      — school autocomplete + degree/field selectors
+      DegreeGoalSection.tsx      — school + degree/field selectors (integrates with college-university)
       CreditsEarnedSection.tsx   — JST/transfer/CLEP inputs
       CoursePlanSection.tsx      — section 3 wrapper
       TABudgetTracker.tsx        — FY budget cards + uncovered gap card
       TermRow.tsx                — single term accordion
       CourseRow.tsx              — single course row
       SummarySection.tsx         — progress bar + cost breakdown
+      DegreePlannerFAQ.tsx       — FAQ accordion section
+  college-university/
+    types.ts                     — SchoolResult, SchoolProgram, SortOption, TuitionMode, SearchParams
+    constants.ts                 — TA_CAP_PER_CREDIT, POPULAR_SCHOOL_NAMES, FIELD_OF_STUDY_OPTIONS, US_STATES
+    utils.ts                     — fetchSchools, activeTuition, calcTACoverage, sortSchools, schoolBadge
+    savedStorage.ts              — localStorage helpers for saved/bookmarked schools
+    recentStorage.ts             — localStorage helpers for recently viewed schools
+    components/
+      SchoolFilters.tsx          — search input + state/ownership/field-of-study/distance filters
+      SchoolResultsList.tsx      — paginated results with sort/filter controls
+      SchoolResultCard.tsx       — single result card with TA coverage bar + compare/save actions
+      SchoolDetailPanel.tsx      — sticky right panel: full details, programs, "Add to Planner" CTA
+      SchoolBadge.tsx            — colored initials badge per school
+      TACoverageBar.tsx          — visual TA coverage progress bar
+      PopularSchoolsRow.tsx      — horizontally scrolling popular school cards (hardcoded list)
+      RecentlyViewedRow.tsx      — horizontally scrolling recently viewed schools (localStorage)
+      SavedSchoolsRow.tsx        — horizontally scrolling saved/bookmarked schools (localStorage)
+      CompareBar.tsx             — sticky bottom bar for up to 3 schools to compare
+      CompareView.tsx            — full-screen side-by-side school comparison overlay
+      CollegeHero.tsx            — page-level hero (unused — hero is in EducationLayout)
 ```
+
+**School search worker:** The college-university feature fetches from a Cloudflare Worker. The URL is read from `import.meta.env.VITE_SCHOOL_SEARCH_WORKER_URL`. Set this in `.env.local` for local dev. If the env var is absent, search silently no-ops. Programs (CIP codes) are fetched from the same worker with a `schoolId` query param.
 
 ---
 

@@ -18,8 +18,10 @@ import { PayBenefitsPage } from '@/app/features/pay/PayBenefitsPage';
 import { BasicPayPage } from '@/app/features/pay/BasicPayPage';
 import { BonusesPage } from '@/app/features/pay/BonusesPage';
 import { BAHCalculatorPage } from '@/app/features/pay/BAHCalculatorPage';
+import { EducationLayout } from '@/app/features/education/EducationLayout';
 import { TuitionAssistancePage } from '@/app/features/education/TuitionAssistancePage';
 import { DegreePlannerPage } from '@/app/features/education/DegreePlannerPage';
+import { CollegeUniversityPage } from '@/app/features/education/CollegeUniversityPage';
 import { NewsArticlePage, NewsPage } from '@/app/features/news';
 import { ReadingListPage } from '@/app/features/reading/ReadingListPage';
 import { isFullscreenCapablePath } from './routeUtils';
@@ -103,9 +105,12 @@ export default function App() {
             <Route path="/pay-benefits/bah" element={<BAHCalculatorPage />} />
             <Route path="/pay-benefits/bonuses" element={<BonusesPage />} />
             <Route path="/pay-benefits" element={<PayBenefitsPage />} />
-            <Route path="/education" element={<EducationPage />} />
-            <Route path="/education/tuition-assistance" element={<TuitionAssistancePage />} />
-            <Route path="/education/degree-planner" element={<DegreePlannerPage />} />
+            <Route path="/education" element={<EducationLayout />}>
+              <Route index element={<EducationPage />} />
+              <Route path="tuition-assistance" element={<TuitionAssistancePage />} />
+              <Route path="degree-planner" element={<DegreePlannerPage />} />
+              <Route path="college-university" element={<CollegeUniversityPage />} />
+            </Route>
             <Route path="/reading-list" element={<ReadingListPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/sitemap" element={<SiteMapPage />} />

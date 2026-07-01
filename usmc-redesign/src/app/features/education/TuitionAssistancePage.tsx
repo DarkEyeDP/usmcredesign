@@ -1,12 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { SEOHead } from '@/app/components/SEOHead';
 import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate } from 'react-router';
 import { ChevronRight, ChevronDown, ExternalLink, Clock, AlertTriangle, CheckCircle2, FileText, GraduationCap } from 'lucide-react';
 
-const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
 const taTabs = ['OVERVIEW', 'ELIGIBILITY', 'HOW TO APPLY', 'GRADE REQUIREMENTS', 'RECOUPMENT'];
-const inactiveEducationTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
 const taBasics = [
   { label: 'Annual Limit', value: '$4,500', sub: 'Per fiscal year (Oct 1 – Sep 30)' },
@@ -171,85 +168,15 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export function TuitionAssistancePage() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('OVERVIEW');
 
   return (
-    <div className="min-h-screen bg-black pb-5 md:pb-0">
+    <>
       <SEOHead
         title="Marine Corps Tuition Assistance"
         description="Marine Corps Tuition Assistance (TA) program guide — eligibility requirements, $4,500 annual limit, how to apply through Marine Online, grade requirements, and recoupment rules."
         path="/education/tuition-assistance"
       />
-      {/* Hero */}
-      <div className="relative pt-20 overflow-hidden border-b border-white/12">
-        <div className="absolute inset-0 hero-bg" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(var(--usmc-grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--usmc-grid-color) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
-
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
-          <div className="absolute top-5 right-8 border border-white/10 bg-black/50 px-5 py-3 text-right hidden lg:block">
-            <div className="text-[12px] font-black text-white tracking-widest">INVEST IN YOURSELF<span className="text-red-600">.</span></div>
-            <div className="text-[12px] font-black text-white tracking-widest mb-2">INVEST IN THE MISSION<span className="text-red-600">.</span></div>
-            <div className="w-6 h-px bg-red-600 ml-auto mb-2" />
-            <div className="text-[11px] text-gray-500 tracking-wider">UP TO $4,500 PER FISCAL YEAR<span className="text-red-600">.</span></div>
-          </div>
-
-          <div className="flex-1 flex flex-col justify-center px-8 py-6">
-            <div className="flex items-center gap-2 text-[12px] text-gray-600 font-mono tracking-wider mb-2">
-              <button onClick={() => navigate('/')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">HOME</button>
-              <ChevronRight className="w-3 h-3" />
-              <button onClick={() => navigate('/education')} className="text-[12px] font-mono tracking-wider hover:text-gray-400 transition-colors bg-transparent p-0 border-0">EDUCATION</button>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-red-500">TUITION ASSISTANCE</span>
-            </div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
-              className="page-hero-title mb-2"
-            >
-              TUITION ASSISTANCE<span className="text-red-600">.</span>
-            </motion.h1>
-            <p className="text-[14px] text-gray-400 max-w-xl leading-relaxed mb-3">
-              Active-duty Marines can receive up to $4,500 per fiscal year in tuition assistance for college courses — taken during off-duty time, at no cost to your military career.
-            </p>
-          </div>
-
-          <div className="flex items-center px-8 -mb-px overflow-x-auto">
-            {educationTabs.map((tab) => {
-              const isActive = tab === 'TA EDUCATION';
-              const isInactive = inactiveEducationTabs.has(tab);
-
-              return (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    if (isActive || isInactive) return;
-                    if (tab === 'DEGREE PLANNER') navigate('/education/degree-planner');
-                    else navigate('/education');
-                  }}
-                  className={`relative px-5 py-3 text-[12px] font-bold tracking-widest transition-colors whitespace-nowrap flex-shrink-0 ${
-                    isActive
-                      ? 'text-white'
-                      : isInactive
-                        ? 'text-gray-700/70'
-                        : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {tab}
-                  {isActive && (
-                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="taTabLine" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       <div className="px-8 py-8">
         <div className="mb-8 flex flex-col gap-3 border-b border-white/12 -mx-8 px-8 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center overflow-x-auto">
@@ -851,6 +778,6 @@ export function TuitionAssistancePage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -8,7 +8,6 @@ import { generateDegreePlannerPdf } from './degree-planner/degreePlannerPdf';
 
 import type { DegreeLevel, Season, Term, Course, FundingSource, SchoolDetails, SchoolSuggestion, SavedState } from './degree-planner/types';
 import { DEGREE_CREDITS, SEASONS, TA_PER_CREDIT_MAX, TA_ANNUAL_MAX, GRADE_POINTS, GRADE_CYCLE } from './degree-planner/constants';
-import { gridStyle } from './degree-planner/constants';
 import { STORAGE_KEY, loadSaved } from './degree-planner/storage';
 import { genId, fiscalYear, courseTACost, estimateFinalTerm, nextCycle } from './degree-planner/utils';
 
@@ -17,9 +16,6 @@ import { CreditsEarnedSection } from './degree-planner/components/CreditsEarnedS
 import { CoursePlanSection } from './degree-planner/components/CoursePlanSection';
 import { SummarySection } from './degree-planner/components/SummarySection';
 import { DegreePlannerFAQ } from './degree-planner/components/DegreePlannerFAQ';
-
-const educationTabs = ['OVERVIEW', 'TA EDUCATION', 'DEGREE PLANNER', 'COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES'];
-const inactiveEducationTabs = new Set(['COLLEGE & UNIVERSITY', 'CERTIFICATIONS', 'SKILLS & CAREER', 'RESOURCES']);
 
 // ── Main Component ───────────────────────────────────────────────────────────────
 export function DegreePlannerPage() {
@@ -380,67 +376,6 @@ export function DegreePlannerPage() {
           },
         ]}
       />
-
-      {/* ── Hero header ── */}
-      <div className="relative overflow-hidden border-b border-white/12 pt-20">
-        <div className="absolute inset-0 hero-bg" />
-        <div className="absolute inset-0 opacity-[0.04]" style={gridStyle} />
-
-        <div className="relative z-10 flex flex-col" style={{ minHeight: '176px' }}>
-          <div className="absolute top-5 right-8 hidden border border-white/10 bg-black/50 px-5 py-3 text-right lg:block">
-            <div className="text-[12px] font-black text-white tracking-widest">PLAN YOUR PATH<span className="text-red-600">.</span></div>
-            <div className="mb-2 text-[12px] font-black text-white tracking-widest">EARN YOUR DEGREE<span className="text-red-600">.</span></div>
-            <div className="mb-2 ml-auto h-px w-6 bg-red-600" />
-            <div className="text-[11px] tracking-wider text-gray-500">TERM BY TERM<span className="text-red-600">.</span></div>
-          </div>
-
-          <div className="flex flex-1 flex-col justify-center px-8 py-6">
-            <div className="mb-2 flex items-center gap-2 font-mono text-[12px] tracking-wider text-gray-600">
-              <button onClick={() => navigate('/')} className="bg-transparent border-0 p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">HOME</button>
-              <ChevronRight className="h-3 w-3" />
-              <button onClick={() => navigate('/education')} className="bg-transparent border-0 p-0 text-[12px] font-mono tracking-wider transition-colors hover:text-gray-400">EDUCATION</button>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-red-500">DEGREE PLANNER</span>
-            </div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 240, damping: 14, mass: 0.85 }}
-              className="page-hero-title mb-2"
-            >
-              DEGREE PLANNER<span className="text-red-600">.</span>
-            </motion.h1>
-            <p className="mb-3 max-w-xl text-[14px] leading-relaxed text-gray-400">
-              Plan your associate, bachelor's, or master's degree using USMC Tuition Assistance. Track JST credits, map TA-funded courses term by term, and monitor your $4,500 annual TA budget.
-            </p>
-          </div>
-
-          <div className="-mb-px flex items-center overflow-x-auto px-8">
-            {educationTabs.map(tab => {
-              const isActive = tab === 'DEGREE PLANNER';
-              const isInactive = inactiveEducationTabs.has(tab);
-              return (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    if (isActive || isInactive) return;
-                    if (tab === 'TA EDUCATION') navigate('/education/tuition-assistance');
-                    else navigate('/education');
-                  }}
-                  className={`relative flex-shrink-0 whitespace-nowrap px-5 py-3 text-[12px] font-bold tracking-widest transition-colors ${
-                    isActive ? 'text-white' : isInactive ? 'text-gray-700/70' : 'text-gray-600 hover:text-gray-400'
-                  }`}
-                >
-                  {tab}
-                  {isActive && (
-                    <motion.div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600" layoutId="eduTabLine" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
 
       <div className="space-y-4 px-4 py-6 md:px-8 md:py-8">
 
