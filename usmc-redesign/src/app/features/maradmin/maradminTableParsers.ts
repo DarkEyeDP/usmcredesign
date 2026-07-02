@@ -1417,6 +1417,53 @@ function parseUniversityVacancyTable(text: string): ParsedTableFamily | null {
   };
 }
 
+// Parses inline MCC/Unit vacancy tables, e.g.:
+// The following are immediate and projected vacancies:
+// MCC Unit Discipline Availability
+// 143 HQTRS 3d MAW Miramar, CA Safety Immediate
+// JBG SNCOA Camp Butler, Japan Education Immediate
+// Availability is the anchor: scan each row forward for "Immediate"/"Projected",
+// take the token before it as Discipline, everything before that as Unit.
+function parseInlineMCCVacancyTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bMCC\s+Unit\s+Discipline\s+Availability\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/[:\s]+$/, '').trim();
+  const data = headerMatch[2].trim();
+
+  const mccRe = /^[A-Z0-9]{3}$/i;
+  const availRe = /^(?:Immediate|Projected|TBD)$/i;
+  const tokens = data.split(/\s+/).filter(Boolean);
+  const rows: string[][] = [];
+  let i = 0;
+
+  while (i < tokens.length) {
+    if (!mccRe.test(tokens[i])) break;
+
+    let availIdx = -1;
+    for (let j = i + 2; j < tokens.length; j++) {
+      if (availRe.test(tokens[j])) { availIdx = j; break; }
+    }
+    if (availIdx <= i + 1) break;
+
+    const unit = tokens.slice(i + 1, availIdx - 1).join(' ');
+    const discipline = tokens[availIdx - 1];
+    const availability = tokens[availIdx];
+    if (!unit || !discipline) break;
+
+    rows.push([tokens[i].toUpperCase(), unit, discipline, availability]);
+    i = availIdx + 1;
+  }
+
+  if (rows.length < 2) return null;
+
+  const footer = tokens.slice(i).join(' ').trim();
+  return {
+    body: [body, footer].filter(Boolean).join(' '),
+    tables: [{ headers: ['MCC', 'Unit', 'Discipline', 'Availability'], rows }],
+  };
+}
+
 function parseRecruitingStationAvailabilityTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bRecruiting\s+Station\s+((?:\d+-\d+\s+){2,}\d+-\d+)\s+/i);
   if (!headerMatch) return null;
@@ -1528,6 +1575,7 @@ const TABLE_FAMILY_PARSERS = [
   parseCommandMCCTentativeReportDateTable,
   parseMCCUnitDescriptionNoteTable,
   parseSergeantsMajorBilletSlateTable,
+  parseInlineMCCVacancyTable,
   parseVacancySummaryTable,
   parseProjectedPromotionsTable,
   parseFeederMosTable,
