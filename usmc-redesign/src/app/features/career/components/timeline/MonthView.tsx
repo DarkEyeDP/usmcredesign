@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import {
   Flag, MapPin, CaretUp, BookOpen,
   Heart, Users, GraduationCap, CurrencyDollar,
-  CaretLeft, CaretRight, Rows,
+  CaretLeft, CaretRight, Rows, User, Timer,
 } from '@phosphor-icons/react';
 import { renderCustomIcon } from '../IconColorPicker';
 import type { TimelineData } from '../../types';
@@ -198,41 +198,28 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
           <div className="absolute top-0 bottom-0 pointer-events-none"
             style={{ left: labelW + todayFMX, width: 2, background: 'rgba(239,68,68,0.45)' }} />
 
-          {/* Nav cell */}
+          {/* Nav cell — matches year-view header cell style */}
           <div className="flex-none sticky left-0 z-[40] border-r border-white/10 flex flex-col overflow-hidden"
             style={{ width: labelW, height: 56, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
             {collapsed ? (
-              <>
-                <div className="h-8 border-b border-white/[0.06] flex items-center justify-around px-0.5">
-                  <button onClick={onPrev} className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                    <CaretLeft className="w-3 h-3" />
-                  </button>
-                  <button onClick={onBack} className="w-5 h-5 flex items-center justify-center text-red-500/60 hover:text-red-400 transition-colors">
-                    <CaretUp className="w-3 h-3" />
-                  </button>
-                  <button onClick={onNext} className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                    <CaretRight className="w-3 h-3" />
-                  </button>
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                  <Rows className="w-3 h-3 text-white/25" />
-                </div>
-              </>
+              <div className="flex-1 flex items-center justify-center">
+                <Rows className="w-3.5 h-3.5 text-white/30" />
+              </div>
             ) : (
               <>
-                <div className="h-8 border-b border-white/[0.06] flex items-center justify-between px-2">
-                  <button onClick={onPrev} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                    <CaretLeft className="w-3.5 h-3.5" />
-                  </button>
-                  <button onClick={onBack} className="text-[8px] font-mono text-red-500 hover:text-red-400 tracking-widest transition-colors">
-                    ← YEAR VIEW
-                  </button>
-                  <button onClick={onNext} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                    <CaretRight className="w-3.5 h-3.5" />
-                  </button>
+                <div className="h-8 border-b border-white/[0.06] flex items-center px-2.5">
+                  <span className="text-[8px] font-mono tracking-[0.2em] text-white/25 uppercase">Timeline</span>
                 </div>
-                <div className="h-6 flex items-center px-3">
-                  <span className="text-[8px] font-mono text-white/20 tracking-widest">MONTH</span>
+                <div className="flex-1 flex items-center justify-between px-1.5">
+                  <button onClick={onPrev} className="w-5 h-5 flex items-center justify-center text-white/20 hover:text-white/55 transition-colors">
+                    <CaretLeft className="w-2.5 h-2.5" />
+                  </button>
+                  <button onClick={onBack} className="text-[7px] font-mono text-red-500/60 hover:text-red-400 tracking-wider transition-colors">
+                    ↑ YEAR VIEW
+                  </button>
+                  <button onClick={onNext} className="w-5 h-5 flex items-center justify-center text-white/20 hover:text-white/55 transition-colors">
+                    <CaretRight className="w-2.5 h-2.5" />
+                  </button>
                 </div>
               </>
             )}
@@ -310,7 +297,7 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
 
           {/* ── Age row ───────────────────────────────────────────────────── */}
           <div className="flex h-8 border-b border-white/[0.06]">
-            <SmallLabel text="AGE" />
+            <SmallLabel text="AGE" icon={<User className="w-3 h-3" />} />
             <div className="flex">
               {years.flatMap((y, yi) => MONTHS.map((_, i) => {
                 const age = getAgeAtMonth(profile.dob, y, i);
@@ -326,7 +313,7 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
 
           {/* ── Time in Service row ───────────────────────────────────────── */}
           <div className="flex h-8 border-b border-white/10">
-            <SmallLabel text="TIME IN SVC" />
+            <SmallLabel text="TIME IN SVC" icon={<Timer className="w-3 h-3" />} />
             <div className="flex">
               {years.flatMap((y, yi) => MONTHS.map((_, i) => {
                 const label = getTISLabel(profile.enlistmentDate, y, i);
