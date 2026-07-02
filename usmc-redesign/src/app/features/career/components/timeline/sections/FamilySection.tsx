@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Heart, Users, GraduationCap, Plus, DotsSixVertical } from '@phosphor-icons/react';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 import type { Spouse, Child } from '../../../types';
 import {
-  LABEL_W, GUTTER_W, years,
+  LABEL_W, LABEL_W_COLLAPSED, GUTTER_W, years,
   dateToX, fmtDate,
   ttChild, ttSchool,
   SCHOOL_STYLE, SCHOOL_STYLE_DESERT, getSchoolGradeBlocks,
   type TooltipState,
 } from '../timelineUtils';
-import { SectionLabel, GridLines } from '../TimelineAtoms';
+import { SectionLabel, GridLines, SidebarCollapsedCtx } from '../TimelineAtoms';
 
 interface Props {
   spouse: Spouse | null;
@@ -36,6 +36,8 @@ export function FamilySection({
   const { theme } = useTheme();
   const isDesert = theme === 'desert';
   const schoolStyle = isDesert ? SCHOOL_STYLE_DESERT : SCHOOL_STYLE;
+  const collapsed = useContext(SidebarCollapsedCtx);
+  const subLabelW = collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W;
 
   const [dragChildId, setDragChildId]       = useState<string | null>(null);
   const [dropTargetId, setDropTargetId]     = useState<string | null>(null);
@@ -104,16 +106,20 @@ export function FamilySection({
 
       {/* Children label row */}
       <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
-        <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center gap-2 px-2.5" style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}>
-          <span className="text-white/30 flex-none"><Users className="w-3.5 h-3.5" /></span>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
-          </div>
-          {onAddChild && (
-            <button onClick={onAddChild}
-              className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
-              <Plus weight="bold" className="w-3 h-3" />
-            </button>
+        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'gap-2 px-2.5'}`} style={{ left: GUTTER_W, width: subLabelW, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+          <span className="text-white/25 flex-none"><Users className="w-3.5 h-3.5" /></span>
+          {!collapsed && (
+            <>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
+              </div>
+              {onAddChild && (
+                <button onClick={onAddChild}
+                  className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
+                  <Plus weight="bold" className="w-3 h-3" />
+                </button>
+              )}
+            </>
           )}
         </div>
         <div className="relative flex-1" style={{ width: totalW }}><GridLines yw={yw} /></div>
@@ -127,16 +133,17 @@ export function FamilySection({
             {/* Age row */}
             <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
               <div
-                className="flex-none sticky z-[20] border-r border-white/10 flex items-center px-2 cursor-grab group transition-colors hover:bg-white/[0.03]"
+                className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'px-2 cursor-grab group transition-colors hover:bg-white/[0.03]'}`}
                 style={{
                   left: GUTTER_W,
-                  width: LABEL_W - GUTTER_W,
+                  width: subLabelW,
                   background: 'var(--usmc-bg-base)',
+                  transition: 'width 200ms ease',
                   borderTop: isDropTarget && dropAbove ? '2px solid rgba(239,68,68,0.7)' : undefined,
                   borderBottom: isDropTarget && !dropAbove ? '2px solid rgba(239,68,68,0.7)' : undefined,
                 }}
-                draggable={!!onReorderChildren}
-                onMouseEnter={() => setHoveredChildId(child.id)}
+                draggable={!collapsed && !!onReorderChildren}
+                onMouseEnter={() => !collapsed && setHoveredChildId(child.id)}
                 onMouseLeave={() => setHoveredChildId(null)}
                 onDragStart={e => { e.dataTransfer.effectAllowed = 'move'; setDragChildId(child.id); }}
                 onDragOver={e => {
@@ -160,20 +167,26 @@ export function FamilySection({
                   setDropTargetId(null);
                 }}
                 onDragEnd={() => { setDragChildId(null); setDropTargetId(null); }}
-                onClick={() => onEditChild?.(child)}
+                onClick={() => !collapsed && onEditChild?.(child)}
               >
-                <DotsSixVertical weight="fill" className="w-3.5 h-3.5 text-white/15 group-hover:text-white/35 flex-none mr-1 transition-colors" />
-                <div className="w-1.5 h-1.5 rounded-full mr-2 flex-none" style={{ background: child.color }} />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-mono font-bold text-white/70 truncate">{child.name.toUpperCase()}</div>
-                  <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
-                </div>
-                {hoveredChildId === child.id && onDeleteChild && (
-                  <button
-                    onClick={e => { e.stopPropagation(); onDeleteChild(child.id); }}
-                    title="REMOVE" className="flex-none w-4 h-4 border border-red-600/60 flex items-center justify-center text-red-400 hover:text-red-300 hover:border-red-500 transition-colors ml-1">
-                    <span className="text-[14px] leading-none translate-y-px">×</span>
-                  </button>
+                {collapsed ? (
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: child.color + '80' }} />
+                ) : (
+                  <>
+                    <DotsSixVertical weight="fill" className="w-3.5 h-3.5 text-white/15 group-hover:text-white/35 flex-none mr-1 transition-colors" />
+                    <div className="w-1.5 h-1.5 rounded-full mr-2 flex-none" style={{ background: child.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] font-mono font-bold text-white/70 truncate">{child.name.toUpperCase()}</div>
+                      <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
+                    </div>
+                    {hoveredChildId === child.id && onDeleteChild && (
+                      <button
+                        onClick={e => { e.stopPropagation(); onDeleteChild(child.id); }}
+                        title="REMOVE" className="flex-none w-4 h-4 border border-red-600/60 flex items-center justify-center text-red-400 hover:text-red-300 hover:border-red-500 transition-colors ml-1">
+                        <span className="text-[14px] leading-none translate-y-px">×</span>
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               <div className="relative flex-1" style={{ width: totalW, minHeight: 36 }}>
@@ -214,9 +227,9 @@ export function FamilySection({
 
             {/* School row */}
             <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-              <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center px-2.5 pl-5" style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}>
-                <span className="text-white/20"><GraduationCap className="w-3 h-3" /></span>
-                <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider">SCHOOLS</span>
+              <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'px-2.5 pl-5'}`} style={{ left: GUTTER_W, width: subLabelW, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+                <span className="text-white/20 flex-none"><GraduationCap className="w-3 h-3" /></span>
+                {!collapsed && <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider">SCHOOLS</span>}
               </div>
               <div className="relative flex-1" style={{ width: totalW, minHeight: 36 }}>
                 <GridLines yw={yw} />
@@ -243,27 +256,33 @@ export function FamilySection({
           {/* Planned child age row */}
           <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
             <div
-              className="flex-none sticky z-[20] border-r border-white/10 flex items-center px-2 cursor-pointer hover:bg-white/[0.03] transition-colors"
-              style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}
-              onMouseEnter={() => setHoveredChildId(plannedChild.id)}
+              className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'px-2 cursor-pointer hover:bg-white/[0.03] transition-colors'}`}
+              style={{ left: GUTTER_W, width: subLabelW, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}
+              onMouseEnter={() => !collapsed && setHoveredChildId(plannedChild.id)}
               onMouseLeave={() => setHoveredChildId(null)}
-              onClick={() => onEditChild?.(plannedChild)}>
-              <div className="w-1.5 h-1.5 rounded-full mr-2 flex-none" style={{ background: plannedChild.color + '60' }} />
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] font-mono font-bold text-white/40">
-                  {plannedChild.name ? plannedChild.name.toUpperCase() : 'PLANNED CHILD'}
-                </div>
-                <div className="text-[8px] font-mono text-white/20">
-                  {plannedChild.dob.toLocaleString('en-US', { month: 'short' }).toUpperCase()} {plannedChild.plannedYear ?? plannedChild.dob.getFullYear()}
-                </div>
-              </div>
-              {hoveredChildId === plannedChild.id && onDeleteChild && (
-                <button
-                  title="REMOVE"
-                  onClick={e => { e.stopPropagation(); onDeleteChild(plannedChild.id); }}
-                  className="flex-none w-4 h-4 border border-red-600/60 flex items-center justify-center text-red-400 hover:text-red-300 hover:border-red-500 transition-colors ml-1">
-                  <span className="text-[14px] leading-none translate-y-px">×</span>
-                </button>
+              onClick={() => !collapsed && onEditChild?.(plannedChild)}>
+              {collapsed ? (
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: plannedChild.color + '40' }} />
+              ) : (
+                <>
+                  <div className="w-1.5 h-1.5 rounded-full mr-2 flex-none" style={{ background: plannedChild.color + '60' }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[10px] font-mono font-bold text-white/40">
+                      {plannedChild.name ? plannedChild.name.toUpperCase() : 'PLANNED CHILD'}
+                    </div>
+                    <div className="text-[8px] font-mono text-white/20">
+                      {plannedChild.dob.toLocaleString('en-US', { month: 'short' }).toUpperCase()} {plannedChild.plannedYear ?? plannedChild.dob.getFullYear()}
+                    </div>
+                  </div>
+                  {hoveredChildId === plannedChild.id && onDeleteChild && (
+                    <button
+                      title="REMOVE"
+                      onClick={e => { e.stopPropagation(); onDeleteChild(plannedChild.id); }}
+                      className="flex-none w-4 h-4 border border-red-600/60 flex items-center justify-center text-red-400 hover:text-red-300 hover:border-red-500 transition-colors ml-1">
+                      <span className="text-[14px] leading-none translate-y-px">×</span>
+                    </button>
+                  )}
+                </>
               )}
             </div>
             <div className="relative flex-1" style={{ width: totalW, minHeight: 36 }}>
@@ -306,11 +325,15 @@ export function FamilySection({
           {/* Planned child school row */}
           {plannedChild.schoolPhases.length > 0 && (
             <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-              <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center px-2.5 pl-5"
-                style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}>
-                <span className="text-white/15"><GraduationCap className="w-3 h-3" /></span>
-                <span className="text-[9px] font-mono text-white/20 ml-1.5 tracking-wider">SCHOOLS</span>
-                <span className="text-[7px] font-mono text-white/15 ml-1">(PROJ)</span>
+              <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'px-2.5 pl-5'}`}
+                style={{ left: GUTTER_W, width: subLabelW, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+                <span className="text-white/15 flex-none"><GraduationCap className="w-3 h-3" /></span>
+                {!collapsed && (
+                  <>
+                    <span className="text-[9px] font-mono text-white/20 ml-1.5 tracking-wider">SCHOOLS</span>
+                    <span className="text-[7px] font-mono text-white/15 ml-1">(PROJ)</span>
+                  </>
+                )}
               </div>
               <div className="relative flex-1" style={{ width: totalW, minHeight: 36 }}>
                 <GridLines yw={yw} />

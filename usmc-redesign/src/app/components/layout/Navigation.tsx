@@ -125,7 +125,7 @@ export function Navigation({ isLoggedIn, isExpanded, onToggleExpanded }: Navigat
   return (
     <>
     <motion.div
-      className="hidden md:flex fixed left-0 top-0 h-full bg-black/95 border-r border-white/12 flex-col overflow-x-hidden overflow-y-auto z-50 shadow-[4px_0_32px_rgba(0,0,0,0.7)]"
+      className="hidden md:flex fixed left-0 top-0 h-full bg-black/95 border-r border-white/12 flex-col overflow-x-hidden overflow-y-auto z-50 "
       initial={false}
       animate={{ width: isExpanded ? 192 : 80 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}

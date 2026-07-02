@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from 'react';
-import { MagnifyingGlassPlus } from '@phosphor-icons/react';
+import { MagnifyingGlassPlus, User, Timer, Rows } from '@phosphor-icons/react';
 import type { TimelineData, Promotion, CareerMilestone, DutyStation, EducationEvent, Child, FinancialGoal } from '../../types';
 import {
-  LABEL_W, years, TODAY,
+  LABEL_W, LABEL_W_COLLAPSED, GUTTER_W, years, TODAY,
   dateToX,
   getVerticalScrollTarget, getVerticalScrollTop, setVerticalScrollTop,
   type TooltipState, type VerticalScrollTarget,
 } from './timelineUtils';
-import { TooltipCard, SectionGutter, SmallLabel } from './TimelineAtoms';
+import { TooltipCard, SectionGutter, SmallLabel, SidebarCollapsedCtx } from './TimelineAtoms';
 import { MonthView } from './MonthView';
 import { DayView } from './DayView';
 import { CareerSection } from './sections/CareerSection';
@@ -53,6 +53,8 @@ interface Props {
   zoomedMonth?: ZoomedMonth;
   onZoomedYearChange?: (year: number | null) => void;
   onZoomedMonthChange?: (month: ZoomedMonth) => void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
@@ -64,6 +66,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     onReorderChildren,
     presentDate, onPresentDateChange, isFullscreen = false,
     zoomedYear = null, zoomedMonth = null, onZoomedYearChange, onZoomedMonthChange,
+    sidebarCollapsed: sidebarCollapsedProp, onToggleSidebar,
   }, ref) => {
     const { profile, milestones, dutyStations, promotions, education, spouse, children, financialGoals } = data;
 
@@ -76,16 +79,22 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     const onPresentDateChangeRef = useRef(onPresentDateChange);
     onPresentDateChangeRef.current = onPresentDateChange;
 
-    const [tooltip,       setTooltip]       = useState<TooltipState | null>(null);
-    const [atScrollEnd,   setAtScrollEnd]   = useState(false);
-    const [pendingScroll, setPendingScroll] = useState(false);
-    const [isDraggingLine, setIsDraggingLine] = useState(false);
-    const [isPanning,     setIsPanning]     = useState(false);
+    const [tooltip,          setTooltip]          = useState<TooltipState | null>(null);
+    const [atScrollEnd,      setAtScrollEnd]      = useState(false);
+    const [pendingScroll,    setPendingScroll]    = useState(false);
+    const [isDraggingLine,   setIsDraggingLine]   = useState(false);
+    const [isPanning,        setIsPanning]        = useState(false);
+    const [_sidebarCollapsed, _setSidebarCollapsed] = useState(false);
+    const sidebarCollapsed = sidebarCollapsedProp ?? _sidebarCollapsed;
+    const toggleSidebar = () => { if (onToggleSidebar) onToggleSidebar(); else _setSidebarCollapsed(v => !v); };
 
     const today  = presentDate ?? TODAY;
     const realToday = new Date();
     const totalW = years.length * yw;
     const todayX = dateToX(today, yw);
+    const labelW = sidebarCollapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
+    const labelWRef = useRef(labelW);
+    labelWRef.current = labelW;
 
     // Tooltip helpers
     const showTT = useCallback((e: React.MouseEvent, content: Omit<TooltipState,'x'|'y'>) => {
@@ -99,7 +108,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     // Scroll helpers
     const execScrollToToday = useCallback(() => {
       if (!scrollRef.current) return;
-      const left = Math.max(0, LABEL_W + todayX - 220);
+      const left = Math.max(0, labelWRef.current + todayX - 220);
       scrollRef.current.scrollLeft = left;
       if (headerRef.current) headerRef.current.scrollLeft = left;
     }, [todayX]);
@@ -141,7 +150,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
       function onMove(e: MouseEvent) {
         if (!scrollRef.current) return;
         const rect = scrollRef.current.getBoundingClientRect();
-        const rawX = e.clientX - rect.left + scrollRef.current.scrollLeft - LABEL_W;
+        const rawX = e.clientX - rect.left + scrollRef.current.scrollLeft - labelWRef.current;
         const { TIMELINE_START, TIMELINE_END } = { TIMELINE_START: years[0], TIMELINE_END: years[years.length - 1] };
         const clamped = Math.max(0, Math.min(years.length * ywRef.current, rawX));
         const totalMonths = Math.round((clamped / ywRef.current) * 12);
@@ -188,43 +197,47 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
       const canGoPrev = zoomedMonth.year > years[0] || zoomedMonth.month > 0;
       const canGoNext = zoomedMonth.year < years[years.length - 1] || zoomedMonth.month < 11;
       return (
-        <DayView
-          year={zoomedMonth.year}
-          month={zoomedMonth.month}
-          data={data}
-          presentDate={today}
-          onPresentDateChange={onPresentDateChange}
-          onBack={() => onZoomedMonthChange?.(null)}
-          onPrev={() => {
-            if (!canGoPrev) return;
-            onZoomedMonthChange?.(zoomedMonth.month === 0
-              ? { year: zoomedMonth.year - 1, month: 11 }
-              : { year: zoomedMonth.year, month: zoomedMonth.month - 1 });
-          }}
-          onNext={() => {
-            if (!canGoNext) return;
-            onZoomedMonthChange?.(zoomedMonth.month === 11
-              ? { year: zoomedMonth.year + 1, month: 0 }
-              : { year: zoomedMonth.year, month: zoomedMonth.month + 1 });
-          }}
-          isFullscreen={isFullscreen}
-        />
+        <SidebarCollapsedCtx.Provider value={sidebarCollapsed}>
+          <DayView
+            year={zoomedMonth.year}
+            month={zoomedMonth.month}
+            data={data}
+            presentDate={today}
+            onPresentDateChange={onPresentDateChange}
+            onBack={() => onZoomedMonthChange?.(null)}
+            onPrev={() => {
+              if (!canGoPrev) return;
+              onZoomedMonthChange?.(zoomedMonth.month === 0
+                ? { year: zoomedMonth.year - 1, month: 11 }
+                : { year: zoomedMonth.year, month: zoomedMonth.month - 1 });
+            }}
+            onNext={() => {
+              if (!canGoNext) return;
+              onZoomedMonthChange?.(zoomedMonth.month === 11
+                ? { year: zoomedMonth.year + 1, month: 0 }
+                : { year: zoomedMonth.year, month: zoomedMonth.month + 1 });
+            }}
+            isFullscreen={isFullscreen}
+          />
+        </SidebarCollapsedCtx.Provider>
       );
     }
 
     if (zoomedYear !== null) {
       return (
-        <MonthView
-          year={zoomedYear}
-          data={data}
-          presentDate={today}
-          onPresentDateChange={onPresentDateChange}
-          onBack={() => onZoomedYearChange?.(null)}
-          onPrev={() => onZoomedYearChange?.(Math.max(years[0], zoomedYear - 1))}
-          onNext={() => onZoomedYearChange?.(Math.min(years[years.length - 1], zoomedYear + 1))}
-          onMonthSelect={month => onZoomedMonthChange?.(month)}
-          isFullscreen={isFullscreen}
-        />
+        <SidebarCollapsedCtx.Provider value={sidebarCollapsed}>
+          <MonthView
+            year={zoomedYear}
+            data={data}
+            presentDate={today}
+            onPresentDateChange={onPresentDateChange}
+            onBack={() => onZoomedYearChange?.(null)}
+            onPrev={() => onZoomedYearChange?.(Math.max(years[0], zoomedYear - 1))}
+            onNext={() => onZoomedYearChange?.(Math.min(years[years.length - 1], zoomedYear + 1))}
+            onMonthSelect={month => onZoomedMonthChange?.(month)}
+            isFullscreen={isFullscreen}
+          />
+        </SidebarCollapsedCtx.Provider>
       );
     }
 
@@ -233,6 +246,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     const moveTTEl = moveTT as (e: React.MouseEvent<HTMLElement>) => void;
 
     return (
+      <SidebarCollapsedCtx.Provider value={sidebarCollapsed}>
       <div className="relative">
         {tooltip && <TooltipCard t={tooltip} />}
 
@@ -242,12 +256,17 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
           className={`sticky z-[30] border-b border-white/10 overflow-x-scroll [&::-webkit-scrollbar]:hidden ${isFullscreen ? 'top-0' : 'top-32'}`}
           style={{ scrollbarWidth: 'none', background: 'var(--usmc-bg-base)' }}
         >
-          <div className="relative flex" style={{ minWidth: LABEL_W + totalW }}>
+          <div className="relative flex" style={{ minWidth: labelW + totalW }}>
             <div className="absolute top-0 bottom-0 pointer-events-none"
-              style={{ left: LABEL_W + todayX, width: 2, background: 'rgba(239,68,68,0.45)' }} />
-            <div className="flex-none sticky left-0 z-[30] border-r border-white/10 flex items-center px-3"
-              style={{ width: LABEL_W, height: 56, background: 'var(--usmc-bg-base)' }}>
-              <span className="text-[8px] font-mono tracking-[0.2em] text-white/25 uppercase">Timeline</span>
+              style={{ left: labelW + todayX, width: 2, background: 'rgba(239,68,68,0.45)' }} />
+            <div className={`flex-none sticky left-0 z-[30] border-r border-white/10 flex items-center overflow-hidden ${sidebarCollapsed ? 'justify-center' : 'px-2.5'}`}
+              style={{ width: labelW, height: 56, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+              {sidebarCollapsed ? (
+                <Rows className="w-3.5 h-3.5 text-white/30" />
+              ) : (
+                <span className="text-[8px] font-mono tracking-[0.2em] text-white/25 uppercase"
+                  style={{ opacity: 1, transition: 'opacity 120ms ease' }}>Timeline</span>
+              )}
             </div>
             {years.map(y => {
               const isRealToday = y === realToday.getFullYear();
@@ -297,13 +316,13 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
             setIsPanning(true);
           }}
         >
-          <div className="relative" style={{ minWidth: LABEL_W + totalW }}>
+          <div className="relative" style={{ minWidth: labelW + totalW }}>
 
             {/* Present-date line + drag handle */}
             <div className="absolute top-0 bottom-0 pointer-events-none z-[5]"
-              style={{ left: LABEL_W + todayX, width: 2, background: 'rgba(239,68,68,0.85)' }} />
+              style={{ left: labelW + todayX, width: 2, background: 'rgba(239,68,68,0.85)' }} />
             <div className="absolute top-0 bottom-0 z-[6]"
-              style={{ left: LABEL_W + todayX - 8, width: 18, cursor: 'ew-resize' }}
+              style={{ left: labelW + todayX - 8, width: 18, cursor: 'ew-resize' }}
               onMouseDown={e => { e.preventDefault(); e.stopPropagation(); setIsDraggingLine(true); }}>
               {isDraggingLine && (
                 <div className="absolute left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-mono font-bold text-white tracking-wider pointer-events-none select-none"
@@ -315,7 +334,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
 
             {/* Age row */}
             <div className="flex h-8 border-b border-white/[0.06]">
-              <SmallLabel text="AGE" />
+              <SmallLabel text="AGE" icon={<User className="w-3 h-3" />} />
               <div className="flex">
                 {years.map(y => {
                   const dobMonth = profile.dob.getMonth();
@@ -346,7 +365,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
 
             {/* Time in Service row */}
             <div className="flex h-8 border-b border-white/10">
-              <SmallLabel text="TIME IN SVC" />
+              <SmallLabel text="TIME IN SVC" icon={<Timer className="w-3 h-3" />} />
               <div className="flex">
                 {years.map(y => {
                   const enlistMonth = profile.enlistmentDate.getMonth();
@@ -458,6 +477,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
             style={{ background: 'linear-gradient(to right, transparent, var(--usmc-bg-page))' }} />
         )}
       </div>
+      </SidebarCollapsedCtx.Provider>
     );
   }
 );

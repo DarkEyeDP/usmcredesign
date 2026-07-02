@@ -3,7 +3,7 @@ import { CurrencyDollar } from '@phosphor-icons/react';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 import type { FinancialGoal } from '../../../types';
 import {
-  years, dateToX, fmtDate, ttGoal,
+  dateToX, fmtDate, ttGoal, years,
   type TooltipState,
 } from '../timelineUtils';
 import { SectionLabel, GridLines, GoalIcon } from '../TimelineAtoms';

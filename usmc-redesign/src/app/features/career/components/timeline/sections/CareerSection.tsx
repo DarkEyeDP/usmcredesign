@@ -3,8 +3,7 @@ import { Flag } from '@phosphor-icons/react';
 import { renderCustomIcon } from '../../IconColorPicker';
 import type { CareerMilestone } from '../../../types';
 import {
-  years,
-  dateToX, fmtDate,
+  dateToX, fmtDate, years,
   ttMilestone, MILESTONE_COLOR, MILESTONE_COLOR_DESERT,
   type TooltipState,
 } from '../timelineUtils';

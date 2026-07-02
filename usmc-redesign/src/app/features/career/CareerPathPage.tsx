@@ -264,6 +264,7 @@ interface Props {
 export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Props) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>('timeline');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showTimelineHelp, setShowTimelineHelp] = useState(false);
   const [showAddEventChooser, setShowAddEventChooser] = useState(false);
   const [showSaveTimeline, setShowSaveTimeline] = useState(false);
@@ -548,9 +549,10 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
           </div>
           <button
             onClick={() => setShowEditProfile(true)}
-            className="ml-auto flex items-center gap-1.5 border border-white/15 px-3 py-1.5 text-[10px] font-mono tracking-widest text-white/50 hover:text-white/80 hover:border-white/30 transition-colors">
-            <Pencil weight="bold" className="w-3 h-3" />
-            EDIT PROFILE
+            title="Edit Profile"
+            className="ml-auto flex items-center justify-center gap-1.5 border border-white/15 w-9 h-9 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 text-white/50 hover:text-white/80 hover:border-white/30 transition-colors">
+            <Pencil weight="bold" className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+            <span className="hidden sm:inline text-[10px] font-mono tracking-widest">EDIT PROFILE</span>
           </button>
         </div>
       </div>
@@ -731,39 +733,41 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
       {/* ── Timeline Controls — hidden in fullscreen ───────────────── */}
       {!isFullscreen && activeTab === 'timeline' && (
         <>
-        <div className="sticky top-20 z-[35] flex items-center gap-4 px-6 py-2.5 border-b border-white/[0.08] flex-wrap shadow-[0_4px_16px_rgba(0,0,0,0.45)]"
+        <div className="sticky top-20 z-[35] flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-2.5 border-b border-white/[0.08] "
           style={{ background: 'var(--usmc-bg-page)' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-[9px] font-mono tracking-widest text-white/30 uppercase">View By:</span>
+          {/* Sidebar collapse/expand — primary toggle, always visible */}
+          <button
+            onClick={() => setSidebarCollapsed(v => !v)}
+            title={sidebarCollapsed ? 'Expand timeline sidebar' : 'Collapse timeline sidebar'}
+            className={`flex-none h-7 px-2 border flex items-center gap-1 text-[9px] font-mono font-bold tracking-widest transition-colors ${
+              sidebarCollapsed
+                ? 'border-red-600/50 bg-red-600/10 text-red-400 hover:bg-red-600/20'
+                : 'border-white/15 text-white/40 hover:text-white/70 hover:border-white/30'
+            }`}>
+            <CaretRight className={`w-3 h-3 transition-transform duration-200 ${sidebarCollapsed ? '' : 'rotate-180'}`} />
+            <span className="hidden sm:inline">{sidebarCollapsed ? 'EXPAND' : 'SIDEBAR'}</span>
+          </button>
+          <div className="flex items-center gap-1.5 flex-none">
+            <span className="hidden sm:inline text-[9px] font-mono tracking-widest text-white/30 uppercase">View By:</span>
             <div className="flex border border-white/15">
               <button onClick={setYearView}
-                className={`h-7 px-3 flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedYear === null && !zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
-                <Calendar className="w-3 h-3" />
-                YEAR
+                className={`h-7 px-2 sm:px-3 flex items-center gap-1 sm:gap-1.5 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedYear === null && !zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
+                <Calendar className="w-3 h-3 hidden sm:block" />
+                <span className="sm:hidden">YR</span>
+                <span className="hidden sm:inline">YEAR</span>
               </button>
               <button onClick={() => setMonthView(zoomedMonth?.year ?? zoomedYear ?? presentDate.getFullYear())}
-                className={`h-7 px-3 border-l border-white/15 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedYear !== null && !zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
-                MONTH
+                className={`h-7 px-2 sm:px-3 border-l border-white/15 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedYear !== null && !zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
+                <span className="sm:hidden">MO</span>
+                <span className="hidden sm:inline">MONTH</span>
               </button>
               <button onClick={() => setDayView(currentDayViewDate())}
-                className={`h-7 px-3 border-l border-white/15 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
+                className={`h-7 px-2 sm:px-3 border-l border-white/15 text-[10px] font-mono font-bold tracking-wider transition-colors ${zoomedMonth ? 'bg-white/[0.08] text-white/80' : 'text-white/30 hover:text-white/60'}`}>
                 DAY
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
-              <CaretLeft className="w-3 h-3" />
-            </button>
-            <div className="border border-white/15 px-3 h-7 flex items-center text-[10px] font-mono text-white/60 whitespace-nowrap">
-              <span className="text-[9px] text-white/30 tracking-widest mr-2">TIMELINE RANGE:</span>
-              2018 – 2045 (28 YEARS)
-            </div>
-            <button className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
-              <CaretRight className="w-3 h-3" />
-            </button>
-          </div>
 
           <div className="flex items-center gap-2 ml-auto">
             <div className="hidden xl:flex items-center h-7 px-2.5 border border-white/10 text-[8px] font-mono tracking-widest text-white/35 whitespace-nowrap bg-white/[0.025]">
@@ -771,7 +775,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             </div>
             <button
               onClick={() => setShowTimelineHelp(v => !v)}
-              className={`h-7 px-3 border text-[9px] font-mono font-black tracking-widest transition-colors ${
+              className={`h-7 px-2 sm:px-3 border text-[9px] font-mono font-black tracking-widest transition-colors ${
                 showTimelineHelp
                   ? 'border-red-600/50 bg-red-600/15 text-red-300'
                   : 'border-white/15 text-white/40 hover:text-white/70 hover:border-white/30'
@@ -779,41 +783,43 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
               HELP
             </button>
             {/* Present date indicator — shows current red-line position */}
-            <div className="flex items-center gap-1.5 h-7 px-3 border border-white/10 bg-red-600/[0.07]">
+            <div className="flex items-center gap-1.5 h-7 px-2 sm:px-3 border border-white/10 bg-red-600/[0.07]">
               <div className="w-1.5 h-1.5 rounded-full flex-none bg-red-500" />
-              <span className="text-[9px] font-mono font-bold text-white/60 tracking-wider">
+              <span className="text-[9px] font-mono font-bold text-white/60 tracking-wider whitespace-nowrap">
                 {presentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
               </span>
               {!presentDateIsToday && (
                 <button
                   onClick={() => setPresentDate(new Date())}
-                  className="text-[8px] font-mono text-red-400/70 hover:text-red-400 tracking-widest transition-colors ml-1">
+                  className="hidden sm:inline text-[8px] font-mono text-red-400/70 hover:text-red-400 tracking-widest transition-colors ml-1">
                   RESET
                 </button>
               )}
             </div>
             <button
               onClick={() => timelineRef.current?.scrollToToday()}
-              className="flex items-center gap-1.5 h-7 px-3 border border-red-600/40 bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-[9px] font-mono font-black tracking-widest transition-colors">
+              className="flex items-center gap-1.5 h-7 px-2 sm:px-3 border border-red-600/40 bg-red-600/10 hover:bg-red-600/20 text-red-400 hover:text-red-300 text-[9px] font-mono font-black tracking-widest transition-colors whitespace-nowrap">
               <Crosshair className="w-3 h-3" />
-              JUMP TO TODAY
+              <span className="hidden sm:inline">JUMP TO </span>TODAY
             </button>
-            <span className="text-[9px] font-mono tracking-widest text-white/30 uppercase">Zoom:</span>
-            <button onClick={handleZoomOut}
-              className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
-              <Minus weight="bold" className="w-3 h-3" />
-            </button>
-            <div className="flex items-center gap-1 w-24">
-              <input
-                type="range" min={0} max={2} step={1} value={zoomLevel}
-                onChange={e => handleZoomSlider(Number(e.target.value) as TimelineZoomLevel)}
-                className="w-full accent-red-600 h-1"
-              />
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-[9px] font-mono tracking-widest text-white/30 uppercase">Zoom:</span>
+              <button onClick={handleZoomOut}
+                className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+                <Minus weight="bold" className="w-3 h-3" />
+              </button>
+              <div className="flex items-center gap-1 w-24">
+                <input
+                  type="range" min={0} max={2} step={1} value={zoomLevel}
+                  onChange={e => handleZoomSlider(Number(e.target.value) as TimelineZoomLevel)}
+                  className="w-full accent-red-600 h-1"
+                />
+              </div>
+              <button onClick={handleZoomIn}
+                className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+                <Plus weight="bold" className="w-3 h-3" />
+              </button>
             </div>
-            <button onClick={handleZoomIn}
-              className="w-6 h-6 border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
-              <Plus weight="bold" className="w-3 h-3" />
-            </button>
             {onToggleFullscreen && (
               <button
                 onClick={onToggleFullscreen}
@@ -874,6 +880,8 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             data={timelineData}
             yearWidth={yearWidth}
             isFullscreen={isFullscreen}
+            sidebarCollapsed={sidebarCollapsed}
+            onToggleSidebar={() => setSidebarCollapsed(v => !v)}
             presentDate={presentDate}
             onPresentDateChange={setPresentDate}
             zoomedYear={zoomedYear}

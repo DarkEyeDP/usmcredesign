@@ -5,8 +5,9 @@ import type {
 } from '../../types';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-export const LABEL_W       = 168;
-export const GUTTER_W      = 14;
+export const LABEL_W          = 168;
+export const LABEL_W_COLLAPSED = 32;
+export const GUTTER_W         = 14;
 export const TIMELINE_START = 2018;
 export const TIMELINE_END   = 2045;
 export const TODAY          = new Date(2026, 5, 6);

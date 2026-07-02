@@ -1,20 +1,20 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import {
   Flag, MapPin, CaretUp, BookOpen,
   Heart, Users, GraduationCap, CurrencyDollar,
-  CaretLeft, CaretRight,
+  CaretLeft, CaretRight, Rows,
 } from '@phosphor-icons/react';
 import { renderCustomIcon } from '../IconColorPicker';
 import type { TimelineData } from '../../types';
 import {
-  LABEL_W, MONTH_W, MONTHS, TODAY, years,
+  LABEL_W, LABEL_W_COLLAPSED, GUTTER_W, MONTH_W, MONTHS, TODAY, years,
   getAgeAtMonth, getTISLabel, fmtDate,
   ttDutyStation, ttPromotion, ttEducation, ttMilestone, ttGoal, ttChild, ttSchool,
   SCHOOL_STYLE, SCHOOL_STYLE_DESERT, GRADE_LABELS, MILESTONE_COLOR, MILESTONE_COLOR_DESERT,
   getVerticalScrollTarget, getVerticalScrollTop, setVerticalScrollTop,
   type TooltipState, type VerticalScrollTarget,
 } from './timelineUtils';
-import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon } from './TimelineAtoms';
+import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon, SidebarCollapsedCtx } from './TimelineAtoms';
 import { DayView } from './DayView';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 
@@ -27,11 +27,14 @@ function dateToFMX(date: Date): number {
 }
 
 function SectionLabel({ icon, lower }: { icon: React.ReactNode; lower: string }) {
+  const collapsed = useContext(SidebarCollapsedCtx);
+  const lw = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
   return (
-    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center gap-2 px-2.5"
-      style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-      <span className="text-white/30 flex-none">{icon}</span>
-      <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">{lower}</div>
+    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center gap-2 overflow-hidden"
+      style={{ width: lw, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 0 0 4px' : '0 10px', transition: 'width 200ms ease' }}>
+      <span className="flex-none text-white/30">{icon}</span>
+      <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight"
+        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>{lower}</div>
     </div>
   );
 }
@@ -72,6 +75,11 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
   const totalW = totalMonthCount * MONTH_W;
   const todayFMX = dateToFMX(effectiveToday);
 
+  const collapsed = useContext(SidebarCollapsedCtx);
+  const labelW = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
+  const labelWRef = useRef(labelW);
+  labelWRef.current = labelW;
+
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
   const [isDraggingLine, setIsDraggingLine] = useState(false);
@@ -105,7 +113,7 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
     function onMove(e: MouseEvent) {
       if (!scrollRef.current) return;
       const rect = scrollRef.current.getBoundingClientRect();
-      const rawX = e.clientX - rect.left + scrollRef.current.scrollLeft - LABEL_W;
+      const rawX = e.clientX - rect.left + scrollRef.current.scrollLeft - labelWRef.current;
       const monthIdx = Math.max(0, Math.min(totalMonthCount - 1, Math.floor(rawX / MONTH_W)));
       const yr = years[0] + Math.floor(monthIdx / 12);
       const mo = monthIdx % 12;
@@ -185,28 +193,49 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
         className={`sticky z-[30] border-b border-white/10 overflow-x-scroll [&::-webkit-scrollbar]:hidden ${isFullscreen ? 'top-0' : 'top-32'}`}
         style={{ scrollbarWidth: 'none', background: 'var(--usmc-bg-base)' }}
       >
-        <div className="relative flex" style={{ minWidth: LABEL_W + totalW }}>
+        <div className="relative flex" style={{ minWidth: labelW + totalW }}>
           {/* Faint red line ghost in header */}
           <div className="absolute top-0 bottom-0 pointer-events-none"
-            style={{ left: LABEL_W + todayFMX, width: 2, background: 'rgba(239,68,68,0.45)' }} />
+            style={{ left: labelW + todayFMX, width: 2, background: 'rgba(239,68,68,0.45)' }} />
 
           {/* Nav cell */}
-          <div className="flex-none sticky left-0 z-[40] border-r border-white/10 flex flex-col"
-            style={{ width: LABEL_W, height: 56, background: 'var(--usmc-bg-base)' }}>
-            <div className="h-8 border-b border-white/[0.06] flex items-center justify-between px-2">
-              <button onClick={onPrev} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                <CaretLeft className="w-3.5 h-3.5" />
-              </button>
-              <button onClick={onBack} className="text-[8px] font-mono text-red-500 hover:text-red-400 tracking-widest transition-colors">
-                ← YEAR VIEW
-              </button>
-              <button onClick={onNext} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
-                <CaretRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="h-6 flex items-center px-3">
-              <span className="text-[8px] font-mono text-white/20 tracking-widest">MONTH</span>
-            </div>
+          <div className="flex-none sticky left-0 z-[40] border-r border-white/10 flex flex-col overflow-hidden"
+            style={{ width: labelW, height: 56, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+            {collapsed ? (
+              <>
+                <div className="h-8 border-b border-white/[0.06] flex items-center justify-around px-0.5">
+                  <button onClick={onPrev} className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
+                    <CaretLeft className="w-3 h-3" />
+                  </button>
+                  <button onClick={onBack} className="w-5 h-5 flex items-center justify-center text-red-500/60 hover:text-red-400 transition-colors">
+                    <CaretUp className="w-3 h-3" />
+                  </button>
+                  <button onClick={onNext} className="w-5 h-5 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
+                    <CaretRight className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="flex-1 flex items-center justify-center">
+                  <Rows className="w-3 h-3 text-white/25" />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="h-8 border-b border-white/[0.06] flex items-center justify-between px-2">
+                  <button onClick={onPrev} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
+                    <CaretLeft className="w-3.5 h-3.5" />
+                  </button>
+                  <button onClick={onBack} className="text-[8px] font-mono text-red-500 hover:text-red-400 tracking-widest transition-colors">
+                    ← YEAR VIEW
+                  </button>
+                  <button onClick={onNext} className="w-6 h-6 flex items-center justify-center text-white/25 hover:text-white/70 transition-colors">
+                    <CaretRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="h-6 flex items-center px-3">
+                  <span className="text-[8px] font-mono text-white/20 tracking-widest">MONTH</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Year groups */}
@@ -260,15 +289,15 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
           setIsPanning(true);
         }}
       >
-        <div className="relative" style={{ minWidth: LABEL_W + totalW }}>
+        <div className="relative" style={{ minWidth: labelW + totalW }}>
 
           {/* Present-date line */}
           <div className="absolute top-0 bottom-0 pointer-events-none z-[5]"
-            style={{ left: LABEL_W + todayFMX, width: 2, background: 'rgba(239,68,68,0.85)' }} />
+            style={{ left: labelW + todayFMX, width: 2, background: 'rgba(239,68,68,0.85)' }} />
           {/* Drag handle */}
           {onPresentDateChange && (
             <div className="absolute top-0 bottom-0 z-[6]"
-              style={{ left: LABEL_W + todayFMX - 8, width: 18, cursor: 'ew-resize' }}
+              style={{ left: labelW + todayFMX - 8, width: 18, cursor: 'ew-resize' }}
               onMouseDown={e => { e.preventDefault(); e.stopPropagation(); setIsDraggingLine(true); }}>
               {isDraggingLine && (
                 <div className="absolute left-1/2 -translate-x-1/2 px-2 py-0.5 text-[9px] font-mono font-bold text-white tracking-wider pointer-events-none select-none"
@@ -430,10 +459,10 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
           {/* ── Spouse ─────────────────────────────────────────────────────── */}
           {spouse && (
             <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-              <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center px-3"
-                style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-                <span className="text-white/30 flex-none"><Heart className="w-3.5 h-3.5" /></span>
-                <div className="ml-2 min-w-0">
+              <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
+                style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
+                <span className="flex-none text-white/30"><Heart className="w-3.5 h-3.5" /></span>
+                <div className="ml-2 min-w-0" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
                   <div className="text-[10px] font-mono font-bold text-white/70 truncate">{spouse.name.toUpperCase()}</div>
                   <div className="text-[8px] font-mono text-white/30">MARRIED {fmtDate(spouse.marriageDate)}</div>
                 </div>
@@ -473,10 +502,10 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
           {realChildren.length > 0 && (
             <>
               <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
-                <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center gap-2 px-3"
-                  style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-                  <span className="text-white/30"><Users className="w-3.5 h-3.5" /></span>
-                  <div>
+                <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
+                  style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
+                  <span className="flex-none text-white/30"><Users className="w-3.5 h-3.5" /></span>
+                  <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
                     <div className="text-[8px] font-mono tracking-[0.18em] text-white/30 uppercase leading-none">Family</div>
                     <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
                   </div>
@@ -491,10 +520,10 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
                 <div key={child.id}>
                   {/* Child age row */}
                   <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center px-3 pl-6"
-                      style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-                      <div className="w-1.5 h-1.5 rounded-full mr-2 flex-none" style={{ background: child.color }} />
-                      <div>
+                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
+                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                      <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ background: child.color }} />
+                      <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
                         <div className="text-[10px] font-mono font-bold text-white/70">{child.name.toUpperCase()}</div>
                         <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
                       </div>
@@ -515,10 +544,11 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
                   </div>
                   {/* Child school row */}
                   <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center px-3 pl-6"
-                      style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-                      <span className="text-white/20"><GraduationCap className="w-3 h-3" /></span>
-                      <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider">SCHOOLS</span>
+                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
+                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                      <span className="flex-none text-white/20"><GraduationCap className="w-3 h-3" /></span>
+                      <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider"
+                        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>SCHOOLS</span>
                     </div>
                     <div className="flex">
                       {years.flatMap((y, yi) => MONTHS.map((_, i) => {

@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { MapPin, CaretUp, Plus } from '@phosphor-icons/react';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 import type { DutyStation, Promotion } from '../../../types';
 import {
-  LABEL_W, GUTTER_W, years,
+  LABEL_W, LABEL_W_COLLAPSED, GUTTER_W, years,
   dateToX, fmtDate,
   ttDutyStation, ttPromotion,
   type TooltipState,
 } from '../timelineUtils';
-import { SectionLabel, GridLines } from '../TimelineAtoms';
+import { SectionLabel, GridLines, SidebarCollapsedCtx } from '../TimelineAtoms';
 import { getRankInsigniaPath } from '@/app/components/ui/RankInsignia';
 
 interface Props {
@@ -38,6 +38,8 @@ export function ServiceSection({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { theme } = useTheme();
   const isDesert = theme === 'desert';
+  const collapsed = useContext(SidebarCollapsedCtx);
+  const subLabelW = collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W;
 
   return (
     <>
@@ -82,17 +84,21 @@ export function ServiceSection({
 
       {/* Promotions */}
       <div className="flex border-b border-white/10" style={{ minHeight: 68 }}>
-        <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center gap-2 px-2.5"
-          style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}>
-          <span className="text-white/30 flex-none"><CaretUp className="w-3.5 h-3.5" /></span>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">PROMOTIONS</div>
-          </div>
-          {onAddPromotion && (
-            <button onClick={onAddPromotion} title="Add projected promotion"
-              className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
-              <Plus weight="bold" className="w-3 h-3" />
-            </button>
+        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'gap-2 px-2.5'}`}
+          style={{ left: GUTTER_W, width: subLabelW, background: 'var(--usmc-bg-base)', transition: 'width 200ms ease' }}>
+          <span className="text-white/25 flex-none"><CaretUp className="w-3.5 h-3.5" /></span>
+          {!collapsed && (
+            <>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">PROMOTIONS</div>
+              </div>
+              {onAddPromotion && (
+                <button onClick={onAddPromotion} title="Add projected promotion"
+                  className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
+                  <Plus weight="bold" className="w-3 h-3" />
+                </button>
+              )}
+            </>
           )}
         </div>
         <div className="relative flex-1" style={{ width: totalW, minHeight: 88 }}>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { BookOpen } from '@phosphor-icons/react';
 import type { EducationEvent } from '../../../types';
 import {
-  years, dateToX, ttEducation,
+  dateToX, ttEducation, years,
   type TooltipState,
 } from '../timelineUtils';
 import { SectionLabel, GridLines } from '../TimelineAtoms';

@@ -1,10 +1,13 @@
+import { createContext, useContext } from 'react';
 import {
   Flag, Star, Medal,
   Shield, House, TrendUp, CheckCircle, PiggyBank,
   Plus,
 } from '@phosphor-icons/react';
 import { renderCustomIcon } from '../IconColorPicker';
-import { LABEL_W, GUTTER_W, years, type TooltipState } from './timelineUtils';
+import { LABEL_W, LABEL_W_COLLAPSED, GUTTER_W, years, type TooltipState } from './timelineUtils';
+
+export const SidebarCollapsedCtx = createContext(false);
 
 // ─── Milestone icon lookup ────────────────────────────────────────────────────
 export function getMilestoneIcon(type: string, className: string): React.ReactNode {
@@ -59,16 +62,23 @@ export function SectionGutter({ label }: { label: string }) {
 
 // ─── SectionLabel ─────────────────────────────────────────────────────────────
 export function SectionLabel({ icon, lower, onAdd }: { icon: React.ReactNode; lower: string; onAdd?: () => void }) {
+  const collapsed = useContext(SidebarCollapsedCtx);
   return (
-    <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center gap-2 px-2.5"
-      style={{ left: GUTTER_W, width: LABEL_W - GUTTER_W, background: 'var(--usmc-bg-base)' }}>
-      <span className="text-white/30 flex-none">{icon}</span>
-      <div className="flex-1 min-w-0">
+    <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center gap-2 px-2.5 overflow-hidden"
+      style={{
+        left: GUTTER_W,
+        width: collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W,
+        background: 'var(--usmc-bg-base)',
+        transition: 'width 200ms ease',
+      }}>
+      <span className="flex-none text-white/30">{icon}</span>
+      <div className="flex-1 min-w-0" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
         <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">{lower}</div>
       </div>
       {onAdd && (
         <button onClick={onAdd}
-          className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
+          className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors"
+          style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease', pointerEvents: collapsed ? 'none' : 'auto' }}>
           <Plus weight="bold" className="w-3 h-3" />
         </button>
       )}
@@ -77,20 +87,31 @@ export function SectionLabel({ icon, lower, onAdd }: { icon: React.ReactNode; lo
 }
 
 // ─── SmallLabel ───────────────────────────────────────────────────────────────
-export function SmallLabel({ text }: { text: string }) {
+export function SmallLabel({ text, icon }: { text: string; icon?: React.ReactNode }) {
+  const collapsed = useContext(SidebarCollapsedCtx);
   return (
-    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center px-3"
-      style={{ width: LABEL_W, background: 'var(--usmc-bg-base)' }}>
-      <span className="text-[10px] font-mono tracking-widest text-white/30">{text}</span>
+    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center justify-center overflow-hidden"
+      style={{
+        width: collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W,
+        background: 'var(--usmc-bg-base)',
+        transition: 'width 200ms ease',
+        padding: collapsed ? '0' : '0 12px',
+      }}>
+      {collapsed ? (
+        icon ? <span className="text-white/25">{icon}</span> : null
+      ) : (
+        <span className="w-full text-[10px] font-mono tracking-widest text-white/30">{text}</span>
+      )}
     </div>
   );
 }
 
 // ─── GridLines ────────────────────────────────────────────────────────────────
-export function GridLines({ yw, count = years.length }: { yw: number; count?: number }) {
+export function GridLines({ yw, count }: { yw: number; count?: number }) {
+  const n = count ?? years.length;
   return (
     <>
-      {Array.from({ length: count }, (_, i) => (
+      {Array.from({ length: n }, (_, i) => (
         <div key={i} className="absolute top-0 bottom-0 border-r border-white/[0.05]"
           style={{ left: i * yw, width: yw }} />
       ))}
