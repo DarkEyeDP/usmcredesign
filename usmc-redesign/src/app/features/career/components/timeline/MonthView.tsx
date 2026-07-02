@@ -14,7 +14,7 @@ import {
   getVerticalScrollTarget, getVerticalScrollTop, setVerticalScrollTop,
   type TooltipState, type VerticalScrollTarget,
 } from './timelineUtils';
-import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon, SidebarCollapsedCtx } from './TimelineAtoms';
+import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon, SidebarCollapsedCtx, SectionGutter, SectionLabel } from './TimelineAtoms';
 import { DayView } from './DayView';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 
@@ -26,18 +26,6 @@ function dateToFMX(date: Date): number {
   return Math.max(0, months * MONTH_W);
 }
 
-function SectionLabel({ icon, lower }: { icon: React.ReactNode; lower: string }) {
-  const collapsed = useContext(SidebarCollapsedCtx);
-  const lw = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
-  return (
-    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center gap-2 overflow-hidden"
-      style={{ width: lw, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 0 0 4px' : '0 10px', transition: 'width 200ms ease' }}>
-      <span className="flex-none text-white/30">{icon}</span>
-      <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight"
-        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>{lower}</div>
-    </div>
-  );
-}
 
 function FullGridLines({ count }: { count: number }) {
   return (
@@ -79,6 +67,7 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
   const labelW = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
   const labelWRef = useRef(labelW);
   labelWRef.current = labelW;
+  const innerLabelW = collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W;
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: number } | null>(null);
@@ -331,277 +320,303 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
             </div>
           </div>
 
-          {/* ── Milestones ─────────────────────────────────────────────────── */}
-          <div className="flex border-b border-white/10" style={{ minHeight: 90 }}>
-            <SectionLabel icon={<Flag className="w-3.5 h-3.5" />} lower="MILESTONES" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 90 }}>
-              <FullGridLines count={totalMonthCount} />
-              {milestones.map(m => {
-                const x = dateToFMX(m.date);
-                const top = m.track === 0 ? 4 : 50;
-                const color = m.type === 'custom' ? (m.customColor ?? '#a78bfa') : MC[m.type];
-                const iconCls = m.iconSize === 'sm' ? 'w-3.5 h-3.5' : m.iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
-                const iconEl = m.type === 'custom' ? renderCustomIcon(m.customIcon ?? 'Star', iconCls) : getMilestoneIcon(m.type, iconCls);
-                return (
-                  <div key={m.id} className="absolute flex flex-col items-center cursor-default"
-                    style={{ left: x - 14, top }}
-                    onMouseEnter={e => showTT(e, ttMilestone(m))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className="flex items-center justify-center" style={{ color }}>{iconEl}</div>
-                    <div className={`text-[8px] font-mono text-center mt-0.5 whitespace-nowrap ${isDesert ? 'text-gray-300' : 'text-white/50'}`}>{m.shortLabel}</div>
-                    <div className={`text-[7px] font-mono text-center whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/25'}`}>{fmtDate(m.date)}</div>
-                  </div>
-                );
-              })}
-              {milestones.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[9px] font-mono text-white/15 tracking-widest">NO MILESTONES</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ── Duty Stations ──────────────────────────────────────────────── */}
-          <div className="flex border-b border-white/10" style={{ minHeight: 60 }}>
-            <SectionLabel icon={<MapPin className="w-3.5 h-3.5" />} lower="STATIONS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 60 }}>
-              <FullGridLines count={totalMonthCount} />
-              {dutyStations.map(ds => {
-                const x = dateToFMX(ds.startDate);
-                const ex = dateToFMX(ds.endDate);
-                const cx = Math.max(0, x); const cw = Math.min(totalW, ex) - cx;
-                if (cw <= 0) return null;
-                return (
-                  <div key={ds.id} className="absolute top-2 overflow-hidden flex flex-col justify-center px-2 cursor-default"
-                    style={{ left: cx + 2, width: cw - 4, height: 44,
-                      background: isDesert
-                        ? (ds.isPotential ? 'rgba(0,0,0,0.04)' : 'rgba(0,0,0,0.08)')
-                        : (ds.isPotential ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)'),
-                      border: isDesert
-                        ? (ds.isPotential ? '1px dashed rgba(0,0,0,0.18)' : '1px solid rgba(0,0,0,0.25)')
-                        : (ds.isPotential ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.20)') }}
-                    onMouseEnter={e => showTT(e, ttDutyStation(ds))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className={`text-[10px] font-mono font-bold truncate ${isDesert ? 'text-gray-300' : 'text-white/80'}`}>{ds.location}</div>
-                    {ds.unit && !ds.isPotential && <div className={`text-[8px] font-mono truncate ${isDesert ? 'text-gray-400' : 'text-white/35'}`}>{ds.unit}</div>}
-                    <div className={`text-[8px] font-mono truncate ${isDesert ? 'text-gray-400' : 'text-white/30'}`}>{fmtDate(ds.startDate)} – {fmtDate(ds.endDate)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── Promotions ─────────────────────────────────────────────────── */}
-          <div className="flex border-b border-white/10" style={{ minHeight: 64 }}>
-            <SectionLabel icon={<CaretUp className="w-3.5 h-3.5" />} lower="PROMOTIONS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 64 }}>
-              <FullGridLines count={totalMonthCount} />
-              <div className="absolute" style={{ left: 0, right: 0, top: 36, height: 1, background: 'var(--usmc-border-subtle)' }} />
-              {promotions.map(p => {
-                const x = dateToFMX(p.date);
-                const past = p.date <= effectiveToday;
-                return (
-                  <div key={p.id} className="absolute flex flex-col items-center cursor-default" style={{ left: x - 22, top: 8 }}
-                    onMouseEnter={e => showTT(e, ttPromotion(p))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className={`px-1.5 py-0.5 text-[9px] font-mono font-black tracking-wider border ${
-                      isDesert
-                        ? (past ? 'border-gray-500 text-gray-300 bg-black/10' : 'border-gray-400 text-gray-400')
-                        : (past ? 'border-white/40 text-white/90 bg-white/10' : 'border-white/15 text-white/35')
-                    }`}>
-                      {p.rankAbbr}
+          {/* ── CAREER ─────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="CAREER" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 90 }}>
+                <SectionLabel icon={<Flag className="w-3.5 h-3.5" />} lower="MILESTONES" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 90 }}>
+                  <FullGridLines count={totalMonthCount} />
+                  {milestones.map(m => {
+                    const x = dateToFMX(m.date);
+                    const top = m.track === 0 ? 4 : 50;
+                    const color = m.type === 'custom' ? (m.customColor ?? '#a78bfa') : MC[m.type];
+                    const iconCls = m.iconSize === 'sm' ? 'w-3.5 h-3.5' : m.iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
+                    const iconEl = m.type === 'custom' ? renderCustomIcon(m.customIcon ?? 'Star', iconCls) : getMilestoneIcon(m.type, iconCls);
+                    return (
+                      <div key={m.id} className="absolute flex flex-col items-center cursor-default"
+                        style={{ left: x - 14, top }}
+                        onMouseEnter={e => showTT(e, ttMilestone(m))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className="flex items-center justify-center" style={{ color }}>{iconEl}</div>
+                        <div className={`text-[8px] font-mono text-center mt-0.5 whitespace-nowrap ${isDesert ? 'text-gray-300' : 'text-white/50'}`}>{m.shortLabel}</div>
+                        <div className={`text-[7px] font-mono text-center whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/25'}`}>{fmtDate(m.date)}</div>
+                      </div>
+                    );
+                  })}
+                  {milestones.length === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[9px] font-mono text-white/15 tracking-widest">NO MILESTONES</span>
                     </div>
-                    <div className={`text-[8px] font-mono mt-0.5 whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/30'}`}>{fmtDate(p.date)}</div>
-                    {p.isProjected && <div className={`text-[7px] font-mono whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/20'}`}>(PROJ)</div>}
-                  </div>
-                );
-              })}
-              {promotions.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[9px] font-mono text-white/15 tracking-widest">NO PROMOTIONS</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ── Education ──────────────────────────────────────────────────── */}
-          <div className="flex border-b border-white/10" style={{ minHeight: 52 }}>
-            <SectionLabel icon={<BookOpen className="w-3.5 h-3.5" />} lower="EDUCATION" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 52 }}>
-              <FullGridLines count={totalMonthCount} />
-              {education.map(e => {
-                const x = dateToFMX(e.startDate);
-                const ex = dateToFMX(e.endDate);
-                const cx = Math.max(0, x); const cw = Math.min(totalW, ex) - cx;
-                if (cw <= 0) return null;
-                return (
-                  <div key={e.id} className="absolute top-2 flex flex-col justify-center px-2 overflow-hidden cursor-default"
-                    style={{ left: cx + 2, width: cw - 4, height: 36, background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(59,130,246,0.40)' }}
-                    onMouseEnter={e2 => showTT(e2, ttEducation(e))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className="text-[10px] font-mono font-bold text-blue-300/90 truncate">{e.label}</div>
-                    {e.isProjected && <div className="text-[8px] font-mono text-blue-400/50">PROJECTED</div>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ── Spouse ─────────────────────────────────────────────────────── */}
-          {spouse && (
-            <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-              <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
-                <span className="flex-none text-white/30"><Heart className="w-3.5 h-3.5" /></span>
-                <div className="ml-2 min-w-0" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                  <div className="text-[10px] font-mono font-bold text-white/70 truncate">{spouse.name.toUpperCase()}</div>
-                  <div className="text-[8px] font-mono text-white/30">MARRIED {fmtDate(spouse.marriageDate)}</div>
+                  )}
                 </div>
               </div>
-              <div className="flex">
-                {years.flatMap((y, yi) => MONTHS.map((_, i) => {
-                  const married = y > spouse.marriageDate.getFullYear() ||
-                    (y === spouse.marriageDate.getFullYear() && i >= spouse.marriageDate.getMonth());
-                  if (!married) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
-                  const age = getAgeAtMonth(spouse.dob, y, i);
-                  const anniversaryYrs = y - spouse.marriageDate.getFullYear();
-                  const isAnniversary = anniversaryYrs > 0 && i === spouse.marriageDate.getMonth();
-                  return (
-                    <div key={yi * 12 + i} className="flex-none flex flex-col items-center justify-center border-r border-white/[0.04] cursor-default"
-                      style={{ width: MONTH_W, background: isAnniversary ? 'rgba(244,114,182,0.06)' : undefined }}
-                      onMouseEnter={isAnniversary ? e => showTT(e, {
-                        title: `${anniversaryYrs} YEAR ANNIVERSARY`,
-                        subtitle: spouse.name.toUpperCase(),
-                        lines: [`Married ${fmtDate(spouse.marriageDate)}`, `${anniversaryYrs} years together`],
-                      }) : undefined}
-                      onMouseMove={isAnniversary ? moveTT : undefined}
-                      onMouseLeave={isAnniversary ? hideTT : undefined}>
-                      <span className="text-[11px] font-mono" style={{ color: 'rgba(244,114,182,0.7)' }}>{age}</span>
-                      {isAnniversary && (
-                        <span className="text-[7px] font-mono tracking-wider leading-none" style={{ color: 'rgba(244,114,182,0.45)' }}>
-                          {anniversaryYrs} YR ANNIV
-                        </span>
+            </div>
+          </div>
+
+          {/* ── SERVICE ────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="SERVICE" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 60 }}>
+                <SectionLabel icon={<MapPin className="w-3.5 h-3.5" />} lower="STATIONS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 60 }}>
+                  <FullGridLines count={totalMonthCount} />
+                  {dutyStations.map(ds => {
+                    const x = dateToFMX(ds.startDate);
+                    const ex = dateToFMX(ds.endDate);
+                    const cx = Math.max(0, x); const cw = Math.min(totalW, ex) - cx;
+                    if (cw <= 0) return null;
+                    return (
+                      <div key={ds.id} className="absolute top-2 overflow-hidden flex flex-col justify-center px-2 cursor-default"
+                        style={{ left: cx + 2, width: cw - 4, height: 44,
+                          background: isDesert
+                            ? (ds.isPotential ? 'rgba(0,0,0,0.04)' : 'rgba(0,0,0,0.08)')
+                            : (ds.isPotential ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)'),
+                          border: isDesert
+                            ? (ds.isPotential ? '1px dashed rgba(0,0,0,0.18)' : '1px solid rgba(0,0,0,0.25)')
+                            : (ds.isPotential ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.20)') }}
+                        onMouseEnter={e => showTT(e, ttDutyStation(ds))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className={`text-[10px] font-mono font-bold truncate ${isDesert ? 'text-gray-300' : 'text-white/80'}`}>{ds.location}</div>
+                        {ds.unit && !ds.isPotential && <div className={`text-[8px] font-mono truncate ${isDesert ? 'text-gray-400' : 'text-white/35'}`}>{ds.unit}</div>}
+                        <div className={`text-[8px] font-mono truncate ${isDesert ? 'text-gray-400' : 'text-white/30'}`}>{fmtDate(ds.startDate)} – {fmtDate(ds.endDate)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex border-b border-white/10" style={{ minHeight: 68 }}>
+                <SectionLabel icon={<CaretUp className="w-3.5 h-3.5" />} lower="PROMOTIONS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 68 }}>
+                  <FullGridLines count={totalMonthCount} />
+                  <div className="absolute" style={{ left: 0, right: 0, top: 36, height: 1, background: 'var(--usmc-border-subtle)' }} />
+                  {promotions.map(p => {
+                    const x = dateToFMX(p.date);
+                    const past = p.date <= effectiveToday;
+                    return (
+                      <div key={p.id} className="absolute flex flex-col items-center cursor-default" style={{ left: x - 22, top: 8 }}
+                        onMouseEnter={e => showTT(e, ttPromotion(p))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className={`px-1.5 py-0.5 text-[9px] font-mono font-black tracking-wider border ${
+                          isDesert
+                            ? (past ? 'border-gray-500 text-gray-300 bg-black/10' : 'border-gray-400 text-gray-400')
+                            : (past ? 'border-white/40 text-white/90 bg-white/10' : 'border-white/15 text-white/35')
+                        }`}>
+                          {p.rankAbbr}
+                        </div>
+                        <div className={`text-[8px] font-mono mt-0.5 whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/30'}`}>{fmtDate(p.date)}</div>
+                        {p.isProjected && <div className={`text-[7px] font-mono whitespace-nowrap ${isDesert ? 'text-gray-400' : 'text-white/20'}`}>(PROJ)</div>}
+                      </div>
+                    );
+                  })}
+                  {promotions.length === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[9px] font-mono text-white/15 tracking-widest">NO PROMOTIONS</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── EDUCATION ──────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="EDUCATION" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 96 }}>
+                <SectionLabel icon={<BookOpen className="w-3.5 h-3.5" />} lower="EDUCATION" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 96 }}>
+                  <FullGridLines count={totalMonthCount} />
+                  {education.map(e => {
+                    const x = dateToFMX(e.startDate);
+                    const ex = dateToFMX(e.endDate);
+                    const cx = Math.max(0, x); const cw = Math.min(totalW, ex) - cx;
+                    if (cw <= 0) return null;
+                    return (
+                      <div key={e.id} className="absolute top-2 flex flex-col justify-center px-2 overflow-hidden cursor-default"
+                        style={{ left: cx + 2, width: cw - 4, height: 36, background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(59,130,246,0.40)' }}
+                        onMouseEnter={e2 => showTT(e2, ttEducation(e))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className="text-[10px] font-mono font-bold text-blue-300/90 truncate">{e.label}</div>
+                        {e.isProjected && <div className="text-[8px] font-mono text-blue-400/50">PROJECTED</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── FAMILY ─────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="FAMILY" />
+            <div className="flex-1 min-w-0">
+              {spouse && (
+                <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                  <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                    style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px', transition: 'width 200ms ease' }}>
+                    <span className="flex-none text-white/30"><Heart className="w-3.5 h-3.5" /></span>
+                    {!collapsed && (
+                      <div className="ml-2 min-w-0">
+                        <div className="text-[10px] font-mono font-bold text-white/70 truncate">{spouse.name.toUpperCase()}</div>
+                        <div className="text-[8px] font-mono text-white/30">MARRIED {fmtDate(spouse.marriageDate)}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex">
+                    {years.flatMap((y, yi) => MONTHS.map((_, i) => {
+                      const married = y > spouse.marriageDate.getFullYear() ||
+                        (y === spouse.marriageDate.getFullYear() && i >= spouse.marriageDate.getMonth());
+                      if (!married) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
+                      const age = getAgeAtMonth(spouse.dob, y, i);
+                      const anniversaryYrs = y - spouse.marriageDate.getFullYear();
+                      const isAnniversary = anniversaryYrs > 0 && i === spouse.marriageDate.getMonth();
+                      return (
+                        <div key={yi * 12 + i} className="flex-none flex flex-col items-center justify-center border-r border-white/[0.04] cursor-default"
+                          style={{ width: MONTH_W, background: isAnniversary ? 'rgba(244,114,182,0.06)' : undefined }}
+                          onMouseEnter={isAnniversary ? e => showTT(e, {
+                            title: `${anniversaryYrs} YEAR ANNIVERSARY`,
+                            subtitle: spouse.name.toUpperCase(),
+                            lines: [`Married ${fmtDate(spouse.marriageDate)}`, `${anniversaryYrs} years together`],
+                          }) : undefined}
+                          onMouseMove={isAnniversary ? moveTT : undefined}
+                          onMouseLeave={isAnniversary ? hideTT : undefined}>
+                          <span className="text-[11px] font-mono" style={{ color: 'rgba(244,114,182,0.7)' }}>{age}</span>
+                          {isAnniversary && (
+                            <span className="text-[7px] font-mono tracking-wider leading-none" style={{ color: 'rgba(244,114,182,0.45)' }}>
+                              {anniversaryYrs} YR ANNIV
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }))}
+                  </div>
+                </div>
+              )}
+              {realChildren.length > 0 && (
+                <>
+                  <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
+                    <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                      style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px', transition: 'width 200ms ease' }}>
+                      <span className="flex-none text-white/30"><Users className="w-3.5 h-3.5" /></span>
+                      {!collapsed && (
+                        <div className="ml-2">
+                          <div className="text-[8px] font-mono tracking-[0.18em] text-white/30 uppercase leading-none">Family</div>
+                          <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
+                        </div>
                       )}
                     </div>
-                  );
-                }))}
-              </div>
-            </div>
-          )}
-
-          {/* ── Children ───────────────────────────────────────────────────── */}
-          {realChildren.length > 0 && (
-            <>
-              <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
-                <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                  style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
-                  <span className="flex-none text-white/30"><Users className="w-3.5 h-3.5" /></span>
-                  <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                    <div className="text-[8px] font-mono tracking-[0.18em] text-white/30 uppercase leading-none">Family</div>
-                    <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
+                    <div className="flex">
+                      {years.flatMap((_, yi) => MONTHS.map((__, i) => (
+                        <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />
+                      )))}
+                    </div>
                   </div>
-                </div>
-                <div className="flex">
-                  {years.flatMap((_, yi) => MONTHS.map((__, i) => (
-                    <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />
-                  )))}
-                </div>
-              </div>
-              {realChildren.map(child => (
-                <div key={child.id}>
-                  {/* Child age row */}
-                  <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
-                      <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ background: child.color }} />
-                      <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                        <div className="text-[10px] font-mono font-bold text-white/70">{child.name.toUpperCase()}</div>
-                        <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
+                  {realChildren.map(child => (
+                    <div key={child.id}>
+                      <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                          style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                          <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ background: child.color }} />
+                          {!collapsed && (
+                            <div className="ml-2">
+                              <div className="text-[10px] font-mono font-bold text-white/70">{child.name.toUpperCase()}</div>
+                              <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex">
+                          {years.flatMap((y, yi) => MONTHS.map((_, i) => {
+                            const age = getAgeAtMonth(child.dob, y, i);
+                            if (age < 0) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
+                            return (
+                              <div key={yi * 12 + i} className="flex-none flex items-center justify-center border-r border-white/[0.04] text-[11px] font-mono cursor-default"
+                                style={{ width: MONTH_W, color: child.color + 'bb' }}
+                                onMouseEnter={e => showTT(e, ttChild(child, y))} onMouseLeave={hideTT}>
+                                {age}
+                              </div>
+                            );
+                          }))}
+                        </div>
+                      </div>
+                      <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                          style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                          <span className="flex-none text-white/20"><GraduationCap className="w-3 h-3" /></span>
+                          {!collapsed && (
+                            <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider">SCHOOLS</span>
+                          )}
+                        </div>
+                        <div className="flex">
+                          {years.flatMap((y, yi) => MONTHS.map((_, i) => {
+                            const monthMid = new Date(y, i, 15);
+                            const sp = child.schoolPhases.find(p => monthMid >= p.startDate && monthMid < p.endDate);
+                            if (!sp) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
+                            const st = schoolStyle[sp.phase];
+                            const endMonth = child.schoolYearEndMonth ?? 5;
+                            const isSummer = i > endMonth && i <= 7;
+                            if (isSummer) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
+                            const academicYear = i >= 8 ? y : y - 1;
+                            const firstCalYear = sp.startDate.getMonth() > 8
+                              ? sp.startDate.getFullYear() + 1
+                              : sp.startDate.getFullYear();
+                            const yearIdx = academicYear - firstCalYear;
+                            const labels = GRADE_LABELS[sp.phase] ?? [];
+                            const grade = yearIdx >= 0 ? (labels[yearIdx] ?? labels[labels.length - 1] ?? '') : '';
+                            return (
+                              <div key={yi * 12 + i} className="flex-none flex items-center justify-center border-r border-white/[0.04] text-[10px] font-mono font-bold cursor-default"
+                                style={{ width: MONTH_W, background: st.bg, color: st.text }}
+                                onMouseEnter={e => showTT(e, ttSchool(sp.label, child, sp.startDate, sp.endDate))}
+                                onMouseMove={moveTT} onMouseLeave={hideTT}>
+                                {grade}
+                              </div>
+                            );
+                          }))}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex">
-                      {years.flatMap((y, yi) => MONTHS.map((_, i) => {
-                        const age = getAgeAtMonth(child.dob, y, i);
-                        if (age < 0) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
-                        return (
-                          <div key={yi * 12 + i} className="flex-none flex items-center justify-center border-r border-white/[0.04] text-[11px] font-mono cursor-default"
-                            style={{ width: MONTH_W, color: child.color + 'bb' }}
-                            onMouseEnter={e => showTT(e, ttChild(child, y))} onMouseLeave={hideTT}>
-                            {age}
-                          </div>
-                        );
-                      }))}
-                    </div>
-                  </div>
-                  {/* Child school row */}
-                  <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
-                      <span className="flex-none text-white/20"><GraduationCap className="w-3 h-3" /></span>
-                      <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider"
-                        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>SCHOOLS</span>
-                    </div>
-                    <div className="flex">
-                      {years.flatMap((y, yi) => MONTHS.map((_, i) => {
-                        const monthMid = new Date(y, i, 15);
-                        const sp = child.schoolPhases.find(p => monthMid >= p.startDate && monthMid < p.endDate);
-                        if (!sp) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
-                        const st = schoolStyle[sp.phase];
-                        const endMonth = child.schoolYearEndMonth ?? 5;
-                        const isSummer = i > endMonth && i <= 7;
-                        if (isSummer) return <div key={yi * 12 + i} className="flex-none border-r border-white/[0.04]" style={{ width: MONTH_W }} />;
-                        const academicYear = i >= 8 ? y : y - 1;
-                        const firstCalYear = sp.startDate.getMonth() > 8
-                          ? sp.startDate.getFullYear() + 1
-                          : sp.startDate.getFullYear();
-                        const yearIdx = academicYear - firstCalYear;
-                        const labels = GRADE_LABELS[sp.phase] ?? [];
-                        const grade = yearIdx >= 0 ? (labels[yearIdx] ?? labels[labels.length - 1] ?? '') : '';
-                        return (
-                          <div key={yi * 12 + i} className="flex-none flex items-center justify-center border-r border-white/[0.04] text-[10px] font-mono font-bold cursor-default"
-                            style={{ width: MONTH_W, background: st.bg, color: st.text }}
-                            onMouseEnter={e => showTT(e, ttSchool(sp.label, child, sp.startDate, sp.endDate))}
-                            onMouseMove={moveTT} onMouseLeave={hideTT}>
-                            {grade}
-                          </div>
-                        );
-                      }))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* ── Financial Goals ─────────────────────────────────────────────── */}
-          <div className="flex border-b border-white/10" style={{ minHeight: 80 }}>
-            <SectionLabel icon={<CurrencyDollar className="w-3.5 h-3.5" />} lower="GOALS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 80 }}>
-              <FullGridLines count={totalMonthCount} />
-              {financialGoals.map(g => {
-                const x = dateToFMX(g.targetDate);
-                const isCustom = g.iconName === 'custom';
-                const gc = isCustom ? (g.customColor ?? '#a78bfa') : null;
-                return (
-                  <div key={g.id} className="absolute top-2 flex flex-col items-start" style={{ left: x - 4, width: 94 }}>
-                    <div className="w-0.5 h-4 mb-1 ml-4" style={{ background: isCustom ? `${gc}AA` : 'rgba(74,222,128,0.7)' }} />
-                    <div className="p-1.5 w-full cursor-default"
-                      style={isCustom ? { background: `${gc}12`, border: `1px solid ${gc}40` } : { background: 'rgba(5,46,22,0.6)', border: '1px solid rgba(74,222,128,0.30)' }}
-                      onMouseEnter={e => showTT(e, ttGoal(g))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                      <div className="flex items-center gap-1 mb-0.5" style={{ color: isCustom ? gc! : 'rgba(74,222,128,0.7)' }}>
-                        <GoalIcon name={g.iconName} customIconName={g.customIconName} />
-                      </div>
-                      <div className="text-[8px] font-mono font-bold leading-tight"
-                        style={{ color: isCustom ? `${gc}CC` : 'rgba(134,239,172,0.8)' }}>{g.label}</div>
-                      {g.amount > 0 && <div className="text-[8px] font-mono" style={{ color: isCustom ? `${gc}99` : 'rgba(74,222,128,0.6)' }}>
-                        GOAL: ${g.amount.toLocaleString()}</div>}
-                      <div className="text-[7px] font-mono" style={{ color: isCustom ? `${gc}66` : 'rgba(74,222,128,0.4)' }}>
-                        {fmtDate(g.targetDate)}</div>
-                    </div>
-                  </div>
-                );
-              })}
-              {financialGoals.length === 0 && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[9px] font-mono text-white/15 tracking-widest">NO GOALS</span>
-                </div>
+                  ))}
+                </>
               )}
+            </div>
+          </div>
+
+          {/* ── FINANCIAL ──────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="FINANCIAL" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 96 }}>
+                <SectionLabel icon={<CurrencyDollar className="w-3.5 h-3.5" />} lower="GOALS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 96 }}>
+                  <FullGridLines count={totalMonthCount} />
+                  {financialGoals.map(g => {
+                    const x = dateToFMX(g.targetDate);
+                    const isCustom = g.iconName === 'custom';
+                    const gc = isCustom ? (g.customColor ?? '#a78bfa') : null;
+                    return (
+                      <div key={g.id} className="absolute top-2 flex flex-col items-start" style={{ left: x - 4, width: 94 }}>
+                        <div className="w-0.5 h-4 mb-1 ml-4" style={{ background: isCustom ? `${gc}AA` : 'rgba(74,222,128,0.7)' }} />
+                        <div className="p-1.5 w-full cursor-default"
+                          style={isCustom ? { background: `${gc}12`, border: `1px solid ${gc}40` } : { background: 'rgba(5,46,22,0.6)', border: '1px solid rgba(74,222,128,0.30)' }}
+                          onMouseEnter={e => showTT(e, ttGoal(g))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                          <div className="flex items-center gap-1 mb-0.5" style={{ color: isCustom ? gc! : 'rgba(74,222,128,0.7)' }}>
+                            <GoalIcon name={g.iconName} customIconName={g.customIconName} />
+                          </div>
+                          <div className="text-[8px] font-mono font-bold leading-tight"
+                            style={{ color: isCustom ? `${gc}CC` : 'rgba(134,239,172,0.8)' }}>{g.label}</div>
+                          {g.amount > 0 && <div className="text-[8px] font-mono" style={{ color: isCustom ? `${gc}99` : 'rgba(74,222,128,0.6)' }}>
+                            GOAL: ${g.amount.toLocaleString()}</div>}
+                          <div className="text-[7px] font-mono" style={{ color: isCustom ? `${gc}66` : 'rgba(74,222,128,0.4)' }}>
+                            {fmtDate(g.targetDate)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {financialGoals.length === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[9px] font-mono text-white/15 tracking-widest">NO GOALS</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

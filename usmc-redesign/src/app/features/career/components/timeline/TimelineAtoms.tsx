@@ -64,7 +64,10 @@ export function SectionGutter({ label }: { label: string }) {
 export function SectionLabel({ icon, lower, onAdd }: { icon: React.ReactNode; lower: string; onAdd?: () => void }) {
   const collapsed = useContext(SidebarCollapsedCtx);
   return (
-    <div className="flex-none sticky z-[20] border-r border-white/10 flex items-center gap-2 px-2.5 overflow-hidden"
+    <div
+      className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${
+        collapsed ? 'justify-center' : 'gap-2 px-2.5'
+      }`}
       style={{
         left: GUTTER_W,
         width: collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W,
@@ -72,15 +75,18 @@ export function SectionLabel({ icon, lower, onAdd }: { icon: React.ReactNode; lo
         transition: 'width 200ms ease',
       }}>
       <span className="flex-none text-white/30">{icon}</span>
-      <div className="flex-1 min-w-0" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-        <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">{lower}</div>
-      </div>
-      {onAdd && (
-        <button onClick={onAdd}
-          className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors"
-          style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease', pointerEvents: collapsed ? 'none' : 'auto' }}>
-          <Plus weight="bold" className="w-3 h-3" />
-        </button>
+      {!collapsed && (
+        <>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">{lower}</div>
+          </div>
+          {onAdd && (
+            <button onClick={onAdd}
+              className="flex-none w-5 h-5 border border-white/20 flex items-center justify-center text-white/35 hover:text-red-400 hover:border-red-600/50 transition-colors">
+              <Plus weight="bold" className="w-3 h-3" />
+            </button>
+          )}
+        </>
       )}
     </div>
   );

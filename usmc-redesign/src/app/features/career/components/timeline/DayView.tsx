@@ -12,7 +12,7 @@ import {
   getVerticalScrollTarget, getVerticalScrollTop, setVerticalScrollTop,
   type TooltipState, type VerticalScrollTarget,
 } from './timelineUtils';
-import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon, SidebarCollapsedCtx } from './TimelineAtoms';
+import { TooltipCard, GoalIcon, SmallLabel, getMilestoneIcon, SidebarCollapsedCtx, SectionGutter, SectionLabel } from './TimelineAtoms';
 import { useTheme } from '@/app/features/theme/ThemeContext';
 
 const DAY_W = 42;
@@ -87,18 +87,6 @@ function isInTimeline(date: Date): boolean {
   return date >= TIMELINE_START_DATE && date < TIMELINE_END_DATE;
 }
 
-function SectionLabel({ icon, lower }: { icon: React.ReactNode; lower: string }) {
-  const collapsed = useContext(SidebarCollapsedCtx);
-  const lw = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
-  return (
-    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center gap-2 overflow-hidden"
-      style={{ width: lw, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 0 0 4px' : '0 10px', transition: 'width 200ms ease' }}>
-      <span className="flex-none text-white/30">{icon}</span>
-      <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight"
-        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>{lower}</div>
-    </div>
-  );
-}
 
 interface VisibleDay {
   date: Date;
@@ -162,6 +150,7 @@ export function DayView({ year, month, data, onBack, onPrev, onNext, presentDate
   const labelW = collapsed ? GUTTER_W + LABEL_W_COLLAPSED : LABEL_W;
   const labelWRef = useRef(labelW);
   labelWRef.current = labelW;
+  const innerLabelW = collapsed ? LABEL_W_COLLAPSED : LABEL_W - GUTTER_W;
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const [isDraggingLine, setIsDraggingLine] = useState(false);
@@ -423,233 +412,268 @@ export function DayView({ year, month, data, onBack, onPrev, onNext, presentDate
             </VisibleDayTrack>
           </div>
 
-          <div className="flex border-b border-white/10" style={{ minHeight: 90 }}>
-            <SectionLabel icon={<Flag className="w-3.5 h-3.5" />} lower="MILESTONES" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 90 }}>
-              <DayGridLines days={visibleDays} />
-              {milestones.filter(m => isInTimeline(m.date)).map(m => {
-                const x = dateToDayX(m.date);
-                const top = m.track === 0 ? 4 : 50;
-                const color = m.type === 'custom' ? (m.customColor ?? '#a78bfa') : MC[m.type];
-                const iconCls = m.iconSize === 'sm' ? 'w-3.5 h-3.5' : m.iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
-                const iconEl = m.type === 'custom' ? renderCustomIcon(m.customIcon ?? 'Star', iconCls) : getMilestoneIcon(m.type, iconCls);
-                return (
-                  <div key={m.id} className="absolute flex flex-col items-center cursor-default"
-                    style={{ left: x - 14, top }}
-                    onMouseEnter={e => showTT(e, ttMilestone(m))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className="flex items-center justify-center" style={{ color }}>{iconEl}</div>
-                    <div className="text-[8px] font-mono text-white/50 text-center mt-0.5 whitespace-nowrap">{m.shortLabel}</div>
-                    <div className="text-[7px] font-mono text-white/25 text-center whitespace-nowrap">{fmtFullDate(m.date)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex border-b border-white/10" style={{ minHeight: 60 }}>
-            <SectionLabel icon={<MapPin className="w-3.5 h-3.5" />} lower="STATIONS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 60 }}>
-              <DayGridLines days={visibleDays} />
-              {dutyStations.map(ds => {
-                if (!overlapsTimeline(ds.startDate, ds.endDate)) return null;
-                const x = dateToDayX(ds.startDate);
-                const ex = dateToDayX(ds.endDate);
-                const cw = ex - x;
-                if (cw <= 1) return null;
-                return (
-                  <div key={ds.id} className="absolute top-2 overflow-hidden flex flex-col justify-center px-2 cursor-default"
-                    style={{ left: x + 2, width: Math.max(22, cw - 4), height: 44, background: ds.isPotential ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)', border: ds.isPotential ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.20)' }}
-                    onMouseEnter={e => showTT(e, ttDutyStation(ds))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className="text-[10px] font-mono font-bold text-white/80 truncate">{ds.location}</div>
-                    <div className="text-[8px] font-mono text-white/30 truncate">{fmtDate(ds.startDate)} - {fmtDate(ds.endDate)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex border-b border-white/10" style={{ minHeight: 64 }}>
-            <SectionLabel icon={<CaretUp className="w-3.5 h-3.5" />} lower="PROMOTIONS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 64 }}>
-              <DayGridLines days={visibleDays} />
-              <div className="absolute" style={{ left: 0, right: 0, top: 36, height: 1, background: 'var(--usmc-border-subtle)' }} />
-              {promotions.filter(p => isInTimeline(p.date)).map(p => {
-                const x = dateToDayX(p.date);
-                const past = p.date <= effectiveToday;
-                return (
-                  <div key={p.id} className="absolute flex flex-col items-center cursor-default" style={{ left: x - 22, top: 8 }}
-                    onMouseEnter={e => showTT(e, ttPromotion(p))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className={`px-1.5 py-0.5 text-[9px] font-mono font-black tracking-wider border ${past ? 'border-white/40 text-white/90 bg-white/10' : 'border-white/15 text-white/35'}`}>
-                      {p.rankAbbr}
-                    </div>
-                    <div className="text-[8px] font-mono text-white/30 mt-0.5 whitespace-nowrap">{fmtFullDate(p.date)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex border-b border-white/10" style={{ minHeight: 52 }}>
-            <SectionLabel icon={<BookOpen className="w-3.5 h-3.5" />} lower="EDUCATION" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 52 }}>
-              <DayGridLines days={visibleDays} />
-              {education.map(e => {
-                if (!overlapsTimeline(e.startDate, e.endDate)) return null;
-                const x = dateToDayX(e.startDate);
-                const ex = dateToDayX(e.endDate);
-                const cw = ex - x;
-                if (cw <= 1) return null;
-                return (
-                  <div key={e.id} className="absolute top-2 flex flex-col justify-center px-2 overflow-hidden cursor-default"
-                    style={{ left: x + 2, width: Math.max(22, cw - 4), height: 36, background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(59,130,246,0.40)' }}
-                    onMouseEnter={e2 => showTT(e2, ttEducation(e))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                    <div className="text-[10px] font-mono font-bold text-blue-300/90 truncate">{e.label}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {spouse && (
-            <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-              <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
-                <span className="flex-none text-white/30"><Heart className="w-3.5 h-3.5" /></span>
-                <div className="ml-2 min-w-0" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                  <div className="text-[10px] font-mono font-bold text-white/70 truncate">{spouse.name.toUpperCase()}</div>
-                  <div className="text-[8px] font-mono text-white/30">MARRIED {fmtDate(spouse.marriageDate)}</div>
-                </div>
-              </div>
-              <VisibleDayTrack totalW={totalW} days={visibleDays}>
-                {d => {
-                  const married = d >= spouse.marriageDate;
-                  if (!married) return <div className="h-full border-r border-white/[0.04]" />;
-                  const age = getAgeAtDate(spouse.dob, d);
-                  const anniversaryYrs = d.getFullYear() - spouse.marriageDate.getFullYear();
-                  const isAnniversary = anniversaryYrs > 0 && d.getMonth() === spouse.marriageDate.getMonth() && d.getDate() === spouse.marriageDate.getDate();
-                  return (
-                    <div className="h-full flex flex-col items-center justify-center border-r border-white/[0.04] cursor-default"
-                      style={{ background: isAnniversary ? 'rgba(244,114,182,0.06)' : undefined }}
-                      onMouseEnter={isAnniversary ? e => showTT(e, { title: `${anniversaryYrs} YEAR ANNIVERSARY`, subtitle: spouse.name.toUpperCase(), lines: [`Married ${fmtDate(spouse.marriageDate)}`, `${anniversaryYrs} years together`] }) : undefined}
-                      onMouseMove={isAnniversary ? moveTT : undefined}
-                      onMouseLeave={isAnniversary ? hideTT : undefined}>
-                      <span className="text-[10px] font-mono" style={{ color: 'rgba(244,114,182,0.7)' }}>{age}</span>
-                      {isAnniversary && <span className="text-[7px] font-mono tracking-wider leading-none" style={{ color: 'rgba(244,114,182,0.45)' }}>ANNIV</span>}
-                    </div>
-                  );
-                }}
-              </VisibleDayTrack>
-            </div>
-          )}
-
-          {realChildren.length > 0 && (
-            <>
-              <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
-                <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                  style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px', transition: 'width 200ms ease' }}>
-                  <span className="flex-none text-white/30"><Users className="w-3.5 h-3.5" /></span>
-                  <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                    <div className="text-[8px] font-mono tracking-[0.18em] text-white/30 uppercase leading-none">Family</div>
-                    <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
-                  </div>
-                </div>
-                <div className="relative flex-none" style={{ width: totalW }}>
+          {/* ── CAREER ─────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="CAREER" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 90 }}>
+                <SectionLabel icon={<Flag className="w-3.5 h-3.5" />} lower="MILESTONES" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 90 }}>
                   <DayGridLines days={visibleDays} />
+                  {milestones.filter(m => isInTimeline(m.date)).map(m => {
+                    const x = dateToDayX(m.date);
+                    const top = m.track === 0 ? 4 : 50;
+                    const color = m.type === 'custom' ? (m.customColor ?? '#a78bfa') : MC[m.type];
+                    const iconCls = m.iconSize === 'sm' ? 'w-3.5 h-3.5' : m.iconSize === 'lg' ? 'w-7 h-7' : 'w-5 h-5';
+                    const iconEl = m.type === 'custom' ? renderCustomIcon(m.customIcon ?? 'Star', iconCls) : getMilestoneIcon(m.type, iconCls);
+                    return (
+                      <div key={m.id} className="absolute flex flex-col items-center cursor-default"
+                        style={{ left: x - 14, top }}
+                        onMouseEnter={e => showTT(e, ttMilestone(m))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className="flex items-center justify-center" style={{ color }}>{iconEl}</div>
+                        <div className="text-[8px] font-mono text-white/50 text-center mt-0.5 whitespace-nowrap">{m.shortLabel}</div>
+                        <div className="text-[7px] font-mono text-white/25 text-center whitespace-nowrap">{fmtFullDate(m.date)}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-              {realChildren.map(child => (
-                <div key={child.id}>
-                  <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
-                      <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ background: child.color }} />
-                      <div className="ml-2" style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>
-                        <div className="text-[10px] font-mono font-bold text-white/70">{child.name.toUpperCase()}</div>
-                        <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
-                      </div>
-                    </div>
-                    <VisibleDayTrack totalW={totalW} days={visibleDays}>
-                      {d => {
-                        const age = getAgeAtDate(child.dob, d);
-                        const birthday = d.getMonth() === child.dob.getMonth() && d.getDate() === child.dob.getDate();
-                        if (age < 0) return <div className="h-full border-r border-white/[0.04]" />;
-                        return (
-                          <div className="h-full flex items-center justify-center border-r border-white/[0.04] text-[10px] font-mono cursor-default"
-                            style={{ color: child.color + 'bb', background: birthday ? `${child.color}18` : undefined }}
-                            onMouseEnter={e => showTT(e, ttChild(child, d.getFullYear()))} onMouseLeave={hideTT}>
-                            {birthday ? `${age}` : ''}
-                          </div>
-                        );
-                      }}
-                    </VisibleDayTrack>
-                  </div>
-                  <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
-                    <div className="flex-none sticky left-0 z-[20] border-r border-white/10 flex items-center overflow-hidden"
-                      style={{ width: labelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0 4px' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
-                      <span className="flex-none text-white/20"><GraduationCap className="w-3 h-3" /></span>
-                      <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider"
-                        style={{ opacity: collapsed ? 0 : 1, transition: 'opacity 120ms ease' }}>SCHOOLS</span>
-                    </div>
-                    <VisibleDayTrack totalW={totalW} days={visibleDays}>
-                      {d => {
-                        const sp = child.schoolPhases.find(p => d >= p.startDate && d < p.endDate);
-                        if (!sp) return <div className="h-full border-r border-white/[0.04]" />;
-                        const st = schoolStyle[sp.phase];
-                        const endMonth = child.schoolYearEndMonth ?? 5;
-                        const endDay = child.schoolYearEndDay ?? 15;
-                        const summerStart = new Date(d.getFullYear(), endMonth, endDay + 1);
-                        const summerEnd = new Date(d.getFullYear(), 8, 1);
-                        if (d >= summerStart && d < summerEnd) return <div className="h-full border-r border-white/[0.04]" />;
-                        const academicYear = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1;
-                        const firstCalYear = sp.startDate.getMonth() > 8 ? sp.startDate.getFullYear() + 1 : sp.startDate.getFullYear();
-                        const yearIdx = academicYear - firstCalYear;
-                        const labels = GRADE_LABELS[sp.phase] ?? [];
-                        const grade = yearIdx >= 0 ? (labels[yearIdx] ?? labels[labels.length - 1] ?? '') : '';
-                        const configuredStart = new Date(academicYear, 8, 1);
-                        const schoolYearStart = configuredStart > sp.startDate ? configuredStart : sp.startDate;
-                        const configuredEnd = new Date(academicYear + 1, endMonth, Math.min(endDay, new Date(academicYear + 1, endMonth + 1, 0).getDate()));
-                        const schoolYearEnd = configuredEnd < sp.endDate ? configuredEnd : sp.endDate;
-                        return (
-                          <div className="h-full flex items-center justify-center border-r border-white/[0.04] text-[9px] font-mono font-bold cursor-default"
-                            style={{ background: st.bg, color: st.text }}
-                            onMouseEnter={e => showTT(e, ttSchool(sp.label, child, schoolYearStart, schoolYearEnd))}
-                            onMouseMove={moveTT} onMouseLeave={hideTT}>
-                            {grade}
-                          </div>
-                        );
-                      }}
-                    </VisibleDayTrack>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
+            </div>
+          </div>
 
-          <div className="flex border-b border-white/10" style={{ minHeight: 80 }}>
-            <SectionLabel icon={<CurrencyDollar className="w-3.5 h-3.5" />} lower="GOALS" />
-            <div className="relative flex-1" style={{ width: totalW, minHeight: 80 }}>
-              <DayGridLines days={visibleDays} />
-              {financialGoals.filter(g => isInTimeline(g.targetDate)).map(g => {
-                const x = dateToDayX(g.targetDate);
-                const isCustom = g.iconName === 'custom';
-                const gc = isCustom ? (g.customColor ?? '#a78bfa') : null;
-                return (
-                  <div key={g.id} className="absolute top-2 flex flex-col items-start" style={{ left: x - 4, width: 94 }}>
-                    <div className="w-0.5 h-4 mb-1 ml-4" style={{ background: isCustom ? `${gc}AA` : 'rgba(74,222,128,0.7)' }} />
-                    <div className="p-1.5 w-full cursor-default"
-                      style={isCustom ? { background: `${gc}12`, border: `1px solid ${gc}40` } : { background: 'rgba(5,46,22,0.6)', border: '1px solid rgba(74,222,128,0.30)' }}
-                      onMouseEnter={e => showTT(e, ttGoal(g))} onMouseMove={moveTT} onMouseLeave={hideTT}>
-                      <div className="flex items-center gap-1 mb-0.5" style={{ color: isCustom ? gc! : 'rgba(74,222,128,0.7)' }}>
-                        <GoalIcon name={g.iconName} customIconName={g.customIconName} />
+          {/* ── SERVICE ────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="SERVICE" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 60 }}>
+                <SectionLabel icon={<MapPin className="w-3.5 h-3.5" />} lower="STATIONS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 60 }}>
+                  <DayGridLines days={visibleDays} />
+                  {dutyStations.map(ds => {
+                    if (!overlapsTimeline(ds.startDate, ds.endDate)) return null;
+                    const x = dateToDayX(ds.startDate);
+                    const ex = dateToDayX(ds.endDate);
+                    const cw = ex - x;
+                    if (cw <= 1) return null;
+                    return (
+                      <div key={ds.id} className="absolute top-2 overflow-hidden flex flex-col justify-center px-2 cursor-default"
+                        style={{ left: x + 2, width: Math.max(22, cw - 4), height: 44, background: ds.isPotential ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)', border: ds.isPotential ? '1px dashed rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.20)' }}
+                        onMouseEnter={e => showTT(e, ttDutyStation(ds))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className="text-[10px] font-mono font-bold text-white/80 truncate">{ds.location}</div>
+                        <div className="text-[8px] font-mono text-white/30 truncate">{fmtDate(ds.startDate)} - {fmtDate(ds.endDate)}</div>
                       </div>
-                      <div className="text-[8px] font-mono font-bold leading-tight"
-                        style={{ color: isCustom ? `${gc}CC` : 'rgba(134,239,172,0.8)' }}>{g.label}</div>
-                      <div className="text-[7px] font-mono" style={{ color: isCustom ? `${gc}66` : 'rgba(74,222,128,0.4)' }}>
-                        {fmtFullDate(g.targetDate)}</div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="flex border-b border-white/10" style={{ minHeight: 68 }}>
+                <SectionLabel icon={<CaretUp className="w-3.5 h-3.5" />} lower="PROMOTIONS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 68 }}>
+                  <DayGridLines days={visibleDays} />
+                  <div className="absolute" style={{ left: 0, right: 0, top: 36, height: 1, background: 'var(--usmc-border-subtle)' }} />
+                  {promotions.filter(p => isInTimeline(p.date)).map(p => {
+                    const x = dateToDayX(p.date);
+                    const past = p.date <= effectiveToday;
+                    return (
+                      <div key={p.id} className="absolute flex flex-col items-center cursor-default" style={{ left: x - 22, top: 8 }}
+                        onMouseEnter={e => showTT(e, ttPromotion(p))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className={`px-1.5 py-0.5 text-[9px] font-mono font-black tracking-wider border ${past ? 'border-white/40 text-white/90 bg-white/10' : 'border-white/15 text-white/35'}`}>
+                          {p.rankAbbr}
+                        </div>
+                        <div className="text-[8px] font-mono text-white/30 mt-0.5 whitespace-nowrap">{fmtFullDate(p.date)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── EDUCATION ──────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="EDUCATION" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 96 }}>
+                <SectionLabel icon={<BookOpen className="w-3.5 h-3.5" />} lower="EDUCATION" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 96 }}>
+                  <DayGridLines days={visibleDays} />
+                  {education.map(e => {
+                    if (!overlapsTimeline(e.startDate, e.endDate)) return null;
+                    const x = dateToDayX(e.startDate);
+                    const ex = dateToDayX(e.endDate);
+                    const cw = ex - x;
+                    if (cw <= 1) return null;
+                    return (
+                      <div key={e.id} className="absolute top-2 flex flex-col justify-center px-2 overflow-hidden cursor-default"
+                        style={{ left: x + 2, width: Math.max(22, cw - 4), height: 36, background: 'rgba(37,99,235,0.25)', border: '1px solid rgba(59,130,246,0.40)' }}
+                        onMouseEnter={e2 => showTT(e2, ttEducation(e))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                        <div className="text-[10px] font-mono font-bold text-blue-300/90 truncate">{e.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── FAMILY ─────────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="FAMILY" />
+            <div className="flex-1 min-w-0">
+              {spouse && (
+                <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                  <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                    style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px', transition: 'width 200ms ease' }}>
+                    <span className="flex-none text-white/30"><Heart className="w-3.5 h-3.5" /></span>
+                    {!collapsed && (
+                      <div className="ml-2 min-w-0">
+                        <div className="text-[10px] font-mono font-bold text-white/70 truncate">{spouse.name.toUpperCase()}</div>
+                        <div className="text-[8px] font-mono text-white/30">MARRIED {fmtDate(spouse.marriageDate)}</div>
+                      </div>
+                    )}
+                  </div>
+                  <VisibleDayTrack totalW={totalW} days={visibleDays}>
+                    {d => {
+                      const married = d >= spouse.marriageDate;
+                      if (!married) return <div className="h-full border-r border-white/[0.04]" />;
+                      const age = getAgeAtDate(spouse.dob, d);
+                      const anniversaryYrs = d.getFullYear() - spouse.marriageDate.getFullYear();
+                      const isAnniversary = anniversaryYrs > 0 && d.getMonth() === spouse.marriageDate.getMonth() && d.getDate() === spouse.marriageDate.getDate();
+                      return (
+                        <div className="h-full flex flex-col items-center justify-center border-r border-white/[0.04] cursor-default"
+                          style={{ background: isAnniversary ? 'rgba(244,114,182,0.06)' : undefined }}
+                          onMouseEnter={isAnniversary ? e => showTT(e, { title: `${anniversaryYrs} YEAR ANNIVERSARY`, subtitle: spouse.name.toUpperCase(), lines: [`Married ${fmtDate(spouse.marriageDate)}`, `${anniversaryYrs} years together`] }) : undefined}
+                          onMouseMove={isAnniversary ? moveTT : undefined}
+                          onMouseLeave={isAnniversary ? hideTT : undefined}>
+                          <span className="text-[10px] font-mono" style={{ color: 'rgba(244,114,182,0.7)' }}>{age}</span>
+                          {isAnniversary && <span className="text-[7px] font-mono tracking-wider leading-none" style={{ color: 'rgba(244,114,182,0.45)' }}>ANNIV</span>}
+                        </div>
+                      );
+                    }}
+                  </VisibleDayTrack>
+                </div>
+              )}
+              {realChildren.length > 0 && (
+                <>
+                  <div className="flex border-b border-white/10" style={{ minHeight: 28 }}>
+                    <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                      style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px', transition: 'width 200ms ease' }}>
+                      <span className="flex-none text-white/30"><Users className="w-3.5 h-3.5" /></span>
+                      {!collapsed && (
+                        <div className="ml-2">
+                          <div className="text-[8px] font-mono tracking-[0.18em] text-white/30 uppercase leading-none">Family</div>
+                          <div className="text-[11px] font-mono font-bold text-white/70 tracking-wider leading-tight">CHILDREN</div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="relative flex-none" style={{ width: totalW }}>
+                      <DayGridLines days={visibleDays} />
                     </div>
                   </div>
-                );
-              })}
+                  {realChildren.map(child => (
+                    <div key={child.id}>
+                      <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                          style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                          <div className="w-1.5 h-1.5 rounded-full flex-none" style={{ background: child.color }} />
+                          {!collapsed && (
+                            <div className="ml-2">
+                              <div className="text-[10px] font-mono font-bold text-white/70">{child.name.toUpperCase()}</div>
+                              <div className="text-[8px] font-mono text-white/30">BORN {fmtDate(child.dob)}</div>
+                            </div>
+                          )}
+                        </div>
+                        <VisibleDayTrack totalW={totalW} days={visibleDays}>
+                          {d => {
+                            const age = getAgeAtDate(child.dob, d);
+                            const birthday = d.getMonth() === child.dob.getMonth() && d.getDate() === child.dob.getDate();
+                            if (age < 0) return <div className="h-full border-r border-white/[0.04]" />;
+                            return (
+                              <div className="h-full flex items-center justify-center border-r border-white/[0.04] text-[10px] font-mono cursor-default"
+                                style={{ color: child.color + 'bb', background: birthday ? `${child.color}18` : undefined }}
+                                onMouseEnter={e => showTT(e, ttChild(child, d.getFullYear()))} onMouseLeave={hideTT}>
+                                {birthday ? `${age}` : ''}
+                              </div>
+                            );
+                          }}
+                        </VisibleDayTrack>
+                      </div>
+                      <div className="flex border-b border-white/[0.06]" style={{ minHeight: 36 }}>
+                        <div className={`flex-none sticky z-[20] border-r border-white/10 flex items-center overflow-hidden ${collapsed ? 'justify-center' : ''}`}
+                          style={{ left: GUTTER_W, width: innerLabelW, background: 'var(--usmc-bg-base)', padding: collapsed ? '0' : '0 12px 0 24px', transition: 'width 200ms ease' }}>
+                          <span className="flex-none text-white/20"><GraduationCap className="w-3 h-3" /></span>
+                          {!collapsed && (
+                            <span className="text-[9px] font-mono text-white/30 ml-1.5 tracking-wider">SCHOOLS</span>
+                          )}
+                        </div>
+                        <VisibleDayTrack totalW={totalW} days={visibleDays}>
+                          {d => {
+                            const sp = child.schoolPhases.find(p => d >= p.startDate && d < p.endDate);
+                            if (!sp) return <div className="h-full border-r border-white/[0.04]" />;
+                            const st = schoolStyle[sp.phase];
+                            const endMonth = child.schoolYearEndMonth ?? 5;
+                            const endDay = child.schoolYearEndDay ?? 15;
+                            const summerStart = new Date(d.getFullYear(), endMonth, endDay + 1);
+                            const summerEnd = new Date(d.getFullYear(), 8, 1);
+                            if (d >= summerStart && d < summerEnd) return <div className="h-full border-r border-white/[0.04]" />;
+                            const academicYear = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1;
+                            const firstCalYear = sp.startDate.getMonth() > 8 ? sp.startDate.getFullYear() + 1 : sp.startDate.getFullYear();
+                            const yearIdx = academicYear - firstCalYear;
+                            const labels = GRADE_LABELS[sp.phase] ?? [];
+                            const grade = yearIdx >= 0 ? (labels[yearIdx] ?? labels[labels.length - 1] ?? '') : '';
+                            const configuredStart = new Date(academicYear, 8, 1);
+                            const schoolYearStart = configuredStart > sp.startDate ? configuredStart : sp.startDate;
+                            const configuredEnd = new Date(academicYear + 1, endMonth, Math.min(endDay, new Date(academicYear + 1, endMonth + 1, 0).getDate()));
+                            const schoolYearEnd = configuredEnd < sp.endDate ? configuredEnd : sp.endDate;
+                            return (
+                              <div className="h-full flex items-center justify-center border-r border-white/[0.04] text-[9px] font-mono font-bold cursor-default"
+                                style={{ background: st.bg, color: st.text }}
+                                onMouseEnter={e => showTT(e, ttSchool(sp.label, child, schoolYearStart, schoolYearEnd))}
+                                onMouseMove={moveTT} onMouseLeave={hideTT}>
+                                {grade}
+                              </div>
+                            );
+                          }}
+                        </VisibleDayTrack>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* ── FINANCIAL ──────────────────────────────────────────────────── */}
+          <div className="flex border-t border-white/10">
+            <SectionGutter label="FINANCIAL" />
+            <div className="flex-1 min-w-0">
+              <div className="flex border-b border-white/10" style={{ minHeight: 96 }}>
+                <SectionLabel icon={<CurrencyDollar className="w-3.5 h-3.5" />} lower="GOALS" />
+                <div className="relative flex-1" style={{ width: totalW, minHeight: 96 }}>
+                  <DayGridLines days={visibleDays} />
+                  {financialGoals.filter(g => isInTimeline(g.targetDate)).map(g => {
+                    const x = dateToDayX(g.targetDate);
+                    const isCustom = g.iconName === 'custom';
+                    const gc = isCustom ? (g.customColor ?? '#a78bfa') : null;
+                    return (
+                      <div key={g.id} className="absolute top-2 flex flex-col items-start" style={{ left: x - 4, width: 94 }}>
+                        <div className="w-0.5 h-4 mb-1 ml-4" style={{ background: isCustom ? `${gc}AA` : 'rgba(74,222,128,0.7)' }} />
+                        <div className="p-1.5 w-full cursor-default"
+                          style={isCustom ? { background: `${gc}12`, border: `1px solid ${gc}40` } : { background: 'rgba(5,46,22,0.6)', border: '1px solid rgba(74,222,128,0.30)' }}
+                          onMouseEnter={e => showTT(e, ttGoal(g))} onMouseMove={moveTT} onMouseLeave={hideTT}>
+                          <div className="flex items-center gap-1 mb-0.5" style={{ color: isCustom ? gc! : 'rgba(74,222,128,0.7)' }}>
+                            <GoalIcon name={g.iconName} customIconName={g.customIconName} />
+                          </div>
+                          <div className="text-[8px] font-mono font-bold leading-tight"
+                            style={{ color: isCustom ? `${gc}CC` : 'rgba(134,239,172,0.8)' }}>{g.label}</div>
+                          <div className="text-[7px] font-mono" style={{ color: isCustom ? `${gc}66` : 'rgba(74,222,128,0.4)' }}>
+                            {fmtFullDate(g.targetDate)}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
