@@ -627,12 +627,18 @@ function getHierLabelDepth(label: string): number {
 }
 
 function hasInlineHierarchicalMarkers(text: string, sectionNum: number): boolean {
-  return new RegExp(`\\b${sectionNum}\\.[A-Z]\\.(?=\\s)`).test(text);
+  // Match any depth: 3.A. / 3.A.1. / 3.A.1.B. / 3.A.1.B.5. — all must end with ". " (space after)
+  return new RegExp(
+    `\\b${sectionNum}\\.[A-Z](?:\\.\\d+(?:\\.[A-Z](?:\\.\\d+)?)?)?\\.(?=\\s)`,
+  ).test(text);
 }
 
 function parseInlineHierarchical(text: string, sectionNum: number): ContentSubSection[] {
+  // Require an uppercase letter after the label+space so cross-references like
+  // "paragraph 3.B.1. of this message" (lowercase "of") are not split out as
+  // section labels. Actual section content always starts with a capital letter.
   const re = new RegExp(
-    `\\b(${sectionNum}\\.[A-Z](?:\\.\\d+(?:\\.[A-Z](?:\\.\\d+)?)?)?)\\. `,
+    `\\b(${sectionNum}\\.[A-Z](?:\\.\\d+(?:\\.[A-Z](?:\\.\\d+)?)?)?)\\. (?=[A-Z])`,
     'g',
   );
   const matches: Array<{ pos: number; end: number; label: string; depth: number }> = [];
@@ -676,6 +682,31 @@ function parseInlineHierarchical(text: string, sectionNum: number): ContentSubSe
   }
 
   return buildHier(0, topDepth).items;
+}
+
+// Remove false top-level paragraph starts caused by date/sub-item numbers wrapping
+// to a new line (e.g. "...no later than (NLT) June\n4. Failure to complete ILS...").
+// If the content of a detected "paragraph N" contains inline hierarchical markers
+// belonging to the PREVIOUS paragraph's number (e.g. 3.B.1.B.5.), that "paragraph"
+// is really a continuation of the previous one and should be merged back in.
+function removeFalseTopLevelStarts(body: string, starts: number[]): number[] {
+  const result: number[] = [];
+  for (let i = 0; i < starts.length; i++) {
+    const sliceEnd = i + 1 < starts.length ? starts[i + 1] : body.length;
+    const slice = body.slice(starts[i], sliceEnd).trim();
+    const numMatch = slice.match(/^(\d+)\. ?/);
+    if (!numMatch || result.length === 0) {
+      result.push(starts[i]);
+      continue;
+    }
+    const prevSlice = body.slice(result[result.length - 1]).trim();
+    const prevNum = parseInt(prevSlice.match(/^(\d+)\./)?.[1] ?? '0', 10);
+    if (prevNum > 0 && hasInlineHierarchicalMarkers(slice.slice(numMatch[0].length), prevNum)) {
+      continue; // false split — content belongs to the previous paragraph
+    }
+    result.push(starts[i]);
+  }
+  return result;
 }
 
 // ── MARADMIN Text Parser ────────────────────────────────────────────────────
@@ -722,6 +753,10 @@ export function parseMARADMINText(rawInput: string): ContentSection[] {
       return (m.index ?? 0) + leadingNonDigit;
     });
   }
+
+  // Drop false paragraph starts caused by things like "June\n4. Failure to complete..."
+  // where "4." is really a date fragment, not a new top-level section.
+  starts = removeFalseTopLevelStarts(body, starts);
 
   if (starts.length === 0) {
     console.warn('[MARADMIN parser] No numbered paragraphs found. Body preview:', body.slice(0, 300));

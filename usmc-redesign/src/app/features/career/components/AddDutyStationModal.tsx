@@ -6,6 +6,7 @@ interface Props {
   existing?: DutyStation;
   onSave: (ds: DutyStation) => void;
   onClose: () => void;
+  onDelete?: () => void;
   onBackToEvents?: () => void;
 }
 
@@ -53,8 +54,9 @@ function durationLabel(s: string, e: string): string {
   return parts.join(' ') || '< 1 mo';
 }
 
-export function AddDutyStationModal({ existing, onSave, onClose, onBackToEvents }: Props) {
+export function AddDutyStationModal({ existing, onSave, onClose, onDelete, onBackToEvents }: Props) {
   const isEditing = !!existing;
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const today = new Date(2026, 5, 6);
   const [location, setLocation] = useState(existing?.location ?? '');
   const [unit, setUnit]         = useState(existing?.unit ?? '');
@@ -86,10 +88,10 @@ export function AddDutyStationModal({ existing, onSave, onClose, onBackToEvents 
   }
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-[500] flex items-end sm:items-center sm:justify-center sm:p-4"
       style={{ background: 'rgba(0,0,0,0.85)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="w-full max-w-lg border border-white/15 flex flex-col"
+      <div className="w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto border border-b-0 sm:border-b border-white/15 flex flex-col"
         style={{ background: 'var(--usmc-bg-surface)' }}
         onClick={e => e.stopPropagation()}>
 
@@ -154,7 +156,7 @@ export function AddDutyStationModal({ existing, onSave, onClose, onBackToEvents 
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[9px] font-mono tracking-[0.2em] text-white/35 uppercase mb-1.5">Report Date</label>
               <input type="date" className={inputCls} value={startDate} onChange={e => setStartDate(e.target.value)} />
@@ -186,14 +188,35 @@ export function AddDutyStationModal({ existing, onSave, onClose, onBackToEvents 
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-white/10">
-          <button onClick={onClose} className="h-9 px-5 border border-white/15 text-[10px] font-mono font-bold tracking-widest text-white/45 hover:text-white/70 hover:border-white/30 transition-colors">
-            CANCEL
-          </button>
-          <button onClick={handleSave} disabled={!canSave}
-            className="h-9 px-6 bg-red-600 hover:bg-red-500 disabled:bg-red-900 disabled:text-red-700 text-white text-[10px] font-mono font-black tracking-widest transition-colors">
-            {isEditing ? 'SAVE CHANGES' : 'ADD TO TIMELINE'}
-          </button>
+        <div className="flex items-center justify-between px-5 py-4 border-t border-white/10">
+          {isEditing && onDelete ? (
+            !confirmDelete ? (
+              <button type="button" onClick={() => setConfirmDelete(true)}
+                className="h-9 px-4 border border-red-600/30 text-[10px] font-mono font-bold tracking-widest text-red-500/60 hover:text-red-400 hover:border-red-500/50 transition-colors">
+                DELETE
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => { onDelete(); onClose(); }}
+                  className="h-9 px-4 bg-red-900/40 border border-red-600/50 text-red-400 text-[10px] font-mono font-bold tracking-widest hover:bg-red-900/60 transition-colors">
+                  CONFIRM
+                </button>
+                <button type="button" onClick={() => setConfirmDelete(false)}
+                  className="h-9 px-3 border border-white/15 text-white/40 text-[10px] font-mono tracking-widest hover:text-white/70 transition-colors">
+                  ✕
+                </button>
+              </div>
+            )
+          ) : <div />}
+          <div className="flex gap-3">
+            <button onClick={onClose} className="h-9 px-5 border border-white/15 text-[10px] font-mono font-bold tracking-widest text-white/45 hover:text-white/70 hover:border-white/30 transition-colors">
+              CANCEL
+            </button>
+            <button onClick={handleSave} disabled={!canSave}
+              className="h-9 px-6 bg-red-600 hover:bg-red-500 disabled:bg-red-900 disabled:text-red-700 text-white text-[10px] font-mono font-black tracking-widest transition-colors">
+              {isEditing ? 'SAVE CHANGES' : 'ADD TO TIMELINE'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

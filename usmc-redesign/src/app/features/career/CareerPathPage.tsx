@@ -1092,6 +1092,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setPromotions(prev => prev.map(x => x.id === p.id ? p : x).sort((a, b) => a.date.getTime() - b.date.getTime()));
             setEditingPromotion(null);
           }}
+          onDelete={() => { setPromotions(prev => prev.filter(p => p.id !== editingPromotion.id)); setEditingPromotion(null); }}
           onClose={() => setEditingPromotion(null)}
           onBackToEvents={returnToEventTypes}
         />
@@ -1104,6 +1105,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setMilestones(prev => prev.map(x => x.id === m.id ? m : x).sort((a, b) => a.date.getTime() - b.date.getTime()));
             setEditingMilestone(null);
           }}
+          onDelete={() => { setMilestones(prev => prev.filter(m => m.id !== editingMilestone.id)); setEditingMilestone(null); }}
           onClose={() => setEditingMilestone(null)}
           onBackToEvents={returnToEventTypes}
         />
@@ -1116,6 +1118,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setDutyStations(prev => prev.map(x => x.id === ds.id ? ds : x).sort((a, b) => a.startDate.getTime() - b.startDate.getTime()));
             setEditingDutyStation(null);
           }}
+          onDelete={() => { setDutyStations(prev => prev.filter(d => d.id !== editingDutyStation.id)); setEditingDutyStation(null); }}
           onClose={() => setEditingDutyStation(null)}
           onBackToEvents={returnToEventTypes}
         />
@@ -1128,6 +1131,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setEducation(prev => prev.map(x => x.id === e.id ? e : x).sort((a, b) => a.startDate.getTime() - b.startDate.getTime()));
             setEditingEducation(null);
           }}
+          onDelete={() => { setEducation(prev => prev.filter(e => e.id !== editingEducation.id)); setEditingEducation(null); }}
           onClose={() => setEditingEducation(null)}
           onBackToEvents={returnToEventTypes}
         />
@@ -1140,6 +1144,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setChildren(prev => prev.map(x => x.id === c.id ? c : x));
             setEditingChild(null);
           }}
+          onDelete={() => { setChildren(prev => prev.filter(c => c.id !== editingChild.id)); setEditingChild(null); }}
           onClose={() => setEditingChild(null)}
           onBackToEvents={returnToEventTypes}
         />
@@ -1152,6 +1157,7 @@ export function CareerPathPage({ isFullscreen = false, onToggleFullscreen }: Pro
             setFinancialGoals(prev => prev.map(x => x.id === g.id ? g : x).sort((a, b) => a.targetDate.getTime() - b.targetDate.getTime()));
             setEditingFinancialGoal(null);
           }}
+          onDelete={() => { setFinancialGoals(prev => prev.filter(g => g.id !== editingFinancialGoal.id)); setEditingFinancialGoal(null); }}
           onClose={() => setEditingFinancialGoal(null)}
           onBackToEvents={returnToEventTypes}
         />

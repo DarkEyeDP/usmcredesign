@@ -148,17 +148,17 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[500] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[500] flex items-end sm:items-center sm:justify-center sm:p-4"
       style={{ background: 'rgba(0,0,0,0.85)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/15 flex flex-col"
+        className="relative w-full sm:max-w-2xl h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-y-auto border border-b-0 sm:border-b border-white/15 flex flex-col"
         style={{ background: 'var(--usmc-bg-surface)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 sticky top-0 z-10"
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/10 sticky top-0 z-10"
           style={{ background: 'var(--usmc-bg-surface)' }}>
           <div>
             <div className="text-[9px] font-mono tracking-[0.25em] text-white/30 uppercase mb-0.5">Career Path</div>
@@ -173,10 +173,10 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
         </div>
 
         {/* Form body */}
-        <div className="px-6 py-5 flex-1">
+        <div className="px-4 sm:px-6 py-5 flex-1">
 
           <SectionHead label="Personal Information" />
-          <div className="grid grid-cols-2 gap-4 mb-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-0">
             <div className="col-span-2">
               <FieldLabel>Full Name</FieldLabel>
               <input
@@ -197,7 +197,7 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
           </div>
 
           <SectionHead label="Service Information" />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2">
               <FieldLabel>Rank</FieldLabel>
               <div className="relative">
@@ -267,7 +267,7 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
           </div>
 
           <SectionHead label="Career Timeline" />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <FieldLabel>Enlistment / Commission Date</FieldLabel>
               <input
@@ -315,7 +315,7 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-white/10 sticky bottom-0"
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-white/10 sticky bottom-0"
           style={{ background: 'var(--usmc-bg-surface)' }}>
           <div className="text-[9px] font-mono text-white/25">
             {dirty ? 'UNSAVED CHANGES' : 'NO CHANGES'}

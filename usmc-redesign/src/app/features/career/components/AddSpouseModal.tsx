@@ -54,10 +54,10 @@ export function AddSpouseModal({ existing, onSave, onRemove, onClose, onBackToEv
   }
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-[500] flex items-end sm:items-center sm:justify-center sm:p-4"
       style={{ background: 'rgba(0,0,0,0.85)' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="w-full max-w-md border border-white/15 flex flex-col"
+      <div className="w-full sm:max-w-md max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto border border-b-0 sm:border-b border-white/15 flex flex-col"
         style={{ background: 'var(--usmc-bg-surface)' }}
         onClick={e => e.stopPropagation()}>
 
@@ -90,7 +90,7 @@ export function AddSpouseModal({ existing, onSave, onRemove, onClose, onBackToEv
             <input className={inputCls} value={name} onChange={e => setName(e.target.value)} placeholder="Full name" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[9px] font-mono tracking-[0.2em] text-white/35 uppercase mb-1.5">
                 Date of Birth <span className="text-white/20">(optional)</span>
