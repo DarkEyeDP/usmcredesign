@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, CaretDown } from '@phosphor-icons/react';
 import type { MarineProfile } from '../types';
 import { USMC_RANKS } from '../rankData';
@@ -27,7 +27,7 @@ function calcRetirementYears(enlist: Date, retire: Date): number {
 // ─── Form state type ──────────────────────────────────────────────────────────
 interface FormState {
   name: string;
-  rankKey: string; // `${abbr}|${payGrade}`
+  rankKey: string;
   promotionDate: string;
   mos: string;
   mosDescription: string;
@@ -80,17 +80,17 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 const inputCls = [
-  'w-full h-9 px-3',
+  'w-full h-10 px-3',
   'bg-black border border-white/15',
-  'text-[11px] font-mono text-white/80',
+  'text-[13px] font-mono text-white/80',
   'focus:outline-none focus:border-red-600/60',
   'transition-colors placeholder:text-white/20',
 ].join(' ');
 
 const selectCls = [
-  'w-full h-9 px-3 appearance-none',
+  'w-full h-10 px-3 appearance-none',
   'bg-black border border-white/15',
-  'text-[11px] font-mono text-white/80',
+  'text-[13px] font-mono text-white/80',
   'focus:outline-none focus:border-red-600/60',
   'transition-colors',
 ].join(' ');
@@ -98,8 +98,8 @@ const selectCls = [
 // ─── Section heading ──────────────────────────────────────────────────────────
 function SectionHead({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-3 mb-4 mt-6 first:mt-0">
-      <div className="w-0.5 h-4 bg-red-600/60 flex-none" />
+    <div className="flex items-center gap-3 mb-3 mt-5 first:mt-0">
+      <div className="w-0.5 h-3.5 bg-red-600/60 flex-none" />
       <span className="text-[9px] font-mono tracking-[0.25em] text-white/45 uppercase">{label}</span>
       <div className="flex-1 h-px bg-white/[0.06]" />
     </div>
@@ -122,14 +122,12 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
     setDirty(true);
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -140,7 +138,6 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
     onClose();
   }
 
-  // Derived values for preview
   const selectedRank = USMC_RANKS.find(r => `${r.abbr}|${r.payGrade}` === form.rankKey);
   const enlistDate = fromInputDate(form.enlistmentDate);
   const retireDate = fromInputDate(form.projectedRetirement);
@@ -153,37 +150,39 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        className="relative w-full sm:max-w-2xl h-[92dvh] sm:h-auto sm:max-h-[90vh] overflow-y-auto border border-b-0 sm:border-b border-white/15 flex flex-col"
+        className="relative w-full sm:max-w-2xl h-[94dvh] sm:h-auto sm:max-h-[90vh] overflow-y-auto border border-b-0 sm:border-b border-white/15 flex flex-col"
         style={{ background: 'var(--usmc-bg-surface)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/10 sticky top-0 z-10"
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 sticky top-0 z-10"
           style={{ background: 'var(--usmc-bg-surface)' }}>
           <div>
-            <div className="text-[9px] font-mono tracking-[0.25em] text-white/30 uppercase mb-0.5">Career Path</div>
+            <div className="text-[8px] font-mono tracking-[0.25em] text-white/30 uppercase mb-0.5">Career Path</div>
             <div className="text-[15px] font-mono font-black text-white tracking-wider">
               EDIT PROFILE<span className="text-red-600">.</span>
             </div>
           </div>
           <button onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center border border-white/15 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">
+            className="w-9 h-9 flex items-center justify-center border border-white/15 text-white/40 hover:text-white/80 hover:border-white/30 transition-colors">
             <X weight="bold" className="w-4 h-4" />
           </button>
         </div>
 
         {/* Form body */}
-        <div className="px-4 sm:px-6 py-5 flex-1">
+        <div className="px-4 sm:px-6 py-4 flex-1 space-y-0">
 
+          {/* ── Personal Information ───────────────────────────────────────── */}
           <SectionHead label="Personal Information" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-0">
-            <div className="col-span-2">
+          <div className="space-y-3">
+            <div>
               <FieldLabel>Full Name</FieldLabel>
               <input
                 className={inputCls}
                 value={form.name}
                 onChange={e => set('name', e.target.value)}
                 placeholder="Last Name, First MI"
+                autoComplete="off"
               />
             </div>
             <div>
@@ -192,13 +191,16 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
                 type="date"
                 className={inputCls}
                 value={form.dob}
-                onChange={e => set('dob', e.target.value)}              />
+                onChange={e => set('dob', e.target.value)}
+              />
             </div>
           </div>
 
+          {/* ── Service Information ────────────────────────────────────────── */}
           <SectionHead label="Service Information" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="col-span-2">
+          <div className="space-y-3">
+            {/* Rank */}
+            <div>
               <FieldLabel>Rank</FieldLabel>
               <div className="relative">
                 <select
@@ -223,58 +225,68 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
                 <CaretDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 pointer-events-none" />
               </div>
               {selectedRank && (
-                <div className="mt-2 flex items-center gap-3">
-                  <RankInsignia payGrade={selectedRank.payGrade} rankAbbr={selectedRank.abbr} className="w-10 h-10" />
-                  <div className="flex flex-col gap-0.5">
+                <div className="mt-1.5 flex items-center gap-2.5 px-3 py-2 border border-white/[0.08]"
+                  style={{ background: 'var(--usmc-bg-elevated)' }}>
+                  <RankInsignia payGrade={selectedRank.payGrade} rankAbbr={selectedRank.abbr} className="w-8 h-8 flex-none" />
+                  <div className="min-w-0">
                     <span className="text-[11px] font-mono font-bold text-white/70">{selectedRank.payGrade} · {selectedRank.abbr}</span>
-                    <span className="text-[9px] font-mono text-white/35">{selectedRank.full}</span>
+                    <span className="text-[10px] font-mono text-white/35 ml-2">{selectedRank.full}</span>
                   </div>
                 </div>
               )}
             </div>
 
+            {/* Date Promoted */}
             <div>
               <FieldLabel>Date Promoted to Current Rank</FieldLabel>
               <input
                 type="date"
                 className={inputCls}
                 value={form.promotionDate}
-                onChange={e => set('promotionDate', e.target.value)}              />
-              <div className="mt-1 text-[9px] font-mono text-white/25">
+                onChange={e => set('promotionDate', e.target.value)}
+              />
+              <div className="mt-1 text-[9px] font-mono text-white/25 leading-tight">
                 Updates the confirmed entry in your Promotions lane
               </div>
             </div>
 
-            <div>
-              <FieldLabel>MOS Code</FieldLabel>
-              <input
-                className={inputCls}
-                value={form.mos}
-                onChange={e => set('mos', e.target.value)}
-                placeholder="e.g. 0311"
-                maxLength={6}
-              />
-            </div>
-            <div>
-              <FieldLabel>MOS Description</FieldLabel>
-              <input
-                className={inputCls}
-                value={form.mosDescription}
-                onChange={e => set('mosDescription', e.target.value)}
-                placeholder="e.g. Rifleman"
-              />
+            {/* MOS Code + Description — side by side on all sizes */}
+            <div className="flex gap-3">
+              <div className="w-28 flex-none">
+                <FieldLabel>MOS Code</FieldLabel>
+                <input
+                  className={inputCls}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={form.mos}
+                  onChange={e => set('mos', e.target.value)}
+                  placeholder="0311"
+                  maxLength={6}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <FieldLabel>MOS Description</FieldLabel>
+                <input
+                  className={inputCls}
+                  value={form.mosDescription}
+                  onChange={e => set('mosDescription', e.target.value)}
+                  placeholder="e.g. Rifleman"
+                />
+              </div>
             </div>
           </div>
 
+          {/* ── Career Timeline ────────────────────────────────────────────── */}
           <SectionHead label="Career Timeline" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-3">
             <div>
               <FieldLabel>Enlistment / Commission Date</FieldLabel>
               <input
                 type="date"
                 className={inputCls}
                 value={form.enlistmentDate}
-                onChange={e => set('enlistmentDate', e.target.value)}              />
+                onChange={e => set('enlistmentDate', e.target.value)}
+              />
             </div>
             <div>
               <FieldLabel>Projected Retirement Date</FieldLabel>
@@ -282,13 +294,14 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
                 type="date"
                 className={inputCls}
                 value={form.projectedRetirement}
-                onChange={e => set('projectedRetirement', e.target.value)}              />
+                onChange={e => set('projectedRetirement', e.target.value)}
+              />
             </div>
           </div>
 
           {/* Derived summary */}
           {enlistDate && retireDate && (
-            <div className="mt-4 border border-white/[0.08] p-4 flex flex-wrap gap-6"
+            <div className="mt-3 mb-2 border border-white/[0.08] p-3 grid grid-cols-2 gap-x-4 gap-y-3"
               style={{ background: 'var(--usmc-bg-elevated)' }}>
               <div>
                 <div className="text-[8px] font-mono tracking-widest text-white/25 uppercase mb-0.5">Years of Service</div>
@@ -315,20 +328,20 @@ export function EditProfileModal({ profile, onSave, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-white/10 sticky bottom-0"
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-white/10 sticky bottom-0"
           style={{ background: 'var(--usmc-bg-surface)' }}>
-          <div className="text-[9px] font-mono text-white/25">
+          <div className="text-[9px] font-mono text-white/25 tracking-widest">
             {dirty ? 'UNSAVED CHANGES' : 'NO CHANGES'}
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
             <button onClick={onClose}
-              className="h-9 px-5 border border-white/15 text-[10px] font-mono font-bold tracking-widest text-white/45 hover:text-white/70 hover:border-white/30 transition-colors">
+              className="h-10 px-4 sm:px-5 border border-white/15 text-[10px] font-mono font-bold tracking-widest text-white/45 hover:text-white/70 hover:border-white/30 transition-colors">
               CANCEL
             </button>
             <button
               onClick={handleSave}
               disabled={!dirty}
-              className="h-9 px-6 bg-red-600 hover:bg-red-500 disabled:bg-red-900 disabled:text-red-700 text-white text-[10px] font-mono font-black tracking-widest transition-colors">
+              className="h-10 px-5 sm:px-6 bg-red-600 hover:bg-red-500 disabled:bg-red-900 disabled:text-red-700 text-white text-[10px] font-mono font-black tracking-widest transition-colors">
               SAVE PROFILE
             </button>
           </div>
