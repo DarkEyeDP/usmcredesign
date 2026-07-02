@@ -1,13 +1,13 @@
 {
   "name": "usmc-redesign",
   "private": true,
-  "version": "1.7.8",
+  "version": "1.7.9",
   "type": "module",
   "scripts": {
     "build": "vite build && cp dist/index.html dist/404.html",
     "dev": "vite",
     "start": "concurrently -n app,metrics -c cyan,yellow \"vite\" \"npm run metrics:dev\"",
-    "fetch-news": "node scripts/fetch-news/index.mjs",
+    "fetch-news": "node --env-file=.env.local scripts/fetch-news/index.mjs",
     "lint": "eslint src --ext .ts,.tsx",
     "metrics:dev": "npx wrangler dev --config workers/news-metrics/wrangler.toml --local --port 8787",
     "metrics:deploy": "npx wrangler deploy --config workers/news-metrics/wrangler.toml",

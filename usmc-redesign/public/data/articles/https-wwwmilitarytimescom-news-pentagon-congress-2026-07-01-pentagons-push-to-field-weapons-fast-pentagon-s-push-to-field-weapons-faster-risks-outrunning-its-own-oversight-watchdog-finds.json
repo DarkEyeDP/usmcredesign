@@ -1,0 +1,87 @@
+{
+  "fetchedAt": "2026-07-02T22:19:03.968Z",
+  "title": "Pentagon’s push to field weapons faster risks outrunning its own oversight, watchdog finds",
+  "pubDate": "2026-07-01T17:34:53.000Z",
+  "imageUrl": "https://cloudfront-us-east-1.images.arcpublishing.com/archetype/64YCZFI6I5FUHBZSNSQFM5E424.jpg",
+  "description": "Workforce reductions meant that weapon systems reach warfighters with “undocumented shortfalls related to effectiveness, suitability, [and] survivability.\"",
+  "wordCount": 934,
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "The Pentagon’s drive to field new weapons faster risks outpacing the independent office meant to catch problems before those systems reach troops, according to a Government Accountability Office report released June 30. GAO based the findings on an audit it conducted from January through June 2026."
+    },
+    {
+      "type": "paragraph",
+      "text": "The Office of the Director, Operational Test and Evaluation (DOT&E) is the Pentagon’s independent authority on whether new weapons work as intended before reaching the field. In fiscal 2024, DOT&E received $10.6 million specifically to expand its oversight of programs using the Pentagon’s middle tier of acquisition (MTA) pathway, a streamlined process designed to field new capabilities faster by bypassing traditional acquisition steps."
+    },
+    {
+      "type": "paragraph",
+      "text": "As of February 2026, DOT&E’s oversight list included just 15 of roughly 110 active MTA efforts. The office’s action officers, the staff responsible for assessing individual programs, warned that the services could use MTA and other rapid prototyping pathways to sidestep the operational and live-fire testing requirements written into law."
+    },
+    {
+      "type": "paragraph",
+      "text": "The gap traces back to a Pentagon reorganization that hollowed out DOT&E’s workforce starting in May 2025. Defense Secretary Pete Hegseth ordered the office cut from 126 authorized civilian positions to 30, eliminated all but one Senior Executive Service (SES) position and ended contractor support within seven days, according to the memo GAO reviewed."
+    },
+    {
+      "type": "paragraph",
+      "text": "Hegseth’s memo projected $300 million in annual savings and said the changes would “improve the lethality, readiness, and efficiency of our Armed Forces.” Defense News reported at the time that the cut amounted to more than 50% of the office."
+    },
+    {
+      "type": "paragraph",
+      "text": "The reorganization unfolded in stages over nearly a year. DOT&E issued six separate reduction-in-force (RIF) notices between June and October 2025 before a continuing resolution paused RIF activity government-wide that November. Staffing partially recovered, reaching 45 positions by September 2025, though it remains well below pre-reorganization levels."
+    },
+    {
+      "type": "paragraph",
+      "text": "The DOT&E cuts were not an isolated move. They foreshadowed a broader overhaul Hegseth unveiled in November 2025, when he announced the Pentagon would replace its program executive officers with “portfolio acquisition executives” under a system he renamed the Warfighting Acquisition System. “We mean to increase acquisition risk in order to decrease operational risk,” Hegseth said in his National War College address, where he also declared, “Speed to delivery is now our organizing principle.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The reorganization of DOT&E’s independent testing office reflects an inherent tradeoff: faster fielding, with less independent scrutiny built into the process."
+    },
+    {
+      "type": "paragraph",
+      "text": "The toll shows up in the numbers. DOT&E’s overall oversight list, not just MTA efforts, fell from 265 programs in fiscal 2024 to 173 in fiscal 2025, a drop of more than 90 programs. The list had held roughly steady for years before that, ranging from 237 to 266 programs between fiscal 2021 and 2024. The one-year collapse marks a sharp break from that trend rather than a continuation of it."
+    },
+    {
+      "type": "paragraph",
+      "text": "Reasons for the removals, GAO found, ranged from completed testing and program cancellations to mergers and DOT&E’s own determination that oversight was no longer necessary."
+    },
+    {
+      "type": "paragraph",
+      "text": "Action officers told GAO that workforce reductions left them responsible for more weapons programs, often in areas outside their background, and pointed to specific expertise gaps in electronic warfare oversight. That increases the chance, GAO concluded, that weapon systems reach warfighters with “undocumented shortfalls related to effectiveness, suitability, survivability, or lethality.”"
+    },
+    {
+      "type": "paragraph",
+      "text": "The finding points only to the risk, not a confirmed case of a fielded system reaching troops with an undetected problem."
+    },
+    {
+      "type": "paragraph",
+      "text": "GAO’s findings echo warnings raised when the reorganization was first announced. Senate Armed Services Committee Ranking Member Jack Reed, D-RI, called the move “reckless and damaging” at the time, warning that a skeleton crew with limited contractor support could leave DOT&E unable to adequately oversee critical defense programs, undermining independent oversight and exposing warfighters and taxpayers to untested systems. Reed made the remarks amid oversight concerns over the administration’s Golden Dome missile defense initiative."
+    },
+    {
+      "type": "paragraph",
+      "text": "GAO’s review also found the cuts were not evenly distributed, with DOT&E protecting some capacity even as it shrank elsewhere. Two warfare-area directorates were eliminated outright, one covering net-centric, space and missile defense systems, the other handling strategic initiatives, policy and emerging technologies. Two new units focused on cyber and space were stood up and staffed up faster than most of the rest of the office, according to GAO’s data."
+    },
+    {
+      "type": "paragraph",
+      "text": "The reshuffling reached the top of the office as well. The reorganization eliminated DOT&E’s SES-level deputy director positions, which had given the office standing roughly equivalent to a two-star general in dealings with the services’ acquisition communities. In their place, the office dual-hatted non-supervisory GS-15 action officers into deputy roles. DOT&E’s current director told GAO he is working to convert those into senior GS-15 supervisory positions."
+    },
+    {
+      "type": "paragraph",
+      "text": "DOT&E has also missed a deadline set by Congress. The explanatory statement accompanying the Consolidated Appropriations Act, 2026, directed the office to report to congressional defense committees within 60 days of the law’s enactment on how the reorganization affected its testing activities. As of May 2026, that report had not been submitted."
+    },
+    {
+      "type": "paragraph",
+      "text": "GAO issued no formal recommendations but raised several questions for lawmakers. One is whether MTA programs should be written explicitly into DOT&E’s statutory oversight authority, since the pathway currently falls outside the office’s formal mandate."
+    },
+    {
+      "type": "paragraph",
+      "text": "Another is whether deputy director positions should carry SES rank to ensure continuity. A third is whether DOT&E needs its own repository for test and evaluation data rather than relying on the Institute for Defense Analyses’ contractor-managed system."
+    },
+    {
+      "type": "paragraph",
+      "text": "Michael Scanlon is a defense journalist covering air and space warfare. A former U.S. Air Force A-10 crew chief, he has supported land and sea programs for the U.S. Army, Navy, Marine Corps and Coast Guard."
+    }
+  ],
+  "links": []
+}
