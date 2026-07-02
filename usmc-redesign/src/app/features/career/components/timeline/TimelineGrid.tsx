@@ -84,6 +84,8 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     const [pendingScroll,    setPendingScroll]    = useState(false);
     const [isDraggingLine,   setIsDraggingLine]   = useState(false);
     const [isPanning,        setIsPanning]        = useState(false);
+    const [monthScrollToToday, setMonthScrollToToday] = useState(0);
+    const [dayScrollToToday,   setDayScrollToToday]   = useState(0);
     const [_sidebarCollapsed, _setSidebarCollapsed] = useState(false);
     const sidebarCollapsed = sidebarCollapsedProp ?? _sidebarCollapsed;
     const toggleSidebar = () => { if (onToggleSidebar) onToggleSidebar(); else _setSidebarCollapsed(v => !v); };
@@ -125,12 +127,15 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
     useImperativeHandle(ref, () => ({
       scrollToToday: () => {
         if (zoomedMonth) {
+          // Day view: navigate to today's month and scroll to today's day
           const d = new Date();
           onPresentDateChange?.(d);
           onZoomedMonthChange?.({ year: d.getFullYear(), month: d.getMonth() });
+          setDayScrollToToday(t => t + 1);
         } else if (zoomedYear !== null) {
-          onZoomedYearChange?.(null);
-          setPendingScroll(true);
+          // Month view: stay in month view, navigate to today's year, scroll to today's month
+          onZoomedYearChange?.(new Date().getFullYear());
+          setMonthScrollToToday(t => t + 1);
         } else {
           execScrollToToday();
         }
@@ -218,6 +223,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
                 : { year: zoomedMonth.year, month: zoomedMonth.month + 1 });
             }}
             isFullscreen={isFullscreen}
+            scrollToTodayTrigger={dayScrollToToday}
           />
         </SidebarCollapsedCtx.Provider>
       );
@@ -236,6 +242,7 @@ export const TimelineGrid = forwardRef<TimelineGridHandle, Props>(
             onNext={() => onZoomedYearChange?.(Math.min(years[years.length - 1], zoomedYear + 1))}
             onMonthSelect={month => onZoomedMonthChange?.(month)}
             isFullscreen={isFullscreen}
+            scrollToTodayTrigger={monthScrollToToday}
           />
         </SidebarCollapsedCtx.Provider>
       );

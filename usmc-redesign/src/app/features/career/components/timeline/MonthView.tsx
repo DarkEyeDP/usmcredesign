@@ -48,9 +48,10 @@ interface Props {
   onPresentDateChange?: (d: Date) => void;
   onMonthSelect?: (month: { year: number; month: number }) => void;
   isFullscreen?: boolean;
+  scrollToTodayTrigger?: number;
 }
 
-export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onPresentDateChange, onMonthSelect, isFullscreen = false }: Props) {
+export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onPresentDateChange, onMonthSelect, isFullscreen = false, scrollToTodayTrigger = 0 }: Props) {
   const { profile, milestones, dutyStations, promotions, education, spouse, children, financialGoals } = data;
   const realChildren = children.filter(c => !c.isPlanned);
   const { theme } = useTheme();
@@ -83,12 +84,20 @@ export function MonthView({ year, data, onBack, onPrev, onNext, presentDate, onP
     onPresentDateChangeRef.current = onPresentDateChange;
   }, [onPresentDateChange]);
 
-  // Scroll to selected year whenever year prop changes (and on mount)
+  // Scroll to today's month when explicitly triggered, or when entering today's year;
+  // otherwise scroll to the start of the selected year
   useEffect(() => {
-    const targetX = Math.max(0, (year - years[0]) * 12 * MONTH_W - 20);
+    const todayYear = realToday.getFullYear();
+    let targetX: number;
+    if (scrollToTodayTrigger || year === todayYear) {
+      const todayMonthIdx = (todayYear - years[0]) * 12 + realToday.getMonth();
+      targetX = Math.max(0, todayMonthIdx * MONTH_W - 160);
+    } else {
+      targetX = Math.max(0, (year - years[0]) * 12 * MONTH_W - 20);
+    }
     if (scrollRef.current) scrollRef.current.scrollLeft = targetX;
     if (headerRef.current) headerRef.current.scrollLeft = targetX;
-  }, [year]);
+  }, [year, scrollToTodayTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync header scroll with content scroll
   const handleScroll = useCallback(() => {

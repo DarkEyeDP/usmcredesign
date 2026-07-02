@@ -131,9 +131,10 @@ interface Props {
   presentDate?: Date;
   onPresentDateChange?: (d: Date) => void;
   isFullscreen?: boolean;
+  scrollToTodayTrigger?: number;
 }
 
-export function DayView({ year, month, data, onBack, onPrev, onNext, presentDate, onPresentDateChange, isFullscreen = false }: Props) {
+export function DayView({ year, month, data, onBack, onPrev, onNext, presentDate, onPresentDateChange, isFullscreen = false, scrollToTodayTrigger = 0 }: Props) {
   const { profile, milestones, dutyStations, promotions, education, spouse, children, financialGoals } = data;
   const realChildren = children.filter(c => !c.isPlanned);
   const { theme } = useTheme();
@@ -167,17 +168,23 @@ export function DayView({ year, month, data, onBack, onPrev, onNext, presentDate
   }, [onPresentDateChange]);
 
   useEffect(() => {
-    const anchor = isInTimeline(effectiveToday) && effectiveToday.getFullYear() === year && effectiveToday.getMonth() === month
-      ? effectiveToday
-      : new Date(year, month, 1);
+    const realNow = new Date();
+    const todayInMonth = realNow.getFullYear() === year && realNow.getMonth() === month;
+    // When explicitly triggered (TODAY button), anchor on real today if it's in this month.
+    // Otherwise use the existing logic: anchor on presentDate red-line if in this month.
+    const anchor = (scrollToTodayTrigger && todayInMonth)
+      ? realNow
+      : (isInTimeline(effectiveToday) && effectiveToday.getFullYear() === year && effectiveToday.getMonth() === month
+          ? effectiveToday
+          : new Date(year, month, 1));
     const targetX = Math.max(0, dateToDayX(anchor) - 220);
     if (scrollRef.current) {
       scrollRef.current.scrollLeft = targetX;
       setViewport({ left: targetX, width: scrollRef.current.clientWidth || 1200 });
     }
     if (headerRef.current) headerRef.current.scrollLeft = targetX;
-  // Only recenter when entering/changing day-view month. Red-line drag updates presentDate continuously.
-  }, [year, month]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Only recenter when entering/changing day-view month or when TODAY is triggered.
+  }, [year, month, scrollToTodayTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
