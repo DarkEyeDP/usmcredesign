@@ -489,6 +489,55 @@ function parseProgramRankNameMccMosTable(text: string): ParsedTableFamily | null
   };
 }
 
+// Parses program/AMOS/note tables, e.g.:
+// Programs available for application:
+// Program  AMOS  NOTE
+// 815 - Contingency Contracting  3006  1
+// 847 – Manpower Systems Analysis  8840  2
+// Notes
+// 1 - Aligns with 3044.
+// 2 - Aligns with 0111 and 4821 PMOSs.
+// Each data row: 3-digit code, dash, name, 4-digit AMOS, note number.
+// Lookahead on next-row start ("NNN –") or "Notes" anchors each row's end.
+function parseProgramAMOSNoteTable(text: string): ParsedTableFamily | null {
+  const headerMatch = text.match(/^(.*?)\bProgram\s+AMOS\s+NOTES?\s+(.+)$/is);
+  if (!headerMatch) return null;
+
+  const body = headerMatch[1].replace(/[:\s]+$/, '').trim();
+  const rawData = headerMatch[2].trim();
+
+  // Split at the "Notes N –" notes section
+  const notesIdx = rawData.search(/\bNotes?\s+\d+\s+[-–]/i);
+  const tableData = notesIdx >= 0 ? rawData.slice(0, notesIdx).trim() : rawData;
+  const notesData = notesIdx >= 0
+    ? rawData.slice(notesIdx).replace(/^Notes?\s*/i, '').trim()
+    : '';
+
+  const rowRe = /(\d{3})\s+[-–]\s+(.+?)\s+(\d{4})\s+(\d+)(?=\s+\d{3}\s+[-–]|\s+Notes?|\s*$)/g;
+  const rows: string[][] = [];
+  let m: RegExpExecArray | null;
+  while ((m = rowRe.exec(tableData)) !== null) {
+    rows.push([`${m[1]} - ${m[2].trim()}`, m[3], m[4]]);
+  }
+
+  if (rows.length === 0) return null;
+
+  const tables: DetectedTable[] = [{ headers: ['Program', 'AMOS', 'Note'], rows }];
+
+  if (notesData) {
+    const noteRe = /(\d+)\s+[-–]\s+(.+?)(?=\s+\d+\s+[-–]|$)/g;
+    const noteRows: string[][] = [];
+    while ((m = noteRe.exec(notesData)) !== null) {
+      noteRows.push([`Note ${m[1]}`, m[2].trim()]);
+    }
+    if (noteRows.length > 0) {
+      tables.push({ title: 'Notes', headers: ['Note', 'Details'], rows: noteRows });
+    }
+  }
+
+  return { body, tables };
+}
+
 function parseTLSMilestoneTimelineTable(text: string): ParsedTableFamily | null {
   const headerMatch = text.match(/^(.*?)\bDate\s+Milestone\s+(.+)$/is);
   if (!headerMatch) return null;
@@ -1553,6 +1602,7 @@ const TABLE_FAMILY_PARSERS = [
   parsePromotionBoardConveningTable,
   parseGeneralOfficerPromotionZoneTable,
   parseProgramRankNameMccMosTable,
+  parseProgramAMOSNoteTable,
   parseTLSMilestoneTimelineTable,
   parseTLSCourseAllocationTable,
   parseSNCOProjectedPromotionsTable,
